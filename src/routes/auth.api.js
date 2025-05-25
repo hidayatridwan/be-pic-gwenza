@@ -1,0 +1,57 @@
+import express from "express";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { uploadMiddleware } from "../middlewares/upload.middleware.js";
+import tailorController from "../controllers/tailor.controller.js";
+import orderController from "../controllers/order.controller.js";
+import projectController from "../controllers/project.controller.js";
+import picProductController from "../controllers/pic.product.controller.js";
+import productController from "../controllers/product.controller.js";
+import variantController from "../controllers/variant.controller.js";
+import importController from "../controllers/import.controller.js";
+import userController from "../controllers/user.controller.js";
+import inboundController from "../controllers/inbound.controller.js";
+import reportController from "../controllers/report.controller.js";
+
+const router = express.Router();
+
+router.use(authMiddleware);
+
+router.get("/users", userController.search);
+
+router.post("/tailors", tailorController.create);
+router.get("/tailors", tailorController.search);
+router.get("/tailors/{:tailorId}", tailorController.get);
+router.put("/tailors/{:tailorId}", tailorController.update);
+router.delete("/tailors/{:tailorId}", tailorController.remove);
+
+router.get("/products", productController.search);
+
+router.get("/variants", variantController.search);
+
+router.post("/pic-products", picProductController.create);
+
+router.post(
+  "/imports",
+  uploadMiddleware.single("file"),
+  importController.create
+);
+router.get("/imports", importController.search);
+
+router.get("/orders", orderController.search);
+router.get("/orders/summary", orderController.summary);
+
+router.post("/projects", projectController.create);
+router.delete("/projects/{:projectId}", projectController.cancel);
+router.get("/projects", projectController.searchProject);
+router.get("/projects/items", projectController.searchItem);
+router.get(
+  "/projects/{:projectId}/items",
+  projectController.getItemByProjectId
+);
+
+router.post("/inbounds", inboundController.create);
+router.get("/inbounds", inboundController.search);
+
+router.get("/reports", reportController.search);
+
+export { router };

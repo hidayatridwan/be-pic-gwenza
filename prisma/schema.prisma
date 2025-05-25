@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PIC
+  RESI
+}
+
+model User {
+  user_id    Int      @id @default(autoincrement()) @db.Int
+  username   String   @unique @db.VarChar(20)
+  password   String   @db.VarChar(200)
+  token      String?  @db.VarChar(500)
+  user_agent String?  @db.VarChar(200)
+  ip_address String?  @db.VarChar(100)
+  full_name  String   @db.VarChar(100)
+  role       Role     @default(PIC)
+  created_at DateTime @default(now())
+
+  PicProduct  PicProduct[]
+  Inbound     Inbound[]
+  ProjectItem ProjectItem[]
+  Project     Project[]
+
+  @@map("users")
+}
+
+model Tailor {
+  tailor_id   Int      @id @default(autoincrement()) @db.Int
+  tailor_name String   @unique @db.VarChar(100)
+  created_at  DateTime @default(now())
+  created_by  Int?     @db.Int
+
+  Inbound     Inbound[]
+  ProjectItem ProjectItem[]
+
+  @@map("tailors")
+}
+
+model Variant {
+  variant_id   Int      @id @default(autoincrement()) @db.Int
+  variant_name String   @unique @db.VarChar(100)
+  created_at   DateTime @default(now())
+
+  Inbound     Inbound[]
+  ProjectItem ProjectItem[]
+  Order       Order[]
+
+  @@map("variants")
+}
+
+model Product {
+  product_id   Int      @id @default(autoincrement()) @db.Int
+  product_name String   @unique @db.VarChar(100)
+  created_at   DateTime @default(now())
+
+  Inbound     Inbound[]
+  ProjectItem ProjectItem[]
+  PicProduct  PicProduct[]
+  Order       Order[]
+
+  @@map("products")
+}
+
+model PicProduct {
+  picproduct_id Int      @id @default(autoincrement()) @db.Int
+  pic_id        Int      @db.Int
+  product_id    Int      @db.Int
+  created_at    DateTime @default(now())
+  created_by    Int?     @db.Int
+
+  Product Product? @relation(fields: [product_id], references: [product_id])
+  User    User?    @relation(fields: [pic_id], references: [user_id])
+
+  @@unique([pic_id, product_id])
+  @@map("picproducts")
+}
+
+model Import {
+  import_id    Int      @id @default(autoincrement()) @db.Int
+  file_name    String   @db.VarChar(100)
+  is_processed Boolean  @default(false)
+  created_at   DateTime @default(now())
+  created_by   Int?     @db.Int
+
+  @@unique([file_name])
+  @@map("imports")
+}
+
+model Order {
+  order_id     Int       @id @default(autoincrement()) @db.Int
+  channel      String    @db.VarChar(100)
+  order_number String    @db.VarChar(100)
+  product_id   Int?      @db.Int
+  product_name String    @db.VarChar(100)
+  variant_id   Int?      @db.Int
+  variant_name String    @db.VarChar(100)
+  quantity     Int       @db.Int
+  start_date   DateTime?
+  end_date     DateTime?
+  project_id   Int?      @db.Int
+  created_at   DateTime  @default(now())
+  created_by   Int?      @db.Int
+
+  Product Product? @relation(fields: [product_id], references: [product_id])
+  Variant Variant? @relation(fields: [variant_id], references: [variant_id])
+  Project Project? @relation(fields: [project_id], references: [project_id])
+
+  @@unique([channel, order_number, product_name, variant_name])
+  @@index([start_date, end_date])
+  @@map("orders")
+}
+
+enum ProjectStatus {
+  OK
+  CANCEL
+}
+
+model Project {
+  project_id Int           @id @default(autoincrement()) @db.Int
+  batch_id   String        @db.Char(6)
+  pic_id     Int           @db.Int
+  status     ProjectStatus @default(OK)
+  created_at DateTime      @default(now())
+  created_by Int?          @db.Int
+
+  ProjectItem ProjectItem[]
+
+  User  User?   @relation(fields: [pic_id], references: [user_id])
+  Order Order[]
+
+  @@map("projects")
+}
+
+model ProjectItem {
+  projectitem_id Int           @id @default(autoincrement()) @db.Int
+  project_id     Int           @db.Int
+  pic_id         Int           @db.Int
+  tailor_id      Int           @db.Int
+  assign_date    DateTime      @db.Date()
+  product_id     Int           @db.Int
+  variant_id     Int           @db.Int
+  quantity       Int           @db.Int
+  status         ProjectStatus @default(OK)
+  created_at     DateTime      @default(now())
+  created_by     Int?          @db.Int
+
+  Project Project?  @relation(fields: [project_id], references: [project_id])
+  User    User?     @relation(fields: [pic_id], references: [user_id])
+  Tailor  Tailor?   @relation(fields: [tailor_id], references: [tailor_id])
+  Product Product?  @relation(fields: [product_id], references: [product_id])
+  Variant Variant?  @relation(fields: [variant_id], references: [variant_id])
+  Inbound Inbound[]
+
+  @@map("projectitems")
+}
+
+enum InboundStatus {
+  OK
+  REJECT
+}
+
+model Inbound {
+  inbound_id     Int           @id @default(autoincrement()) @db.Int
+  projectitem_id Int           @db.Int
+  pic_id         Int           @db.Int
+  tailor_id      Int           @db.Int
+  product_id     Int           @db.Int
+  variant_id     Int           @db.Int
+  quantity       Int           @db.Int
+  status         InboundStatus @default(OK)
+  created_at     DateTime      @default(now())
+  created_by     Int?          @db.Int
+
+  ProjectItem ProjectItem? @relation(fields: [projectitem_id], references: [projectitem_id])
+  User        User?        @relation(fields: [pic_id], references: [user_id])
+  Tailor      Tailor?      @relation(fields: [tailor_id], references: [tailor_id])
+  Product     Product?     @relation(fields: [product_id], references: [product_id])
+  Variant     Variant?     @relation(fields: [variant_id], references: [variant_id])
+
+  @@map("inbounds")
+}
