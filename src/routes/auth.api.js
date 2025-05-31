@@ -43,15 +43,18 @@ router.get("/orders/summary", orderController.summary);
 router.post("/projects", projectController.create);
 router.delete("/projects/{:projectId}", projectController.cancel);
 router.get("/projects", projectController.searchProject);
-router.get("/projects/items", projectController.searchItem);
 router.get(
   "/projects/{:projectId}/items",
   projectController.getItemByProjectId
 );
 
 router.post("/inbounds", inboundController.create);
+router.delete("/inbounds/{:inboundId}", inboundController.reject);
 router.get("/inbounds", inboundController.search);
 
-router.get("/reports", reportController.search);
+router.get("/reports/products", reportController.byProducts);
+router.get("/reports/pic", reportController.byPIC);
+router.get("/reports/tailors", reportController.byTailors);
+router.get("/reports/date", reportController.byExpiredDate);
 
 export { router };

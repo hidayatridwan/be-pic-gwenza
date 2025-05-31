@@ -1,18 +1,67 @@
 import { prismaClient } from "../apps/database.js";
 import { validate } from "../validations/validation.js";
 import {
+  rejectInboundValidation,
   createInboundValidation,
   searchInboundValidation,
 } from "../validations/inbound.validation.js";
+import { ResponseError } from "../errors/response.error.js";
+import constants from "../utils/constants.js";
 
 const create = async (user, req) => {
   const createRequest = validate(createInboundValidation, req);
-  const data = createRequest.map((item) => ({
-    ...item,
-    created_by: user.user_id,
-  }));
+
+  const projectIds = createRequest.map((item) => item.projectitem_id);
+  const result = await prismaClient.projectItem.findMany({
+    where: {
+      projectitem_id: {
+        in: projectIds,
+      },
+    },
+  });
+
+  const data = result.map((item) => {
+    const matchedRequest = createRequest.find(
+      (r) => r.projectitem_id === item.projectitem_id
+    );
+
+    return {
+      projectitem_id: item.projectitem_id,
+      pic_id: item.pic_id,
+      tailor_id: item.tailor_id,
+      product_id: item.product_id,
+      variant_id: item.variant_id,
+      quantity: matchedRequest?.quantity ?? 0, // fallback to 0 if not found
+      created_by: user.user_id,
+    };
+  });
 
   return await prismaClient.inbound.createMany({ data });
+};
+
+const reject = async (inboundId) => {
+  inboundId = validate(rejectInboundValidation, inboundId);
+
+  const countInbound = await prismaClient.inbound.count({
+    where: {
+      inbound_id: inboundId,
+    },
+  });
+
+  if (countInbound === 0) {
+    throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+  }
+
+  const result = await prismaClient.inbound.updateMany({
+    where: {
+      inbound_id: inboundId,
+    },
+    data: {
+      status: "REJECT",
+    },
+  });
+
+  return result;
 };
 
 const search = async (req) => {
@@ -108,4 +157,4 @@ const search = async (req) => {
   return { data, total };
 };
 
-export default { create, search };
+export default { create, reject, search };

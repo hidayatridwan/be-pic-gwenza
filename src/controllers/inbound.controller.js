@@ -9,6 +9,16 @@ const create = async (req, res, next) => {
   }
 };
 
+const reject = async (req, res, next) => {
+  try {
+    const inboundId = parseInt(req.params.inboundId);
+    await inboundService.reject(inboundId);
+    res.status(204).json({});
+  } catch (err) {
+    next(err);
+  }
+};
+
 const search = async (req, res, next) => {
   try {
     req.query.page = parseInt(req.query.page);
@@ -20,4 +30,4 @@ const search = async (req, res, next) => {
   }
 };
 
-export default { create, search };
+export default { create, reject, search };

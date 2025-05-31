@@ -84,7 +84,7 @@ const login = async (req, res) => {
 const refreshToken = async (req) => {
   const refreshToken = req.cookies.token;
   if (!refreshToken) {
-    throw new ResponseError(403, constants.INVALID_TOKEN);
+    throw new ResponseError(401, constants.INVALID_TOKEN);
   }
 
   let decoded;
@@ -92,7 +92,7 @@ const refreshToken = async (req) => {
     decoded = Jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
   } catch (e) {
     console.error("Error verifying token:", e);
-    throw new ResponseError(403, constants.INVALID_TOKEN);
+    throw new ResponseError(401, constants.INVALID_TOKEN);
   }
 
   const user = await prismaClient.user.findFirst({
@@ -102,7 +102,7 @@ const refreshToken = async (req) => {
   });
 
   if (!user) {
-    throw new ResponseError(403, constants.INVALID_TOKEN);
+    throw new ResponseError(401, constants.INVALID_TOKEN);
   }
 
   return generateAccessToken(decoded);
@@ -111,7 +111,7 @@ const refreshToken = async (req) => {
 const logout = async (req, res) => {
   const refreshToken = req.cookies.token;
   if (!refreshToken) {
-    throw new ResponseError(403, constants.INVALID_TOKEN);
+    throw new ResponseError(401, constants.INVALID_TOKEN);
   }
 
   let decoded;
@@ -119,7 +119,7 @@ const logout = async (req, res) => {
     decoded = Jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
   } catch (e) {
     console.error("Error verifying token:", e);
-    throw new ResponseError(403, constants.INVALID_TOKEN);
+    throw new ResponseError(401, constants.INVALID_TOKEN);
   }
 
   await prismaClient.user.update({

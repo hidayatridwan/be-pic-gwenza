@@ -3,13 +3,11 @@ import Joi from "joi";
 const createInboundValidation = Joi.array().items(
   Joi.object({
     projectitem_id: Joi.number().required(),
-    pic_id: Joi.number().required(),
-    tailor_id: Joi.number().required(),
-    product_id: Joi.number().required(),
-    variant_id: Joi.number().required(),
     quantity: Joi.number().required(),
   })
 );
+
+const rejectInboundValidation = Joi.number().positive().required();
 
 const searchInboundValidation = Joi.object({
   page: Joi.number().min(1).positive().default(1),
@@ -17,4 +15,8 @@ const searchInboundValidation = Joi.object({
   search: Joi.string().min(0).max(100).optional(),
 });
 
-export { createInboundValidation, searchInboundValidation };
+export {
+  createInboundValidation,
+  rejectInboundValidation,
+  searchInboundValidation,
+};

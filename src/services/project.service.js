@@ -4,7 +4,6 @@ import {
   cancelProjectValidation,
   createProjectValidation,
   getItemByProjectIdValidation,
-  searchItemValidation,
   searchProjectValidation,
 } from "../validations/project.validation.js";
 import { generateBatchId } from "../utils/generate.js";
@@ -59,26 +58,44 @@ const create = async (user, req) => {
 const cancel = async (projectId) => {
   projectId = validate(cancelProjectValidation, projectId);
 
-  const countProject = await prismaClient.project.count({
-    where: {
-      project_id: projectId,
-    },
+  await prismaClient.$transaction(async (tx) => {
+    const countProject = await tx.project.count({
+      where: {
+        project_id: projectId,
+      },
+    });
+
+    if (countProject === 0) {
+      throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+    }
+
+    await tx.order.updateMany({
+      where: {
+        project_id: projectId,
+      },
+      data: {
+        project_id: null,
+      },
+    });
+
+    await tx.projectItem.updateMany({
+      where: {
+        project_id: projectId,
+      },
+      data: {
+        status: "CANCEL",
+      },
+    });
+
+    return await tx.project.updateMany({
+      where: {
+        project_id: projectId,
+      },
+      data: {
+        status: "CANCEL",
+      },
+    });
   });
-
-  if (countProject === 0) {
-    throw new ResponseError(404, constants.NOT_FOUND);
-  }
-
-  const result = await prismaClient.order.updateMany({
-    where: {
-      project_id: projectId,
-    },
-    data: {
-      project_id: null,
-    },
-  });
-
-  return result;
 };
 
 const searchProject = async (req) => {
@@ -118,7 +135,7 @@ const searchProject = async (req) => {
     return {
       project_id: item.project_id,
       batch_id: item.batch_id,
-      pic: item.User.full_name,
+      pic_name: item.User.full_name,
       created_at: item.created_at,
     };
   });
@@ -128,162 +145,38 @@ const searchProject = async (req) => {
   return { data, total };
 };
 
-const searchItem = async (req) => {
-  const searchRequest = validate(searchItemValidation, req);
-  const skip = (searchRequest.page - 1) * searchRequest.size;
-  let where = {};
-  if (searchRequest.search) {
-    where = {
-      OR: [
-        {
-          User: {
-            full_name: { contains: searchRequest.search },
-          },
-        },
-        {
-          Tailor: {
-            tailor_name: { contains: searchRequest.search },
-          },
-        },
-        {
-          Product: {
-            product_name: { contains: searchRequest.search },
-          },
-        },
-        {
-          Variant: {
-            variant_name: { contains: searchRequest.search },
-          },
-        },
-      ],
-    };
-  }
-
-  const items = await prismaClient.projectItem.findMany({
-    where,
-    select: {
-      Project: {
-        select: {
-          batch_id: true,
-        },
-      },
-      User: {
-        select: {
-          full_name: true,
-        },
-      },
-      Tailor: {
-        select: {
-          tailor_name: true,
-        },
-      },
-      Product: {
-        select: {
-          product_name: true,
-        },
-      },
-      Variant: {
-        select: {
-          variant_name: true,
-        },
-      },
-      assign_date: true,
-      quantity: true,
-      created_at: true,
-    },
-    take: searchRequest.size,
-    skip: skip,
-    orderBy: {
-      product_id: "asc",
-    },
-  });
-
-  // Calculate assignment_age in JavaScript
-  const data = items.map((item) => ({
-    batch_id: item.Project.batch_id,
-    pic_name: item.User.full_name,
-    tailor_name: item.Tailor.tailor_name,
-    product_name: item.Product.product_name,
-    variant_name: item.Variant.variant_name,
-    assign_date: item.assign_date,
-    assign_age: Math.floor(
-      (item.assign_date.getTime() - new Date().getTime()) /
-        (1000 * 60 * 60 * 24)
-    ),
-    quantity: item.quantity,
-    created_at: item.created_at,
-  }));
-
-  const total = await prismaClient.projectItem.count({ where });
-
-  return { data, total };
-};
-
 const getItemByProjectId = async (projectId) => {
   projectId = validate(getItemByProjectIdValidation, projectId);
 
-  const items = await prismaClient.projectItem.findMany({
-    where: {
-      project_id: projectId,
-    },
-    select: {
-      projectitem_id: true,
-      Project: {
-        select: {
-          batch_id: true,
-        },
-      },
-      pic_id: true,
-      User: {
-        select: {
-          full_name: true,
-        },
-      },
-      tailor_id: true,
-      Tailor: {
-        select: {
-          tailor_name: true,
-        },
-      },
-      product_id: true,
-      Product: {
-        select: {
-          product_name: true,
-        },
-      },
-      variant_id: true,
-      Variant: {
-        select: {
-          variant_name: true,
-        },
-      },
-      assign_date: true,
-      quantity: true,
-      created_at: true,
-    },
-  });
-
-  return items.map((item) => ({
-    projectitem_id: item.projectitem_id,
-    batch_id: item.Project.batch_id,
-    pic_id: item.pic_id,
-    pic_name: item.User.full_name,
-    tailor_id: item.tailor_id,
-    tailor_name: item.Tailor.tailor_name,
-    product_id: item.product_id,
-    product_name: item.Product.product_name,
-    variant_id: item.variant_id,
-    variant_name: item.Variant.variant_name,
-    assign_date: item.assign_date,
-    quantity: item.quantity,
-    created_at: item.created_at,
-  }));
+  return await prismaClient.$queryRaw`SELECT
+	projectitems.projectitem_id,
+	projects.batch_id,
+	users.full_name AS pic_name,
+	tailors.tailor_name,
+	products.product_name,
+	variants.variant_name,
+	projectitems.assign_date,
+	DATEDIFF(CURDATE(), projectitems.assign_date) AS assign_age,
+	projectitems.quantity,
+	sum(inbounds.quantity) AS received,
+	projectitems.created_at
+FROM
+	projectitems
+	JOIN projects ON projectitems.project_id = projects.project_id
+	JOIN users ON projectitems.pic_id = users.user_id
+	JOIN tailors ON projectitems.tailor_id = tailors.tailor_id
+	JOIN products ON projectitems.product_id = products.product_id
+	JOIN variants ON projectitems.variant_id = variants.variant_id
+	LEFT JOIN inbounds ON projectitems.projectitem_id = inbounds.projectitem_id
+WHERE
+	projectitems.project_id = ${projectId}
+GROUP BY
+	projectitems.projectitem_id`;
 };
 
 export default {
   create,
   cancel,
   searchProject,
-  searchItem,
   getItemByProjectId,
 };

@@ -63,7 +63,7 @@ const get = async (tailorId) => {
   });
 
   if (!result) {
-    throw new ResponseError(404, constants.NOT_FOUND);
+    throw new ResponseError(404, constants.RECORD_NOT_FOUND);
   }
 
   return result;
@@ -80,7 +80,7 @@ const update = async (req) => {
   });
 
   if (countTailor === 0) {
-    throw new ResponseError(404, constants.NOT_FOUND);
+    throw new ResponseError(404, constants.RECORD_NOT_FOUND);
   }
 
   return await prismaClient.tailor.update({
@@ -101,7 +101,7 @@ const remove = async (tailorId) => {
   });
 
   if (countTailor === 0) {
-    throw new ResponseError(404, constants.NOT_FOUND);
+    throw new ResponseError(404, constants.RECORD_NOT_FOUND);
   }
 
   const result = await prismaClient.tailor.delete({

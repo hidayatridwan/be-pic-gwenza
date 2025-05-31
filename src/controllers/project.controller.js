@@ -30,17 +30,6 @@ const searchProject = async (req, res, next) => {
   }
 };
 
-const searchItem = async (req, res, next) => {
-  try {
-    req.query.page = parseInt(req.query.page);
-    req.query.size = parseInt(req.query.size);
-    const result = await projectService.searchItem(req.query);
-    res.status(200).json(result);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const getItemByProjectId = async (req, res, next) => {
   try {
     const projectId = parseInt(req.params.projectId);
@@ -55,6 +44,5 @@ export default {
   create,
   cancel,
   searchProject,
-  searchItem,
   getItemByProjectId,
 };
