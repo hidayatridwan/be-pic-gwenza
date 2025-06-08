@@ -15,9 +15,11 @@ datasource db {
 }
 
 enum Role {
-  ADMIN
+  SA
   PIC
-  RESI
+  RECEIPT
+  FD
+  MD
 }
 
 model User {
@@ -31,7 +33,6 @@ model User {
   role       Role     @default(PIC)
   created_at DateTime @default(now())
 
-  PicProduct  PicProduct[]
   Inbound     Inbound[]
   ProjectItem ProjectItem[]
   Project     Project[]
@@ -70,24 +71,9 @@ model Product {
 
   Inbound     Inbound[]
   ProjectItem ProjectItem[]
-  PicProduct  PicProduct[]
   Order       Order[]
 
   @@map("products")
-}
-
-model PicProduct {
-  picproduct_id Int      @id @default(autoincrement()) @db.Int
-  pic_id        Int      @db.Int
-  product_id    Int      @db.Int
-  created_at    DateTime @default(now())
-  created_by    Int?     @db.Int
-
-  Product Product? @relation(fields: [product_id], references: [product_id])
-  User    User?    @relation(fields: [pic_id], references: [user_id])
-
-  @@unique([pic_id, product_id])
-  @@map("picproducts")
 }
 
 model Import {
@@ -131,12 +117,11 @@ enum ProjectStatus {
 }
 
 model Project {
-  project_id Int           @id @default(autoincrement()) @db.Int
-  batch_id   String        @db.Char(6)
-  pic_id     Int           @db.Int
-  status     ProjectStatus @default(OK)
-  created_at DateTime      @default(now())
-  created_by Int?          @db.Int
+  project_id Int      @id @default(autoincrement()) @db.Int
+  batch_id   String   @db.Char(6)
+  pic_id     Int      @db.Int
+  created_at DateTime @default(now())
+  created_by Int?     @db.Int
 
   ProjectItem ProjectItem[]
 

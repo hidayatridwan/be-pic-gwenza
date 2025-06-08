@@ -4,7 +4,6 @@ import { uploadMiddleware } from "../middlewares/upload.middleware.js";
 import tailorController from "../controllers/tailor.controller.js";
 import orderController from "../controllers/order.controller.js";
 import projectController from "../controllers/project.controller.js";
-import picProductController from "../controllers/pic.product.controller.js";
 import productController from "../controllers/product.controller.js";
 import variantController from "../controllers/variant.controller.js";
 import importController from "../controllers/import.controller.js";
@@ -27,8 +26,6 @@ router.delete("/tailors/{:tailorId}", tailorController.remove);
 router.get("/products", productController.search);
 
 router.get("/variants", variantController.search);
-
-router.post("/pic-products", picProductController.create);
 
 router.post(
   "/imports",

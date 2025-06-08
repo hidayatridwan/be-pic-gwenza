@@ -1,7 +1,7 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import * as XLSX from "xlsx";
 import constants from "../utils/constants.js";
-import { addOneMonth, standardizeDate } from "../utils/dates.js";
+import { addTwentySevenDays, standardizeDate } from "../utils/dates.js";
 import { publish, subscribe } from "../utils/rabbitmq.js";
 import { prismaClient } from "../apps/database.js";
 import { s3Client } from "../apps/s3.client.js";
@@ -55,7 +55,7 @@ const publishData = async (channel, created_by, key, sheetData) => {
         newItem.push(item[8]);
         newItem.push(item[9]);
         newItem.push(standardizeDate(item[27]));
-        newItem.push(addOneMonth(standardizeDate(item[27])));
+        newItem.push(addTwentySevenDays(standardizeDate(item[27])));
         newItem.push(channel);
         newItem.push(created_by);
         rowsBatch.push(newItem);
@@ -67,7 +67,7 @@ const publishData = async (channel, created_by, key, sheetData) => {
       newItem.push(item[14]);
       newItem.push(item[17]);
       newItem.push(standardizeDate(item[8]));
-      newItem.push(standardizeDate(item[6]));
+      newItem.push(addTwentySevenDays(standardizeDate(item[8])));
       newItem.push(channel);
       newItem.push(created_by);
       rowsBatch.push(newItem);

@@ -30,7 +30,7 @@ const standardizeDate = (input) => {
   return dateTime;
 };
 
-const addOneMonth = (input) => {
+const addTwentySevenDays = (input) => {
   if (!isValidDate(input)) {
     return null;
   }
@@ -40,7 +40,7 @@ const addOneMonth = (input) => {
   const [hours, minutes, seconds] = timePart.split(":").map(Number);
 
   const date = new Date(year, month - 1, day, hours, minutes, seconds);
-  date.setMonth(date.getMonth() + 1);
+  date.setDate(date.getDate() + 27); // <-- changed line
 
   const newYear = date.getFullYear();
   const newMonth = String(date.getMonth() + 1).padStart(2, "0");
@@ -57,4 +57,4 @@ const isValidDate = (dateString) => {
   return regex.test(dateString);
 };
 
-export { standardizeDate, addOneMonth };
+export { standardizeDate, addTwentySevenDays };
