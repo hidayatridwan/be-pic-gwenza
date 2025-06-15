@@ -46,8 +46,9 @@ model Tailor {
   created_at  DateTime @default(now())
   created_by  Int?     @db.Int
 
-  Inbound     Inbound[]
-  ProjectItem ProjectItem[]
+  Inbound       Inbound[]
+  ProjectItem   ProjectItem[]
+  FashionDesign FashionDesign[]
 
   @@map("tailors")
 }
@@ -178,4 +179,24 @@ model Inbound {
   Variant     Variant?     @relation(fields: [variant_id], references: [variant_id])
 
   @@map("inbounds")
+}
+
+model FashionDesign {
+  fashiondesign_id    Int       @id @default(autoincrement()) @db.Int
+  sample_code         String    @db.VarChar(10)
+  sample_file         String?   @db.VarChar(255)
+  tailor_id           Int?      @db.Int
+  send_sample_date    DateTime? @db.Date()
+  receive_sample_date DateTime? @db.Date()
+  revision_date       DateTime? @db.Date()
+  revision_file       String?   @db.VarChar(255)
+  on_production_date  DateTime? @db.Date()
+  fix_sample_date     DateTime? @db.Date()
+  obstacle            String?   @db.VarChar(255)
+  created_at          DateTime  @default(now())
+  created_by          Int?      @db.Int
+
+  Tailor Tailor? @relation(fields: [tailor_id], references: [tailor_id])
+
+  @@map("fashiondesigns")
 }

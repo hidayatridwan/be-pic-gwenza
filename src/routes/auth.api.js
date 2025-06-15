@@ -10,6 +10,7 @@ import importController from "../controllers/import.controller.js";
 import userController from "../controllers/user.controller.js";
 import inboundController from "../controllers/inbound.controller.js";
 import reportController from "../controllers/report.controller.js";
+import fashionDesignController from "../controllers/fashion.design.controller.js";
 
 const router = express.Router();
 
@@ -29,13 +30,14 @@ router.get("/variants", variantController.search);
 
 router.post(
   "/imports",
-  uploadMiddleware.single("file"),
+  uploadMiddleware("orders").single("file"),
   importController.create
 );
 router.get("/imports", importController.search);
 
 router.get("/orders", orderController.search);
 router.get("/orders/summary", orderController.summary);
+router.post("/orders/checklist", orderController.checkList);
 
 router.post("/projects", projectController.create);
 router.delete("/projects/{:projectId}", projectController.cancel);
@@ -53,5 +55,16 @@ router.get("/reports/products", reportController.byProducts);
 router.get("/reports/pic", reportController.byPIC);
 router.get("/reports/tailors", reportController.byTailors);
 router.get("/reports/date", reportController.byExpiredDate);
+router.get("/reports/summary", reportController.bySummary);
+
+router.post(
+  "/fashion-designs",
+  uploadMiddleware("fashion-designs").fields([
+    { name: "sample_file", maxCount: 1 },
+    { name: "revision_file", maxCount: 1 },
+  ]),
+  fashionDesignController.create
+);
+router.get("/fashion-designs", fashionDesignController.search);
 
 export { router };

@@ -1,4 +1,5 @@
 import orderService from "../services/order.service.js";
+
 const search = async (req, res, next) => {
   try {
     req.query.page = parseInt(req.query.page);
@@ -19,4 +20,13 @@ const summary = async (req, res, next) => {
   }
 };
 
-export default { search, summary };
+const checkList = async (req, res, next) => {
+  try {
+    const result = await orderService.checkList(req.body);
+    res.status(200).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { search, summary, checkList };

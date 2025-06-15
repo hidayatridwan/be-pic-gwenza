@@ -338,4 +338,39 @@ const byExpiredDate = async (req) => {
   };
 };
 
-export default { byProducts, byPIC, byTailors, byExpiredDate };
+const bySummary = async (req) => {
+  const result = await prismaClient.$queryRaw`select
+    orders.product_name,
+    orders.variant_name,
+    sum(orders.quantity) as order_quantity,
+    sum(projectitems.quantity) as project_quantity
+  from
+    orders
+  left join projectitems on
+    projectitems.project_id = orders.project_id
+    and projectitems.product_id = orders.product_id
+    and projectitems.variant_id = orders.variant_id
+  group by
+    orders.project_id,
+    orders.product_id,
+    orders.variant_id
+  order by
+    orders.product_name,
+    orders.variant_name`;
+
+  const data = result.map((item) => {
+    return {
+      ...item,
+      order_quantity: item.order_quantity ? parseInt(item.order_quantity) : 0,
+      project_quantity: item.project_quantity
+        ? parseInt(item.project_quantity)
+        : 0,
+    };
+  });
+
+  const total = data.length;
+
+  return { data, total };
+};
+
+export default { byProducts, byPIC, byTailors, byExpiredDate, bySummary };

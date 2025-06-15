@@ -36,4 +36,13 @@ const byExpiredDate = async (req, res, next) => {
   }
 };
 
-export default { byProducts, byPIC, byTailors, byExpiredDate };
+const bySummary = async (req, res, next) => {
+  try {
+    const result = await reportService.bySummary(req.query);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { byProducts, byPIC, byTailors, byExpiredDate, bySummary };
