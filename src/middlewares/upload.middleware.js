@@ -8,6 +8,7 @@ const uploadMiddleware = (path) =>
       s3: s3Client,
       bucket: process.env.S3_BUCKET,
       contentType: multerS3.AUTO_CONTENT_TYPE,
+      acl: path !== "orders" ? "public-read" : undefined, // This makes uploaded files publicly accessible
       key: (req, file, cb) => {
         cb(null, `${path}/${Date.now()}_${file.originalname}`);
       },

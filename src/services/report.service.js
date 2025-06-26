@@ -1,8 +1,18 @@
 import { prismaClient } from "../apps/database.js";
-import { getExpiredProductsValidation } from "../validations/report.validation.js";
+import {
+  getExpiredProductsValidation,
+  getOrderProductsValidation,
+  searchByPicValidation,
+  searchByTailorValidation,
+  searchSummaryValidation,
+} from "../validations/report.validation.js";
 import { validate } from "../validations/validation.js";
 
 const byProducts = async (req) => {
+  const searchRequest = validate(getOrderProductsValidation, req);
+  const skip = (searchRequest.page - 1) * searchRequest.size;
+  const search = `%${searchRequest.search ?? ""}%`;
+
   const [row] = await prismaClient.$queryRaw`SELECT
 	date (max(end_date)) AS max_due_date
 FROM
@@ -15,8 +25,7 @@ FROM
 FROM
 	orders
 WHERE
-	date (end_date) < date (${req.start_date})
---	AND product_id IN (1,2)
+	date (end_date) < date (${searchRequest.start_date})
 GROUP BY
 	product_id,
 	variant_id`;
@@ -30,11 +39,16 @@ GROUP BY
 FROM
 	orders
 WHERE
-	date (end_date) BETWEEN date (${req.start_date}) AND date (${row.max_due_date})
---	AND product_id IN (1,2)
+	date (end_date) BETWEEN date (${searchRequest.start_date}) AND date (${row.max_due_date})
+    AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
 GROUP BY
 	product_id,
-	variant_id`;
+	variant_id
+ORDER BY
+  product_name,
+  variant_name
+LIMIT ${searchRequest.size}
+OFFSET ${skip}`;
 
   const projects = await prismaClient.$queryRaw`SELECT
 	product_id,
@@ -42,8 +56,6 @@ GROUP BY
 	sum(quantity) AS quantity
 FROM
 	projectitems
--- WHERE
---	product_id IN (1,2)
 GROUP BY
 	product_id,
 	variant_id`;
@@ -56,10 +68,24 @@ FROM
 	inbounds
 WHERE
 	status = 'OK'
---	AND product_id IN (1, 2)
 GROUP BY
 	product_id,
 	variant_id`;
+  // Count total matching rows without re-running the full query
+  const countResult = await prismaClient.$queryRaw`
+    SELECT COUNT(*) as total FROM (
+      SELECT 1
+FROM
+	orders
+WHERE
+	date (end_date) BETWEEN date (${searchRequest.start_date}) AND date (${row.max_due_date})
+    AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
+GROUP BY
+	product_id,
+	variant_id
+    ) AS grouped`;
+
+  const total = parseInt(countResult[0]?.total ?? 0);
 
   // Helper: map (product_id, variant_id) => quantity
   function toMap(data) {
@@ -107,12 +133,15 @@ GROUP BY
     };
   });
 
-  const total = data.length;
-
   return { data, total };
 };
 
 const byPIC = async (req) => {
+  const searchRequest = validate(searchByPicValidation, req);
+  const skip = (searchRequest.page - 1) * searchRequest.size;
+  const search = `%${searchRequest.search ?? ""}%`;
+
+  // Get paginated result
   const result = await prismaClient.$queryRaw`SELECT
 	projects.batch_id,
 	users.full_name AS pic_name,
@@ -129,10 +158,39 @@ FROM
 	JOIN products ON products.product_id = projectitems.product_id
 	JOIN variants ON variants.variant_id = projectitems.variant_id
 	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+WHERE
+  products.product_name LIKE ${search}
+  OR variants.variant_name LIKE ${search}
+  OR projects.batch_id LIKE ${search}
+	OR users.full_name LIKE ${search}
 GROUP BY
 	projectitems.projectitem_id
 ORDER BY
-	projectitems.projectitem_id DESC`;
+	projectitems.projectitem_id DESC
+LIMIT ${searchRequest.size}
+OFFSET ${skip}`;
+
+  // Count total matching rows without re-running the full query
+  const countResult = await prismaClient.$queryRaw`
+    SELECT COUNT(*) as total FROM (
+      SELECT 1
+FROM
+	projectitems
+	JOIN projects ON projects.project_id = projectitems.project_id
+	JOIN users ON users.user_id = projectitems.pic_id
+	JOIN products ON products.product_id = projectitems.product_id
+	JOIN variants ON variants.variant_id = projectitems.variant_id
+	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+WHERE
+  products.product_name LIKE ${search}
+  OR variants.variant_name LIKE ${search}
+  OR projects.batch_id LIKE ${search}
+	OR users.full_name LIKE ${search}
+GROUP BY
+	projectitems.projectitem_id
+    ) AS grouped`;
+
+  const total = parseInt(countResult[0]?.total ?? 0);
 
   const data = result.map((item) => {
     const received = item.received ? parseInt(item.received) : 0;
@@ -143,12 +201,15 @@ ORDER BY
     };
   });
 
-  const total = data.length;
-
   return { data, total };
 };
 
 const byTailors = async (req) => {
+  const searchRequest = validate(searchByTailorValidation, req);
+  const skip = (searchRequest.page - 1) * searchRequest.size;
+  const search = `%${searchRequest.search ?? ""}%`;
+
+  // Get paginated result
   const result = await prismaClient.$queryRaw`SELECT
 	projects.batch_id,
 	tailors.tailor_name,
@@ -165,10 +226,39 @@ FROM
 	JOIN products ON products.product_id = projectitems.product_id
 	JOIN variants ON variants.variant_id = projectitems.variant_id
 	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+WHERE
+  products.product_name LIKE ${search}
+  OR variants.variant_name LIKE ${search}
+  OR projects.batch_id LIKE ${search}
+	OR tailors.tailor_name LIKE ${search}
 GROUP BY
 	projectitems.projectitem_id
 ORDER BY
-	projectitems.projectitem_id DESC`;
+	projectitems.projectitem_id DESC
+LIMIT ${searchRequest.size}
+OFFSET ${skip}`;
+
+  // Count total matching rows without re-running the full query
+  const countResult = await prismaClient.$queryRaw`
+    SELECT COUNT(*) as total FROM (
+      SELECT 1
+FROM
+	projectitems
+	JOIN projects ON projects.project_id = projectitems.project_id
+	JOIN tailors ON tailors.tailor_id = projectitems.tailor_id
+	JOIN products ON products.product_id = projectitems.product_id
+	JOIN variants ON variants.variant_id = projectitems.variant_id
+	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+WHERE
+  products.product_name LIKE ${search}
+  OR variants.variant_name LIKE ${search}
+  OR projects.batch_id LIKE ${search}
+	OR tailors.tailor_name LIKE ${search}
+GROUP BY
+	projectitems.projectitem_id
+    ) AS grouped`;
+
+  const total = parseInt(countResult[0]?.total ?? 0);
 
   const data = result.map((item) => {
     const received = item.received ? parseInt(item.received) : 0;
@@ -178,8 +268,6 @@ ORDER BY
       gap: item.quantity - received,
     };
   });
-
-  const total = data.length;
 
   return { data, total };
 };
@@ -199,7 +287,6 @@ const byExpiredDate = async (req) => {
     orders
   WHERE
     DATE(end_date) < DATE(${reportStartDate})
-  --  AND product_id IN (1, 2)
   GROUP BY
     product_id,
     variant_id`;
@@ -215,8 +302,7 @@ const byExpiredDate = async (req) => {
   FROM
     orders
   WHERE
-    DATE(end_date) BETWEEN ${reportStartDate} AND ${reportEndDate}
-  --  AND product_id IN (1, 2)
+    DATE(end_date) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
   GROUP BY
     product_id,
     variant_id,
@@ -235,7 +321,6 @@ const byExpiredDate = async (req) => {
     inbounds
   WHERE
     status = 'OK'
-  --  AND product_id IN (1, 2)
   GROUP BY
     product_id,
     variant_id`;
@@ -249,7 +334,6 @@ const byExpiredDate = async (req) => {
     projectitems
   WHERE
     status = 'OK'
-  --  AND product_id IN (1, 2)
   GROUP BY
     product_id,
     variant_id`;
@@ -339,36 +423,66 @@ const byExpiredDate = async (req) => {
 };
 
 const bySummary = async (req) => {
-  const result = await prismaClient.$queryRaw`select
-    orders.product_name,
-    orders.variant_name,
-    sum(orders.quantity) as order_quantity,
-    sum(projectitems.quantity) as project_quantity
-  from
-    orders
-  left join projectitems on
-    projectitems.project_id = orders.project_id
-    and projectitems.product_id = orders.product_id
-    and projectitems.variant_id = orders.variant_id
-  group by
-    orders.project_id,
-    orders.product_id,
-    orders.variant_id
-  order by
-    orders.product_name,
-    orders.variant_name`;
+  const searchRequest = validate(searchSummaryValidation, req);
+  const skip = (searchRequest.page - 1) * searchRequest.size;
+  const search = `%${searchRequest.search ?? ""}%`;
 
-  const data = result.map((item) => {
-    return {
-      ...item,
-      order_quantity: item.order_quantity ? parseInt(item.order_quantity) : 0,
-      project_quantity: item.project_quantity
-        ? parseInt(item.project_quantity)
-        : 0,
-    };
-  });
+  // Get paginated result
+  const result = await prismaClient.$queryRaw`
+    SELECT
+      orders.product_name,
+      orders.variant_name,
+      SUM(orders.quantity) AS order_quantity,
+      SUM(projectitems.quantity) AS project_quantity
+    FROM orders
+    LEFT JOIN projectitems
+      ON projectitems.project_id = orders.project_id
+      AND projectitems.product_id = orders.product_id
+      AND projectitems.variant_id = orders.variant_id
+    WHERE
+      orders.product_name LIKE ${search}
+      OR orders.variant_name LIKE ${search}
+    GROUP BY
+      orders.project_id,
+      orders.product_id,
+      orders.variant_id,
+      orders.product_name,
+      orders.variant_name
+    ORDER BY
+      orders.product_name,
+      orders.variant_name
+    LIMIT ${searchRequest.size}
+    OFFSET ${skip};
+  `;
 
-  const total = data.length;
+  // Count total matching rows without re-running the full query
+  const countResult = await prismaClient.$queryRaw`
+    SELECT COUNT(*) as total FROM (
+      SELECT 1
+      FROM orders
+      LEFT JOIN projectitems
+        ON projectitems.project_id = orders.project_id
+        AND projectitems.product_id = orders.product_id
+        AND projectitems.variant_id = orders.variant_id
+      WHERE
+        orders.product_name LIKE ${search}
+        OR orders.variant_name LIKE ${search}
+      GROUP BY
+        orders.project_id,
+        orders.product_id,
+        orders.variant_id,
+        orders.product_name,
+        orders.variant_name
+    ) AS grouped;
+  `;
+
+  const total = parseInt(countResult[0]?.total ?? 0);
+
+  const data = result.map((item) => ({
+    ...item,
+    order_quantity: parseInt(item.order_quantity ?? 0),
+    project_quantity: parseInt(item.project_quantity ?? 0),
+  }));
 
   return { data, total };
 };

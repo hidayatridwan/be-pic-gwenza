@@ -2,6 +2,8 @@ import reportService from "../services/report.service.js";
 
 const byProducts = async (req, res, next) => {
   try {
+    req.query.page = parseInt(req.query.page);
+    req.query.size = parseInt(req.query.size);
     const result = await reportService.byProducts(req.query);
     res.status(200).json(result);
   } catch (err) {
@@ -11,6 +13,8 @@ const byProducts = async (req, res, next) => {
 
 const byPIC = async (req, res, next) => {
   try {
+    req.query.page = parseInt(req.query.page);
+    req.query.size = parseInt(req.query.size);
     const result = await reportService.byPIC(req.query);
     res.status(200).json(result);
   } catch (err) {
@@ -20,6 +24,8 @@ const byPIC = async (req, res, next) => {
 
 const byTailors = async (req, res, next) => {
   try {
+    req.query.page = parseInt(req.query.page);
+    req.query.size = parseInt(req.query.size);
     const result = await reportService.byTailors(req.query);
     res.status(200).json(result);
   } catch (err) {
@@ -38,6 +44,8 @@ const byExpiredDate = async (req, res, next) => {
 
 const bySummary = async (req, res, next) => {
   try {
+    req.query.page = parseInt(req.query.page);
+    req.query.size = parseInt(req.query.size);
     const result = await reportService.bySummary(req.query);
     res.status(200).json(result);
   } catch (err) {
