@@ -14,7 +14,7 @@ web.use(
   })
 );
 
-web.use(express.json());
+web.use(express.json({ limit: "50mb" }));
 web.use(cookieParser());
 web.use(publicRouter);
 web.use(authRouter);
