@@ -1,70 +1,61 @@
 import { prismaClient } from "../apps/database.js";
-import { logger } from "../apps/logging.js";
 
-const syncWorker = async () => {
-  console.log("Sync product variant started");
+console.log("Sync product variant started");
 
-  try {
-    await prismaClient.$transaction(async (tx) => {
-      const products = await tx.order.findMany({
-        distinct: ["product_name"],
-        orderBy: {
-          product_name: "asc",
-        },
-        select: {
-          product_name: true,
-        },
-      });
+const products = await prismaClient.order.findMany({
+  distinct: ["product_name"],
+  orderBy: {
+    product_name: "asc",
+  },
+  select: {
+    product_name: true,
+  },
+});
 
-      const uniqueProducts = [
-        ...new Map(
-          products.map((p) => [p.product_name.trim().toLowerCase(), p])
-        ).values(),
-      ];
+const uniqueProducts = [
+  ...new Map(
+    products.map((p) => [p.product_name.trim().toLowerCase(), p])
+  ).values(),
+];
 
-      await tx.product.createMany({
-        data: uniqueProducts,
-        skipDuplicates: true,
-      });
-      console.log(`products synced: ${uniqueProducts.length}`);
+await prismaClient.product.createMany({
+  data: uniqueProducts,
+  skipDuplicates: true,
+});
+console.log(`products synced: ${uniqueProducts.length}`);
 
-      const variants = await tx.order.findMany({
-        distinct: ["variant_name"],
-        orderBy: {
-          variant_name: "asc",
-        },
-        select: {
-          variant_name: true,
-        },
-      });
+const variants = await prismaClient.order.findMany({
+  distinct: ["variant_name"],
+  orderBy: {
+    variant_name: "asc",
+  },
+  select: {
+    variant_name: true,
+  },
+});
 
-      const uniqueVariants = [
-        ...new Map(
-          variants.map((v) => [v.variant_name.trim().toLowerCase(), v])
-        ).values(),
-      ];
+const uniqueVariants = [
+  ...new Map(
+    variants.map((v) => [v.variant_name.trim().toLowerCase(), v])
+  ).values(),
+];
 
-      await tx.variant.createMany({
-        data: uniqueVariants,
-        skipDuplicates: true,
-      });
-      console.log(`variants synced: ${uniqueVariants.length}`);
+await prismaClient.variant.createMany({
+  data: uniqueVariants,
+  skipDuplicates: true,
+});
+console.log(`variants synced: ${uniqueVariants.length}`);
 
-      await tx.$executeRaw`UPDATE orders
+await prismaClient.$executeRaw`UPDATE orders
         JOIN products ON products.product_name = orders.product_name
         SET orders.product_id = products.product_id
         WHERE orders.product_id IS NULL`;
 
-      await tx.$executeRaw`UPDATE orders
+await prismaClient.$executeRaw`UPDATE orders
         JOIN variants ON variants.variant_name = orders.variant_name
         SET orders.variant_id = variants.variant_id
         WHERE orders.variant_id IS NULL`;
-    });
-    console.log("Sync product variant finished");
-  } catch (err) {
-    console.log(err.message);
-    logger.error(err.message);
-  }
-};
+
+console.log("Sync product variant finished");
 
 export { syncWorker };
