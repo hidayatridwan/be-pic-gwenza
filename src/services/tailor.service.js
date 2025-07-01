@@ -73,16 +73,6 @@ const update = async (req) => {
   const updateRequest = validate(updateTailorValidation, req);
   const { tailor_id, ...newRequest } = updateRequest;
 
-  const countTailor = await prismaClient.tailor.count({
-    where: {
-      tailor_name: newRequest.tailor_name,
-    },
-  });
-
-  if (countTailor === 0) {
-    throw new ResponseError(404, constants.RECORD_NOT_FOUND);
-  }
-
   return await prismaClient.tailor.update({
     where: {
       tailor_id,

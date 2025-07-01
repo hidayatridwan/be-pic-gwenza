@@ -66,5 +66,17 @@ router.post(
   fashionDesignController.create
 );
 router.get("/fashion-designs", fashionDesignController.search);
+router.put(
+  "/fashion-designs/{:fashionDesignId}",
+  uploadMiddleware("fashion-designs").fields([
+    { name: "sample_file", maxCount: 1 },
+    { name: "revision_file", maxCount: 1 },
+  ]),
+  fashionDesignController.update
+);
+router.delete(
+  "/fashion-designs/{:fashionDesignId}",
+  fashionDesignController.remove
+);
 
 export { router };
