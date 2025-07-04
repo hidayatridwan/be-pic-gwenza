@@ -44,9 +44,16 @@ const search = async (req) => {
     take: searchRequest.size,
     skip: skip,
   });
+
+  const mappedData = data.map((item) => ({
+    ...item,
+    sample_file: buildS3Url(item.sample_file),
+    revision_file: buildS3Url(item.revision_file),
+  }));
+
   const total = await prismaClient.fashionDesign.count({ where });
 
-  return { data, total };
+  return { data: mappedData, total };
 };
 
 const update = async (req) => {
@@ -91,3 +98,11 @@ const remove = async (fashionDesignId) => {
 };
 
 export default { create, search, update, remove };
+
+function buildS3Url(path) {
+  if (!path) return null;
+  const baseUrl = process.env.S3_URL?.replace(/\/$/, "") || "";
+  const bucket = process.env.S3_BUCKET?.replace(/\/$/, "") || "";
+  const filePath = path.replace(/^\//, "");
+  return `${baseUrl}/${bucket}/${filePath}`;
+}
