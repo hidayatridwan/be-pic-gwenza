@@ -43,6 +43,9 @@ const search = async (req) => {
     where,
     take: searchRequest.size,
     skip: skip,
+    orderBy: {
+      sample_code: "asc",
+    },
   });
 
   const mappedData = data.map((item) => ({

@@ -47,6 +47,9 @@ const search = async (req) => {
     where,
     take: searchRequest.size,
     skip: skip,
+    orderBy: {
+      tailor_name: "asc",
+    },
   });
   const total = await prismaClient.tailor.count({ where });
 
