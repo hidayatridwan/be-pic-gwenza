@@ -50,6 +50,21 @@ const search = async (req) => {
 
   const mappedData = data.map((item) => ({
     ...item,
+    send_sample_date: item.send_sample_date
+      ? item.send_sample_date.toISOString().split("T")[0]
+      : null,
+    receive_sample_date: item.receive_sample_date
+      ? item.receive_sample_date.toISOString().split("T")[0]
+      : null,
+    revision_date: item.revision_date
+      ? item.revision_date.toISOString().split("T")[0]
+      : null,
+    on_production_date: item.on_production_date
+      ? item.on_production_date.toISOString().split("T")[0]
+      : null,
+    fix_sample_date: item.fix_sample_date
+      ? item.fix_sample_date.toISOString().split("T")[0]
+      : null,
     sample_file: buildS3Url(item.sample_file),
     revision_file: buildS3Url(item.revision_file),
   }));

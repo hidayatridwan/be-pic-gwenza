@@ -10,7 +10,7 @@ const createFashionDesignValidation = Joi.object({
   revision_file: Joi.string().max(255).optional().empty("").default(null),
   on_production_date: Joi.date().optional().empty("").default(null),
   fix_sample_date: Joi.date().optional().empty("").default(null),
-  obstacle: Joi.string().max(255).optional(),
+  obstacle: Joi.string().max(255).optional().empty("").default(null),
 });
 
 const searchFashionDesignValidation = Joi.object({
@@ -30,7 +30,7 @@ const updateFashionDesignValidation = Joi.object({
   revision_file: Joi.string().max(255).optional().empty("").default(null),
   on_production_date: Joi.date().optional().empty("").default(null),
   fix_sample_date: Joi.date().optional().empty("").default(null),
-  obstacle: Joi.string().max(255).optional(),
+  obstacle: Joi.string().max(255).optional().empty("").default(null),
 });
 
 const removeFashionDesignValidation = Joi.number().positive().required();

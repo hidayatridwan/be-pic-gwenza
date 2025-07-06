@@ -20,13 +20,13 @@ const summary = async (req, res, next) => {
   }
 };
 
-const checkList = async (req, res, next) => {
+const get = async (req, res, next) => {
   try {
-    const result = await orderService.checkList(req.body);
+    const result = await orderService.get(req.params);
     res.status(200).json({ data: result });
   } catch (err) {
     next(err);
   }
 };
 
-export default { search, summary, checkList };
+export default { search, summary, get };

@@ -24,7 +24,10 @@ router.get("/tailors/{:tailorId}", tailorController.get);
 router.put("/tailors/{:tailorId}", tailorController.update);
 router.delete("/tailors/{:tailorId}", tailorController.remove);
 
+router.post("/products", productController.create);
 router.get("/products", productController.search);
+router.get("/products/{:productId}", productController.get);
+router.put("/products/{:productId}", productController.update);
 
 router.get("/variants", variantController.search);
 
@@ -37,7 +40,7 @@ router.get("/imports", importController.search);
 
 router.get("/orders", orderController.search);
 router.get("/orders/summary", orderController.summary);
-router.post("/orders/checklist", orderController.checkList);
+router.get("/orders/{:productId}/{:variantId}", orderController.get);
 
 router.post("/projects", projectController.create);
 router.delete("/projects/{:projectId}", projectController.cancel);

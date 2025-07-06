@@ -1,6 +1,6 @@
 import { prismaClient } from "../apps/database.js";
 import {
-  checkListOrderValidation,
+  getOrderValidation,
   searchOrderValidation,
 } from "../validations/order.validation.js";
 import { validate } from "../validations/validation.js";
@@ -62,22 +62,22 @@ const summary = async () => {
   }));
 };
 
-const checkList = async (req) => {
-  const checkListRequest = validate(checkListOrderValidation, req);
+const get = async (req) => {
+  const getRequest = validate(getOrderValidation, {
+    product_id: req.productId,
+    variant_id: req.variantId,
+  });
 
   const result = await prismaClient.order.groupBy({
     by: ["product_id", "product_name", "variant_id", "variant_name"],
     where: {
       project_id: null,
-      OR: checkListRequest.map((item) => ({
-        product_id: item.product_id,
-        variant_id: item.variant_id,
-      })),
+      product_id: getRequest.product_id,
+      variant_id: getRequest.variant_id,
     },
     _sum: {
       quantity: true,
     },
-    orderBy: [{ product_name: "asc" }, { variant_name: "asc" }],
   });
 
   return result.map((item) => ({
@@ -89,4 +89,4 @@ const checkList = async (req) => {
   }));
 };
 
-export default { search, summary, checkList };
+export default { search, summary, get };
