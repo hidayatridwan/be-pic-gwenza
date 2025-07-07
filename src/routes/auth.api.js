@@ -11,6 +11,7 @@ import userController from "../controllers/user.controller.js";
 import inboundController from "../controllers/inbound.controller.js";
 import reportController from "../controllers/report.controller.js";
 import fashionDesignController from "../controllers/fashion.design.controller.js";
+import merchandiseController from "../controllers/merchandise.controller.js";
 
 const router = express.Router();
 
@@ -81,5 +82,10 @@ router.delete(
   "/fashion-designs/{:fashionDesignId}",
   fashionDesignController.remove
 );
+
+router.post("/merchandises", merchandiseController.create);
+router.get("/merchandises", merchandiseController.search);
+router.get("/merchandises/{:merchandiseId}", merchandiseController.get);
+router.put("/merchandises/{:merchandiseId}", merchandiseController.update);
 
 export { router };

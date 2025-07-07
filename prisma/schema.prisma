@@ -205,7 +205,7 @@ model FashionDesign {
 }
 
 model Merchandise {
-  marchandise_id      Int                   @id @default(autoincrement()) @db.Int
+  merchandise_id      Int                   @id @default(autoincrement()) @db.Int
   product_code        String                @unique @db.VarChar(100)
   product_name        String                @unique @db.VarChar(100)
   created_at          DateTime              @default(now())
@@ -219,13 +219,13 @@ model Merchandise {
 model MerchandiseInbound {
   merchandise_inbound_id Int      @id @default(autoincrement()) @db.Int
   inbound_date           DateTime @db.Date()
-  marchandise_id         Int      @db.Int
+  merchandise_id         Int      @db.Int
   store_name             String?  @db.VarChar(255)
   quantity               Int      @db.Int
   created_at             DateTime @default(now())
   created_by             Int?     @db.Int
 
-  Merchandise Merchandise? @relation(fields: [marchandise_id], references: [marchandise_id])
+  Merchandise Merchandise? @relation(fields: [merchandise_id], references: [merchandise_id])
 
   @@map("merchandiseinbounds")
 }
@@ -233,14 +233,14 @@ model MerchandiseInbound {
 model MerchandiseOutbound {
   merchandise_outbound_id Int      @id @default(autoincrement()) @db.Int
   outbound_date           DateTime @db.Date()
-  marchandise_id          Int      @db.Int
+  merchandise_id          Int      @db.Int
   fashiondesign_id        Int      @db.Int
   tailor_id               Int      @db.Int
   quantity                Int      @db.Int
   created_at              DateTime @default(now())
   created_by              Int?     @db.Int
 
-  Merchandise   Merchandise?   @relation(fields: [marchandise_id], references: [marchandise_id])
+  Merchandise   Merchandise?   @relation(fields: [merchandise_id], references: [merchandise_id])
   FashionDesign FashionDesign? @relation(fields: [fashiondesign_id], references: [fashiondesign_id])
   Tailor        Tailor?        @relation(fields: [tailor_id], references: [tailor_id])
 
