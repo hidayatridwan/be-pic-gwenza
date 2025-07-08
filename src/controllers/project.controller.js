@@ -11,7 +11,7 @@ const create = async (req, res, next) => {
 
 const cancel = async (req, res, next) => {
   try {
-    const projectId = parseInt(req.params.projectId);
+    const projectId = Number(req.params.projectId);
     await projectService.cancel(projectId);
     res.status(204).json({});
   } catch (err) {
@@ -21,8 +21,8 @@ const cancel = async (req, res, next) => {
 
 const searchProject = async (req, res, next) => {
   try {
-    req.query.page = parseInt(req.query.page);
-    req.query.size = parseInt(req.query.size);
+    req.query.page = Number(req.query.page);
+    req.query.size = Number(req.query.size);
     const result = await projectService.searchProject(req.query);
     res.status(200).json(result);
   } catch (err) {
@@ -32,7 +32,7 @@ const searchProject = async (req, res, next) => {
 
 const getItemByProjectId = async (req, res, next) => {
   try {
-    const projectId = parseInt(req.params.projectId);
+    const projectId = Number(req.params.projectId);
     const result = await projectService.getItemByProjectId(projectId);
     res.status(200).json({ data: result });
   } catch (err) {

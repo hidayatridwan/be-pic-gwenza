@@ -16,8 +16,8 @@ const create = async (req, res, next) => {
 
 const search = async (req, res, next) => {
   try {
-    req.query.page = parseInt(req.query.page);
-    req.query.size = parseInt(req.query.size);
+    req.query.page = Number(req.query.page);
+    req.query.size = Number(req.query.size);
     const result = await importService.search(req.query);
     res.status(200).json(result);
   } catch (err) {

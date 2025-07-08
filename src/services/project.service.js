@@ -148,7 +148,7 @@ const searchProject = async (req) => {
 const getItemByProjectId = async (projectId) => {
   projectId = validate(getItemByProjectIdValidation, projectId);
 
-  const results = await prismaClient.$queryRaw`SELECT
+  const result = await prismaClient.$queryRaw`SELECT
 	projectitems.projectitem_id,
 	projects.batch_id,
 	users.full_name AS pic_name,
@@ -173,15 +173,11 @@ WHERE
 GROUP BY
 	projectitems.projectitem_id`;
 
-  // Convert BigInt values to string
-  return results.map((row) => {
-    const converted = {};
-    for (const key in row) {
-      const value = row[key];
-      converted[key] = typeof value === "bigint" ? value.toString() : value;
-    }
-    return converted;
-  });
+  return result.map((item) => ({
+    ...item,
+    quantity: Number(item.quantity ?? 0),
+    received: Number(item.received ?? 0),
+  }));
 };
 
 export default {

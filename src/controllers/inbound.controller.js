@@ -11,7 +11,7 @@ const create = async (req, res, next) => {
 
 const reject = async (req, res, next) => {
   try {
-    const inboundId = parseInt(req.params.inboundId);
+    const inboundId = Number(req.params.inboundId);
     await inboundService.reject(inboundId);
     res.status(204).json({});
   } catch (err) {
@@ -21,8 +21,8 @@ const reject = async (req, res, next) => {
 
 const search = async (req, res, next) => {
   try {
-    req.query.page = parseInt(req.query.page);
-    req.query.size = parseInt(req.query.size);
+    req.query.page = Number(req.query.page);
+    req.query.size = Number(req.query.size);
     const result = await inboundService.search(req.query);
     res.status(200).json(result);
   } catch (err) {

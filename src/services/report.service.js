@@ -85,13 +85,13 @@ GROUP BY
 	variant_id
     ) AS grouped`;
 
-  const total = parseInt(countResult[0]?.total ?? 0);
+  const total = Number(countResult[0]?.total ?? 0);
 
   // Helper: map (product_id, variant_id) => quantity
   function toMap(data) {
     return data.reduce((map, item) => {
       const key = `${item.product_id}-${item.variant_id}`;
-      map[key] = parseInt(item.quantity, 10);
+      map[key] = Number(item.quantity, 10);
       return map;
     }, {});
   }
@@ -106,7 +106,7 @@ GROUP BY
       product_name: order.product_name,
       variant_name: order.variant_name,
       past_due_orders: expiredOrderMap[key] || 0,
-      open_orders: parseInt(order.quantity, 10),
+      open_orders: Number(order.quantity, 10),
       assigned_to_project: projectMap[key] || 0,
       inbound_received: inboundMap[key] || 0,
     };
@@ -190,14 +190,17 @@ GROUP BY
 	projectitems.projectitem_id
     ) AS grouped`;
 
-  const total = parseInt(countResult[0]?.total ?? 0);
+  const total = Number(countResult[0]?.total ?? 0);
 
   const data = result.map((item) => {
-    const received = item.received ? parseInt(item.received) : 0;
+    const quantity = item.quantity ? Number(item.quantity) : 0;
+    const received = item.received ? Number(item.received) : 0;
     return {
       ...item,
-      received: received,
-      gap: item.quantity - received,
+      assign_age: item.assign_age ? Number(item.assign_age) : 0,
+      quantity,
+      received,
+      gap: quantity - received,
     };
   });
 
@@ -258,14 +261,17 @@ GROUP BY
 	projectitems.projectitem_id
     ) AS grouped`;
 
-  const total = parseInt(countResult[0]?.total ?? 0);
+  const total = Number(countResult[0]?.total ?? 0);
 
   const data = result.map((item) => {
-    const received = item.received ? parseInt(item.received) : 0;
+    const quantity = item.quantity ? Number(item.quantity) : 0;
+    const received = item.received ? Number(item.received) : 0;
     return {
       ...item,
-      received: received,
-      gap: item.quantity - received,
+      assign_age: item.assign_age ? Number(item.assign_age) : 0,
+      quantity,
+      received,
+      gap: quantity - received,
     };
   });
 
@@ -345,17 +351,17 @@ const byExpiredDate = async (req) => {
 
   inventory.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
-    inventoryMap[key] = parseInt(item.quantity) || 0;
+    inventoryMap[key] = Number(item.quantity) || 0;
   });
 
   workInProgress.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
-    wipMap[key] = parseInt(item.quantity) || 0;
+    wipMap[key] = Number(item.quantity) || 0;
   });
 
   expiredOrders.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
-    expiredStockMap[key] = parseInt(item.quantity) || 0;
+    expiredStockMap[key] = Number(item.quantity) || 0;
   });
 
   // Generate date columns for report period
@@ -393,8 +399,8 @@ const byExpiredDate = async (req) => {
 
     // Set daily quantities
     const dateStr = new Date(item.end_date).toISOString().split("T")[0];
-    reportData[compositeKey][dateStr] = parseInt(item.quantity);
-    reportData[compositeKey].current_period_orders += parseInt(item.quantity);
+    reportData[compositeKey][dateStr] = Number(item.quantity);
+    reportData[compositeKey].current_period_orders += Number(item.quantity);
   });
 
   // Prepare final output
@@ -476,12 +482,12 @@ const bySummary = async (req) => {
     ) AS grouped;
   `;
 
-  const total = parseInt(countResult[0]?.total ?? 0);
+  const total = Number(countResult[0]?.total ?? 0);
 
   const data = result.map((item) => ({
     ...item,
-    order_quantity: parseInt(item.order_quantity ?? 0),
-    project_quantity: parseInt(item.project_quantity ?? 0),
+    order_quantity: Number(item.order_quantity ?? 0),
+    project_quantity: Number(item.project_quantity ?? 0),
   }));
 
   return { data, total };
