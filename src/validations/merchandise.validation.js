@@ -1,7 +1,6 @@
 import Joi from "joi";
 
 const createMerchandiseValidation = Joi.object({
-  product_code: Joi.string().max(100).required(),
   product_name: Joi.string().max(100).required(),
 });
 
@@ -15,7 +14,6 @@ const getMerchandiseValidation = Joi.number().positive().required();
 
 const updateMerchandiseValidation = Joi.object({
   merchandise_id: Joi.number().positive().required(),
-  product_code: Joi.string().max(100).required(),
   product_name: Joi.string().max(100).required(),
 });
 
