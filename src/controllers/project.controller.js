@@ -40,9 +40,19 @@ const getItemByProjectId = async (req, res, next) => {
   }
 };
 
+const getBatchProject = async (req, res, next) => {
+  try {
+    const result = await projectService.getBatchProject();
+    res.status(200).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
   cancel,
   searchProject,
   getItemByProjectId,
+  getBatchProject
 };

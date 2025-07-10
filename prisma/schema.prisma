@@ -115,16 +115,20 @@ model Order {
 }
 
 enum ProjectStatus {
-  OK
+  OPEN
+  PARTIAL
+  FULFILLED
   CANCEL
+  OK
 }
 
 model Project {
-  project_id Int      @id @default(autoincrement()) @db.Int
-  batch_id   String   @db.Char(6)
-  pic_id     Int      @db.Int
-  created_at DateTime @default(now())
-  created_by Int?     @db.Int
+  project_id Int           @id @default(autoincrement()) @db.Int
+  batch_id   String        @db.Char(6)
+  pic_id     Int           @db.Int
+  status     ProjectStatus @default(OPEN)
+  created_at DateTime      @default(now())
+  created_by Int?          @db.Int
 
   ProjectItem ProjectItem[]
 
@@ -143,7 +147,7 @@ model ProjectItem {
   product_id     Int           @db.Int
   variant_id     Int           @db.Int
   quantity       Int           @db.Int
-  status         ProjectStatus @default(OK)
+  status         ProjectStatus @default(OPEN)
   created_at     DateTime      @default(now())
   created_by     Int?          @db.Int
 

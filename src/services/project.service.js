@@ -7,6 +7,7 @@ import {
   searchProjectValidation,
 } from "../validations/project.validation.js";
 import { generateBatchId } from "../utils/generate.js";
+import { ProjectStatus } from "../generated/prisma/index.js";
 
 const create = async (user, req) => {
   const createRequest = validate(createProjectValidation, req);
@@ -125,6 +126,7 @@ const searchProject = async (req) => {
           full_name: true,
         },
       },
+      status: true,
       created_at: true,
     },
     take: searchRequest.size,
@@ -136,6 +138,7 @@ const searchProject = async (req) => {
       project_id: item.project_id,
       batch_id: item.batch_id,
       pic_name: item.User.full_name,
+      status: item.status,
       created_at: item.created_at,
     };
   });
@@ -175,9 +178,24 @@ GROUP BY
 
   return result.map((item) => ({
     ...item,
+    assign_age: Number(item.assign_age ?? 0),
     quantity: Number(item.quantity ?? 0),
     received: Number(item.received ?? 0),
   }));
+};
+
+const getBatchProject = async () => {
+  return await prismaClient.project.findMany({
+    where: {
+      status: {
+        in: [ProjectStatus.OPEN, ProjectStatus.PARTIAL],
+      }
+    },
+    select: {
+      project_id: true,
+      batch_id: true
+    }
+  });
 };
 
 export default {
@@ -185,4 +203,5 @@ export default {
   cancel,
   searchProject,
   getItemByProjectId,
+  getBatchProject
 };

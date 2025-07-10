@@ -50,6 +50,7 @@ router.get(
   "/projects/{:projectId}/items",
   projectController.getItemByProjectId
 );
+router.get("/projects/batch", projectController.getBatchProject);
 
 router.post("/inbounds", inboundController.create);
 router.delete("/inbounds/{:inboundId}", inboundController.reject);

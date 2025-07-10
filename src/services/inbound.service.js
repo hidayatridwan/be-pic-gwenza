@@ -7,36 +7,176 @@ import {
 } from "../validations/inbound.validation.js";
 import { ResponseError } from "../errors/response.error.js";
 import constants from "../utils/constants.js";
+import { InboundStatus, ProjectStatus } from "../generated/prisma/index.js";
+
+// const create = async (user, req) => {
+//   const createRequest = validate(createInboundValidation, req);
+
+//   const projectIds = createRequest.map((item) => item.projectitem_id);
+//   const projectItems = await prismaClient.projectItem.findMany({
+//     where: {
+//       projectitem_id: {
+//         in: projectIds,
+//       },
+//     },
+//   });
+
+//   const inboundSummaries = await prismaClient.inbound.groupBy({
+//     by: ["projectitem_id"],
+//     where: {
+//       projectitem_id: {
+//         in: projectIds,
+//       },
+//     },
+//     _sum: {
+//       quantity: true,
+//     }
+//   });
+
+//   const inboundMapped = inboundSummaries.map((item) => ({
+//     projectitem_id: item.projectitem_id,
+//     quantity: item._sum.quantity,
+//   }));
+
+//   let projectItemTotals = [];
+//   const inbounds = projectItems.map((item) => {
+//     const matchedRequest = createRequest.find(
+//       (r) => r.projectitem_id === item.projectitem_id
+//     );
+//     const matchedInbound = inboundMapped.find(
+//       (r) => r.projectitem_id === item.projectitem_id
+//     );
+
+//     const status = (matchedRequest?.quantity + matchedInbound.quantity) >= item.quantity ? ProjectStatus.FULFILLED : ProjectStatus.PARTIAL;
+//     projectItemTotals.push({
+//       projectitem_id: item.projectitem_id,
+//       status
+//     });
+
+//     return {
+//       projectitem_id: item.projectitem_id,
+//       pic_id: item.pic_id,
+//       tailor_id: item.tailor_id,
+//       product_id: item.product_id,
+//       variant_id: item.variant_id,
+//       quantity: matchedRequest?.quantity ?? 0, // fallback to 0 if not found
+//       created_by: user.user_id,
+//     };
+//   });
+
+//   await Promise.all(
+//     projectItemTotals.map((item) => (
+//       prismaClient.projectItem.update({
+//         where: { projectitem_id: item.projectitem_id },
+//         data: { status: item.status },
+//       })
+//     ))
+//   );
+
+//   return await prismaClient.inbound.createMany({ data: inbounds });
+// };
 
 const create = async (user, req) => {
   const createRequest = validate(createInboundValidation, req);
 
-  const projectIds = createRequest.map((item) => item.projectitem_id);
-  const result = await prismaClient.projectItem.findMany({
+  const projectItemIds = createRequest.map((item) => item.projectitem_id);
+
+  const projectItems = await prismaClient.projectItem.findMany({
     where: {
-      projectitem_id: {
-        in: projectIds,
-      },
+      projectitem_id: { in: projectItemIds },
     },
   });
 
-  const data = result.map((item) => {
-    const matchedRequest = createRequest.find(
-      (r) => r.projectitem_id === item.projectitem_id
-    );
+  if (projectItems.length === 0) {
+    throw new Error("No project items found.");
+  }
 
-    return {
+  // Validation: all project items must belong to the same project
+  const projectIdsSet = new Set(projectItems.map((item) => item.project_id));
+  if (projectIdsSet.size > 1) {
+    throw new Error("Request must not contain items from multiple project IDs.");
+  }
+
+  const inboundSummaries = await prismaClient.inbound.groupBy({
+    by: ["projectitem_id"],
+    where: {
+      projectitem_id: { in: projectItemIds },
+    },
+    _sum: {
+      quantity: true,
+    },
+  });
+
+  // Create maps for fast lookup
+  const requestMap = new Map(createRequest.map((item) => [item.projectitem_id, item]));
+  const inboundMap = new Map(inboundSummaries.map((item) => [item.projectitem_id, item._sum.quantity]));
+
+  const updatedProjectItemStatuses = [];
+  const inboundDataToCreate = [];
+
+  for (const item of projectItems) {
+    const request = requestMap.get(item.projectitem_id);
+    const previousInboundQty = inboundMap.get(item.projectitem_id) || 0;
+    const currentInboundQty = request?.quantity ?? 0;
+    const totalInboundQty = previousInboundQty + currentInboundQty;
+
+    const status =
+      totalInboundQty >= item.quantity
+        ? ProjectStatus.FULFILLED
+        : ProjectStatus.PARTIAL;
+
+    updatedProjectItemStatuses.push({
+      projectitem_id: item.projectitem_id,
+      status,
+    });
+
+    inboundDataToCreate.push({
       projectitem_id: item.projectitem_id,
       pic_id: item.pic_id,
       tailor_id: item.tailor_id,
       product_id: item.product_id,
       variant_id: item.variant_id,
-      quantity: matchedRequest?.quantity ?? 0, // fallback to 0 if not found
+      quantity: currentInboundQty,
       created_by: user.user_id,
-    };
+    });
+  }
+
+  // Update status of each project item
+  await Promise.all(
+    updatedProjectItemStatuses.map((item) =>
+      prismaClient.projectItem.update({
+        where: { projectitem_id: item.projectitem_id },
+        data: { status: item.status },
+      })
+    )
+  );
+
+  // Check if all project items are FULFILLED for this project
+  const projectId = projectItems[0].project_id;
+
+  const allProjectItems = await prismaClient.projectItem.findMany({
+    where: { project_id: projectId },
+    select: { status: true },
   });
 
-  return await prismaClient.inbound.createMany({ data });
+  const statuses = allProjectItems.map((item) => item.status);
+
+  if (statuses.every((s) => s === ProjectStatus.FULFILLED)) {
+    await prismaClient.project.update({
+      where: { project_id: projectId },
+      data: { status: ProjectStatus.FULFILLED },
+    });
+  } else if (statuses.some((s) => s === ProjectStatus.PARTIAL)) {
+    await prismaClient.project.update({
+      where: { project_id: projectId },
+      data: { status: ProjectStatus.PARTIAL },
+    });
+  }
+
+  // Insert new inbound data
+  return await prismaClient.inbound.createMany({
+    data: inboundDataToCreate,
+  });
 };
 
 const reject = async (inboundId) => {
@@ -57,7 +197,7 @@ const reject = async (inboundId) => {
       inbound_id: inboundId,
     },
     data: {
-      status: "REJECT",
+      status: InboundStatus.REJECT,
     },
   });
 
