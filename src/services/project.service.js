@@ -8,6 +8,8 @@ import {
 } from "../validations/project.validation.js";
 import { generateBatchId } from "../utils/generate.js";
 import { ProjectStatus } from "../generated/prisma/index.js";
+import { ResponseError } from "../errors/response.error.js";
+import constants from "../utils/constants.js";
 
 const create = async (user, req) => {
   const createRequest = validate(createProjectValidation, req);
@@ -70,6 +72,18 @@ const cancel = async (projectId) => {
       throw new ResponseError(404, constants.RECORD_NOT_FOUND);
     }
 
+    const countInbound = await tx.inbound.count({
+      where: {
+        ProjectItem: {
+          project_id: projectId,
+        }
+      },
+    });
+
+    if (countInbound > 0) {
+      throw new ResponseError(409, 'Inbound already created');
+    }
+
     await tx.order.updateMany({
       where: {
         project_id: projectId,
@@ -84,7 +98,7 @@ const cancel = async (projectId) => {
         project_id: projectId,
       },
       data: {
-        status: "CANCEL",
+        status: ProjectStatus.CANCEL,
       },
     });
 
@@ -93,7 +107,7 @@ const cancel = async (projectId) => {
         project_id: projectId,
       },
       data: {
-        status: "CANCEL",
+        status: ProjectStatus.CANCEL,
       },
     });
   });
@@ -158,6 +172,7 @@ const getItemByProjectId = async (projectId) => {
 	tailors.tailor_name,
 	products.product_name,
 	variants.variant_name,
+  projectitems.status,
 	projectitems.assign_date,
 	DATEDIFF(CURDATE(), projectitems.assign_date) AS assign_age,
 	projectitems.quantity,
