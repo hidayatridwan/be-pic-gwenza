@@ -20,6 +20,7 @@ enum Role {
   RECEIPT
   FD
   MD
+  RECEIVER
 }
 
 model User {
@@ -68,7 +69,7 @@ model Variant {
 
 model Product {
   product_id   Int      @id @default(autoincrement()) @db.Int
-  product_name String   @unique @db.VarChar(100)
+  product_name String   @unique @db.VarChar(255)
   created_at   DateTime @default(now())
   created_by   Int?     @db.Int
 
@@ -95,7 +96,7 @@ model Order {
   channel      String    @db.VarChar(100)
   order_number String    @db.VarChar(100)
   product_id   Int?      @db.Int
-  product_name String    @db.VarChar(100)
+  product_name String    @db.VarChar(255)
   variant_id   Int?      @db.Int
   variant_name String    @db.VarChar(100)
   quantity     Int       @db.Int
@@ -209,7 +210,7 @@ model FashionDesign {
 
 model Merchandise {
   merchandise_id      Int                   @id @default(autoincrement()) @db.Int
-  product_name        String                @unique @db.VarChar(100)
+  product_name        String                @unique @db.VarChar(255)
   created_at          DateTime              @default(now())
   created_by          Int?                  @db.Int
   MerchandiseInbound  MerchandiseInbound[]
