@@ -12,6 +12,8 @@ import inboundController from "../controllers/inbound.controller.js";
 import reportController from "../controllers/report.controller.js";
 import fashionDesignController from "../controllers/fashion.design.controller.js";
 import merchandiseController from "../controllers/merchandise.controller.js";
+import merchandiseInboundController from "../controllers/merchandise.inbound.controller.js";
+import merchandiseOutboundController from "../controllers/merchandise.outbound.controller.js";
 
 const router = express.Router();
 
@@ -60,7 +62,8 @@ router.get("/reports/products", reportController.byProducts);
 router.get("/reports/pic", reportController.byPIC);
 router.get("/reports/tailors", reportController.byTailors);
 router.get("/reports/date", reportController.byExpiredDate);
-router.get("/reports/summary", reportController.bySummary);
+router.get("/reports/merchandise-summary", reportController.byMerchandiseSummary);
+router.get("/reports/merchandise-date", reportController.byMerchandiseDate);
 
 router.post(
   "/fashion-designs",
@@ -88,5 +91,10 @@ router.post("/merchandises", merchandiseController.create);
 router.get("/merchandises", merchandiseController.search);
 router.get("/merchandises/{:merchandiseId}", merchandiseController.get);
 router.put("/merchandises/{:merchandiseId}", merchandiseController.update);
+
+router.post("/merchandise-inbounds", merchandiseInboundController.create);
+router.get("/merchandise-inbounds", merchandiseInboundController.search);
+router.post("/merchandise-outbounds", merchandiseOutboundController.create);
+router.get("/merchandise-outbounds", merchandiseOutboundController.search);
 
 export { router };

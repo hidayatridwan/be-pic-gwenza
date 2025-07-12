@@ -221,8 +221,10 @@ model Merchandise {
 model MerchandiseInbound {
   merchandise_inbound_id Int      @id @default(autoincrement()) @db.Int
   inbound_date           DateTime @db.Date()
+  inbound_code           String   @db.VarChar(100)
   merchandise_id         Int      @db.Int
-  store_name             String?  @db.VarChar(255)
+  store_name             String?  @db.VarChar(100)
+  color                  String?  @db.VarChar(100)
   quantity               Int      @db.Int
   created_at             DateTime @default(now())
   created_by             Int?     @db.Int
@@ -235,6 +237,7 @@ model MerchandiseInbound {
 model MerchandiseOutbound {
   merchandise_outbound_id Int      @id @default(autoincrement()) @db.Int
   outbound_date           DateTime @db.Date()
+  outbound_code           String   @db.VarChar(100)
   merchandise_id          Int      @db.Int
   fashiondesign_id        Int      @db.Int
   tailor_id               Int      @db.Int

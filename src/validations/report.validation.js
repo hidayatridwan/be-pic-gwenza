@@ -21,7 +21,13 @@ const searchByTailorValidation = Joi.object({
 
 const getExpiredProductsValidation = Joi.date().required();
 
-const searchSummaryValidation = Joi.object({
+const searchMerchandiseSummaryValidation = Joi.object({
+  page: Joi.number().min(1).positive().default(1),
+  size: Joi.number().min(1).max(100).positive().default(10),
+  search: Joi.string().min(0).max(100).optional(),
+});
+
+const searchMerchandiseDateValidation = Joi.object({
   page: Joi.number().min(1).positive().default(1),
   size: Joi.number().min(1).max(100).positive().default(10),
   search: Joi.string().min(0).max(100).optional(),
@@ -32,5 +38,6 @@ export {
   searchByPicValidation,
   searchByTailorValidation,
   getExpiredProductsValidation,
-  searchSummaryValidation,
+  searchMerchandiseSummaryValidation,
+  searchMerchandiseDateValidation
 };

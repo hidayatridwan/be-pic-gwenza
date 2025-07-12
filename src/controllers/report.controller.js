@@ -42,15 +42,26 @@ const byExpiredDate = async (req, res, next) => {
   }
 };
 
-const bySummary = async (req, res, next) => {
+const byMerchandiseSummary = async (req, res, next) => {
   try {
     req.query.page = Number(req.query.page);
     req.query.size = Number(req.query.size);
-    const result = await reportService.bySummary(req.query);
+    const result = await reportService.byMerchandiseSummary(req.query);
     res.status(200).json(result);
   } catch (err) {
     next(err);
   }
 };
 
-export default { byProducts, byPIC, byTailors, byExpiredDate, bySummary };
+const byMerchandiseDate = async (req, res, next) => {
+  try {
+    req.query.page = Number(req.query.page);
+    req.query.size = Number(req.query.size);
+    const result = await reportService.byMerchandiseDate(req.query);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { byProducts, byPIC, byTailors, byExpiredDate, byMerchandiseSummary, byMerchandiseDate };

@@ -1,10 +1,12 @@
 import { prismaClient } from "../apps/database.js";
+import { Prisma } from "../generated/prisma/index.js";
 import {
   getExpiredProductsValidation,
   getOrderProductsValidation,
   searchByPicValidation,
   searchByTailorValidation,
-  searchSummaryValidation,
+  searchMerchandiseDateValidation,
+  searchMerchandiseSummaryValidation,
 } from "../validations/report.validation.js";
 import { validate } from "../validations/validation.js";
 
@@ -428,69 +430,134 @@ const byExpiredDate = async (req) => {
   };
 };
 
-const bySummary = async (req) => {
-  const searchRequest = validate(searchSummaryValidation, req);
+const byMerchandiseSummary = async (req) => {
+  const searchRequest = validate(searchMerchandiseSummaryValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
-  const search = `%${searchRequest.search ?? ""}%`;
+  let where = {};
+  if (searchRequest.search) {
+    where = {
+      product_name: { contains: searchRequest.search },
+    };
+  }
 
-  // Get paginated result
-  const result = await prismaClient.$queryRaw`
-    SELECT
-      orders.product_name,
-      orders.variant_name,
-      SUM(orders.quantity) AS order_quantity,
-      SUM(projectitems.quantity) AS project_quantity
-    FROM orders
-    LEFT JOIN projectitems
-      ON projectitems.project_id = orders.project_id
-      AND projectitems.product_id = orders.product_id
-      AND projectitems.variant_id = orders.variant_id
-    WHERE
-      orders.product_name LIKE ${search}
-      OR orders.variant_name LIKE ${search}
-    GROUP BY
-      orders.project_id,
-      orders.product_id,
-      orders.variant_id,
-      orders.product_name,
-      orders.variant_name
-    ORDER BY
-      orders.product_name,
-      orders.variant_name
-    LIMIT ${searchRequest.size}
-    OFFSET ${skip};
-  `;
+  const products = await prismaClient.merchandise.findMany({
+    where,
+    take: searchRequest.size,
+    skip: skip,
+    orderBy: {
+      product_name: "asc",
+    },
+  });
 
-  // Count total matching rows without re-running the full query
-  const countResult = await prismaClient.$queryRaw`
-    SELECT COUNT(*) as total FROM (
-      SELECT 1
-      FROM orders
-      LEFT JOIN projectitems
-        ON projectitems.project_id = orders.project_id
-        AND projectitems.product_id = orders.product_id
-        AND projectitems.variant_id = orders.variant_id
-      WHERE
-        orders.product_name LIKE ${search}
-        OR orders.variant_name LIKE ${search}
-      GROUP BY
-        orders.project_id,
-        orders.product_id,
-        orders.variant_id,
-        orders.product_name,
-        orders.variant_name
-    ) AS grouped;
-  `;
+  const inbounds = await prismaClient.merchandiseInbound.groupBy({
+    where: {
+      merchandise_id: {
+        in: products.map(item => item.merchandise_id)
+      }
+    },
+    by: ['merchandise_id'],
+    _sum: {
+      quantity: true,
+    },
+  });
 
-  const total = Number(countResult[0]?.total ?? 0);
+  const outbounds = await prismaClient.merchandiseOutbound.groupBy({
+    where: {
+      merchandise_id: {
+        in: products.map(item => item.merchandise_id)
+      }
+    },
+    by: ['merchandise_id'],
+    _sum: {
+      quantity: true,
+    },
+  });
 
-  const data = result.map((item) => ({
-    ...item,
-    order_quantity: Number(item.order_quantity ?? 0),
-    project_quantity: Number(item.project_quantity ?? 0),
-  }));
+  const data = products.map(product => {
+    const inboundData = inbounds.find(item => item.merchandise_id === product.merchandise_id);
+    const inboundQty = inboundData ? inboundData._sum.quantity : 0;
+
+    const outboundData = outbounds.find(item => item.merchandise_id === product.merchandise_id);
+    const outboundQty = outboundData ? outboundData._sum.quantity : 0;
+
+    const availableQty = inboundQty - outboundQty;
+
+    return {
+      product_name: product.product_name,
+      inbound: inboundQty,
+      outbound: outboundQty,
+      available: availableQty
+    };
+  });
+
+  const total = await prismaClient.merchandise.count({ where });
 
   return { data, total };
 };
 
-export default { byProducts, byPIC, byTailors, byExpiredDate, bySummary };
+const byMerchandiseDate = async (req) => {
+  const searchRequest = validate(searchMerchandiseDateValidation, req);
+  const skip = (searchRequest.page - 1) * searchRequest.size;
+  let where = {};
+  if (searchRequest.search) {
+    where = {
+      product_name: { contains: searchRequest.search },
+    };
+  }
+
+  const products = await prismaClient.merchandise.findMany({
+    where,
+    take: searchRequest.size,
+    skip: skip,
+    orderBy: {
+      product_name: "asc",
+    },
+  });
+
+  const merchandiseIds = products.map(item => item.merchandise_id);
+
+  const transactions = await prismaClient.$queryRaw`SELECT
+	merchandiseinbounds.merchandise_id,
+	merchandiseinbounds.inbound_date AS tx_date,
+	merchandiseinbounds.inbound_code AS tx_code,
+	merchandiseinbounds.quantity AS qty_in,
+	0 AS qty_out,
+	concat('[Toko: ', merchandiseinbounds.store_name, '] [Warna: ', merchandiseinbounds.color, ']') AS notes
+FROM
+	merchandiseinbounds
+WHERE
+	merchandiseinbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
+UNION ALL
+SELECT
+	merchandiseoutbounds.merchandise_id,
+	merchandiseoutbounds.outbound_date AS tx_date,
+	merchandiseoutbounds.outbound_code AS tx_code,
+	0 AS qty_in,
+	merchandiseoutbounds.quantity AS qty_out,
+	concat('[Konveksi: ', tailors.tailor_name, '] [FD: ', fashiondesigns.sample_code, ']') AS notes
+FROM
+	merchandiseoutbounds
+	JOIN tailors ON merchandiseoutbounds.tailor_id = tailors.tailor_id
+	JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
+WHERE
+	merchandiseoutbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
+ORDER BY
+	tx_date`;
+
+  const result = transactions.map(transaction => {
+    // Find the corresponding product
+    const product = products.find(p => p.merchandise_id === transaction.merchandise_id);
+
+    // Return merged object
+    return {
+      product_name: product ? product.product_name : 'Unknown Product',
+      ...transaction
+    };
+  });
+
+  const total = await prismaClient.merchandise.count({ where });
+
+  return { data: result, total };
+};
+
+export default { byProducts, byPIC, byTailors, byExpiredDate, byMerchandiseSummary, byMerchandiseDate };

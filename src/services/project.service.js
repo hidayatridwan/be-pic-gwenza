@@ -13,6 +13,7 @@ import constants from "../utils/constants.js";
 
 const create = async (user, req) => {
   const createRequest = validate(createProjectValidation, req);
+  createRequest.created_by = user.user_id;
 
   let result;
   await prismaClient.$transaction(async (tx) => {
