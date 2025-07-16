@@ -73,9 +73,10 @@ model Product {
   created_at   DateTime @default(now())
   created_by   Int?     @db.Int
 
-  Inbound     Inbound[]
-  ProjectItem ProjectItem[]
-  Order       Order[]
+  Inbound             Inbound[]
+  ProjectItem         ProjectItem[]
+  Order               Order[]
+  MerchandiseOutbound MerchandiseOutbound[]
 
   @@map("products")
 }
@@ -208,9 +209,15 @@ model FashionDesign {
   @@map("fashiondesigns")
 }
 
+enum Category {
+  MATERIAL
+  ACCESORIES
+}
+
 model Merchandise {
   merchandise_id      Int                   @id @default(autoincrement()) @db.Int
   product_name        String                @unique @db.VarChar(255)
+  category            Category              @default(MATERIAL)
   created_at          DateTime              @default(now())
   created_by          Int?                  @db.Int
   MerchandiseInbound  MerchandiseInbound[]
@@ -219,19 +226,44 @@ model Merchandise {
   @@map("merchandises")
 }
 
+model Supplier {
+  supplier_id        Int                  @id @default(autoincrement()) @db.Int
+  supplier_name      String               @unique @db.VarChar(100)
+  created_at         DateTime             @default(now())
+  created_by         Int?                 @db.Int
+  MerchandiseInbound MerchandiseInbound[]
+
+  @@map("suppliers")
+}
+
+model Color {
+  color_id           Int                  @id @default(autoincrement()) @db.Int
+  color_name         String               @unique @db.VarChar(100)
+  created_at         DateTime             @default(now())
+  created_by         Int?                 @db.Int
+  MerchandiseInbound MerchandiseInbound[]
+
+  @@map("colors")
+}
+
 model MerchandiseInbound {
   merchandise_inbound_id Int      @id @default(autoincrement()) @db.Int
   inbound_date           DateTime @db.Date()
   inbound_code           String   @db.VarChar(100)
   merchandise_id         Int      @db.Int
+  supplier_id            Int      @db.Int
+  color_id               Int      @db.Int
   store_name             String?  @db.VarChar(100)
-  color                  String?  @db.VarChar(100)
+  price                  Int      @db.Int
   quantity               Int      @db.Int
   created_at             DateTime @default(now())
   created_by             Int?     @db.Int
 
   Merchandise Merchandise? @relation(fields: [merchandise_id], references: [merchandise_id])
+  Supplier    Supplier?    @relation(fields: [supplier_id], references: [supplier_id])
+  Color       Color?       @relation(fields: [color_id], references: [color_id])
 
+  @@index([inbound_code])
   @@map("merchandiseinbounds")
 }
 
@@ -240,7 +272,8 @@ model MerchandiseOutbound {
   outbound_date           DateTime @db.Date()
   outbound_code           String   @db.VarChar(100)
   merchandise_id          Int      @db.Int
-  fashiondesign_id        Int      @db.Int
+  fashiondesign_id        Int?     @db.Int
+  product_id              Int?     @db.Int
   tailor_id               Int      @db.Int
   quantity                Int      @db.Int
   created_at              DateTime @default(now())
@@ -248,7 +281,9 @@ model MerchandiseOutbound {
 
   Merchandise   Merchandise?   @relation(fields: [merchandise_id], references: [merchandise_id])
   FashionDesign FashionDesign? @relation(fields: [fashiondesign_id], references: [fashiondesign_id])
+  Product       Product?       @relation(fields: [product_id], references: [product_id])
   Tailor        Tailor?        @relation(fields: [tailor_id], references: [tailor_id])
 
+  @@index([outbound_code])
   @@map("merchandiseoutbounds")
 }

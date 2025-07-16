@@ -20,7 +20,17 @@ const search = async (req, res, next) => {
   }
 };
 
+const inboundCodes = async (req, res, next) => {
+  try {
+    const result = await merchandiseInboundService.inboundCodes(Number(req.params.merchandiseId));
+    res.status(200).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
-  search
+  search,
+  inboundCodes
 };

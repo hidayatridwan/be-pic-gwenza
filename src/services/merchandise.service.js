@@ -26,6 +26,7 @@ const create = async (user, req) => {
   return await prismaClient.merchandise.create({
     data: createRequest,
     select: {
+      category: true,
       product_name: true,
       created_at: true,
     },
@@ -38,7 +39,14 @@ const search = async (req) => {
   let where = {};
   if (searchRequest.search) {
     where = {
-      product_name: { contains: searchRequest.search },
+      OR: [
+        {
+          category: { contains: searchRequest.search },
+        },
+        {
+          product_name: { contains: searchRequest.search },
+        },
+      ],
     };
   }
 

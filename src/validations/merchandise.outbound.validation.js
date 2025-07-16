@@ -3,10 +3,12 @@ import Joi from "joi";
 const createMerchandiseOutboundValidation = Joi.array().items(
   Joi.object({
     outbound_date: Joi.date().required(),
-    outbound_code: Joi.string().required(),
     merchandise_id: Joi.number().required(),
-    fashiondesign_id: Joi.number().required(),
+    outbound_code: Joi.string().required(),
     tailor_id: Joi.number().required(),
+    type: Joi.string().valid('New Product', 'Repeat Product').required(),
+    fashiondesign_id: Joi.number().optional(),
+    product_id: Joi.number().optional(),
     quantity: Joi.number().required(),
   })
 );

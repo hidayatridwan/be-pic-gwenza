@@ -14,6 +14,8 @@ import fashionDesignController from "../controllers/fashion.design.controller.js
 import merchandiseController from "../controllers/merchandise.controller.js";
 import merchandiseInboundController from "../controllers/merchandise.inbound.controller.js";
 import merchandiseOutboundController from "../controllers/merchandise.outbound.controller.js";
+import supplierController from "../controllers/supplier.controller.js";
+import colorController from "../controllers/color.controller.js";
 
 const router = express.Router();
 
@@ -92,8 +94,20 @@ router.get("/merchandises", merchandiseController.search);
 router.get("/merchandises/{:merchandiseId}", merchandiseController.get);
 router.put("/merchandises/{:merchandiseId}", merchandiseController.update);
 
+router.post("/colors", colorController.create);
+router.get("/colors", colorController.search);
+router.get("/colors/{:colorId}", colorController.get);
+router.put("/colors/{:colorId}", colorController.update);
+
+router.post("/suppliers", supplierController.create);
+router.get("/suppliers", supplierController.search);
+router.get("/suppliers/{:supplierId}", supplierController.get);
+router.put("/suppliers/{:supplierId}", supplierController.update);
+
 router.post("/merchandise-inbounds", merchandiseInboundController.create);
 router.get("/merchandise-inbounds", merchandiseInboundController.search);
+router.get("/merchandise-inbounds/{:merchandiseId}/inbound-codes", merchandiseInboundController.inboundCodes);
+
 router.post("/merchandise-outbounds", merchandiseOutboundController.create);
 router.get("/merchandise-outbounds", merchandiseOutboundController.search);
 

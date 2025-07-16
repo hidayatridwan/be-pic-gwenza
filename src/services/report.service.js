@@ -522,9 +522,11 @@ const byMerchandiseDate = async (req) => {
 	merchandiseinbounds.inbound_code AS tx_code,
 	merchandiseinbounds.quantity AS qty_in,
 	0 AS qty_out,
-	concat('[Toko: ', merchandiseinbounds.store_name, '] [Warna: ', merchandiseinbounds.color, ']') AS notes
+	concat('[Supplier: ', suppliers.supplier_name, '] [Toko: ', merchandiseinbounds.store_name, '] [Warna: ', colors.color_name, ']') AS notes
 FROM
 	merchandiseinbounds
+JOIN colors ON merchandiseinbounds.color_id = colors.color_id
+JOIN suppliers ON merchandiseinbounds.supplier_id = suppliers.supplier_id
 WHERE
 	merchandiseinbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
 UNION ALL
@@ -534,11 +536,14 @@ SELECT
 	merchandiseoutbounds.outbound_code AS tx_code,
 	0 AS qty_in,
 	merchandiseoutbounds.quantity AS qty_out,
-	concat('[Konveksi: ', tailors.tailor_name, '] [FD: ', fashiondesigns.sample_code, ']') AS notes
+	concat('[Konveksi: ', tailors.tailor_name, '] [Produk: ', COALESCE(fashiondesigns.sample_code, products.product_name), '] [Warna: ', colors.color_name, ']') AS notes
 FROM
 	merchandiseoutbounds
 	JOIN tailors ON merchandiseoutbounds.tailor_id = tailors.tailor_id
-	JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
+	JOIN merchandiseinbounds ON merchandiseoutbounds.outbound_code = merchandiseinbounds.inbound_code
+	JOIN colors ON merchandiseinbounds.color_id = colors.color_id
+	LEFT JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
+	LEFT JOIN products ON merchandiseoutbounds.product_id = products.product_id
 WHERE
 	merchandiseoutbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
 ORDER BY

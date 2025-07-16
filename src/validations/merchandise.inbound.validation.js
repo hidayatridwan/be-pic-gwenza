@@ -5,8 +5,10 @@ const createMerchandiseInboundValidation = Joi.array().items(
     inbound_date: Joi.date().required(),
     inbound_code: Joi.string().required(),
     merchandise_id: Joi.number().required(),
+    supplier_id: Joi.number().required(),
+    color_id: Joi.number().required(),
     store_name: Joi.string().required(),
-    color: Joi.string().required(),
+    price: Joi.number().required(),
     quantity: Joi.number().required(),
   })
 );
@@ -17,7 +19,10 @@ const searchMerchandiseInboundValidation = Joi.object({
   search: Joi.string().min(0).max(100).optional(),
 });
 
+const inboundCodesValidation = Joi.number().min(1).positive().required();
+
 export {
   createMerchandiseInboundValidation,
   searchMerchandiseInboundValidation,
+  inboundCodesValidation
 };

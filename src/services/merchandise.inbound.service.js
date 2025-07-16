@@ -1,5 +1,5 @@
 import { prismaClient } from "../apps/database.js";
-import { createMerchandiseInboundValidation, searchMerchandiseInboundValidation } from "../validations/merchandise.inbound.validation.js";
+import { createMerchandiseInboundValidation, inboundCodesValidation, searchMerchandiseInboundValidation } from "../validations/merchandise.inbound.validation.js";
 import { validate } from "../validations/validation.js";
 
 const create = async (user, req) => {
@@ -23,13 +23,22 @@ const search = async (req) => {
     where = {
       OR: [
         { inbound_code: { contains: searchRequest.search } },
-        { store_name: { contains: searchRequest.search } },
-        { color: { contains: searchRequest.search } },
         {
           Merchandise: {
             product_name: { contains: searchRequest.search },
           },
         },
+        {
+          Supplier: {
+            supplier_name: { contains: searchRequest.search },
+          },
+        },
+        {
+          Color: {
+            color_name: { contains: searchRequest.search },
+          },
+        },
+        { store_name: { contains: searchRequest.search } },
       ],
     };
   }
@@ -45,8 +54,18 @@ const search = async (req) => {
           product_name: true,
         },
       },
+      Supplier: {
+        select: {
+          supplier_name: true,
+        },
+      },
+      Color: {
+        select: {
+          color_name: true,
+        },
+      },
       store_name: true,
-      color: true,
+      price: true,
       quantity: true,
       created_at: true,
     },
@@ -60,8 +79,10 @@ const search = async (req) => {
       inbound_date: item.inbound_date,
       inbound_code: item.inbound_code,
       product_name: item.Merchandise.product_name,
+      supplier_name: item.Supplier.supplier_name,
+      color_name: item.Color.color_name,
       store_name: item.store_name,
-      color: item.color,
+      price: item.price,
       quantity: item.quantity,
       created_at: item.created_at,
     };
@@ -72,7 +93,20 @@ const search = async (req) => {
   return { data, total };
 };
 
+const inboundCodes = async (merchandiseId) => {
+  merchandiseId = validate(inboundCodesValidation, merchandiseId);
+  return await prismaClient.merchandiseInbound.findMany({
+    where: {
+      merchandise_id: merchandiseId,
+    },
+    select: {
+      inbound_code: true,
+    },
+  });
+};
+
 export default {
   create,
-  search
+  search,
+  inboundCodes
 };
