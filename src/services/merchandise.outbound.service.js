@@ -55,7 +55,7 @@ OFFSET ${skip}`;
       outbound_date: item.outbound_date,
       outbound_code: item.outbound_code,
       material_name: item.material_name,
-      color: item.color_name,
+      color_name: item.color_name,
       tailor_name: item.tailor_name,
       product_name: item.product_name,
       quantity: item.quantity,
