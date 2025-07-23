@@ -209,7 +209,7 @@ const search = async (req) => {
     take: searchRequest.size,
     skip: skip,
     orderBy: {
-      product_id: "asc",
+      created_at: "desc"
     },
   });
 
@@ -224,6 +224,7 @@ const search = async (req) => {
     assign_date: item.ProjectItem.assign_date,
     quantity: item.quantity,
     created_at: item.created_at,
+    created_by: item.User.full_name,
   }));
 
   const total = await prismaClient.projectItem.count({ where });

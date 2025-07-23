@@ -28,14 +28,50 @@ const search = async (req) => {
     };
   }
 
-  const data = await prismaClient.order.findMany({
+  const result = await prismaClient.order.findMany({
     where,
+    select: {
+      order_id: true,
+      channel: true,
+      order_number: true,
+      product_id: true,
+      product_name: true,
+      variant_id: true,
+      variant_name: true,
+      quantity: true,
+      start_date: true,
+      end_date: true,
+      project_id: true,
+      created_at: true,
+      User: {
+        select: {
+          full_name: true,
+        },
+      },
+    },
     take: searchRequest.size,
     skip: skip,
     orderBy: {
       start_date: "desc",
     },
   });
+
+  const data = result.map((item) => ({
+    order_id: item.order_id,
+    channel: item.channel,
+    order_number: item.order_number,
+    product_id: item.product_id,
+    product_name: item.product_name,
+    variant_id: item.variant_id,
+    variant_name: item.variant_name,
+    quantity: item.quantity,
+    start_date: item.start_date,
+    end_date: item.end_date,
+    project_id: item.project_id,
+    created_at: item.created_at,
+    created_by: item.User.full_name,
+  }));
+
   const total = await prismaClient.order.count({ where });
 
   return { data, total };

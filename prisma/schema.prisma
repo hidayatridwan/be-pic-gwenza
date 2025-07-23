@@ -34,9 +34,25 @@ model User {
   role       Role     @default(PPIC)
   created_at DateTime @default(now())
 
-  Inbound     Inbound[]
-  ProjectItem ProjectItem[]
-  Project     Project[]
+  Inbound              Inbound[]
+  ProjectItem          ProjectItem[]
+  Project              Project[]
+  TailorCreated        Tailor[]              @relation("TailorCreatedBy")
+  TailorUpdated        Tailor[]              @relation("TailorUpdatedBy")
+  ProductCreated       Product[]             @relation("ProductCreatedBy")
+  ProductUpdated       Product[]             @relation("ProductUpdatedBy")
+  FashionDesignCreated FashionDesign[]       @relation("FashionDesignCreatedBy")
+  FashionDesignUpdated FashionDesign[]       @relation("FashionDesignUpdatedBy")
+  MerchandiseCreated   Merchandise[]         @relation("MerchandiseCreatedBy")
+  MerchandiseUpdated   Merchandise[]         @relation("MerchandiseUpdatedBy")
+  SupplierCreated      Supplier[]            @relation("SupplierCreatedBy")
+  SupplierUpdated      Supplier[]            @relation("SupplierUpdatedBy")
+  ColorCreated         Color[]               @relation("ColorCreatedBy")
+  ColorUpdated         Color[]               @relation("ColorUpdatedBy")
+  Order                Order[]
+  Outbound             Outbound[]
+  MerchandiseInbound   MerchandiseInbound[]
+  MerchandiseOutbound  MerchandiseOutbound[]
 
   @@map("users")
 }
@@ -46,6 +62,11 @@ model Tailor {
   tailor_name String   @unique @db.VarChar(100)
   created_at  DateTime @default(now())
   created_by  Int?     @db.Int
+  updated_at  DateTime @default(now())
+  updated_by  Int?     @db.Int
+
+  CreatedBy User? @relation("TailorCreatedBy", fields: [created_by], references: [user_id])
+  UpdatedBy User? @relation("TailorUpdatedBy", fields: [updated_by], references: [user_id])
 
   Inbound             Inbound[]
   ProjectItem         ProjectItem[]
@@ -63,20 +84,30 @@ model Variant {
   Inbound     Inbound[]
   ProjectItem ProjectItem[]
   Order       Order[]
+  Outbound    Outbound[]
 
   @@map("variants")
 }
 
 model Product {
-  product_id   Int      @id @default(autoincrement()) @db.Int
-  product_name String   @unique @db.VarChar(255)
-  created_at   DateTime @default(now())
-  created_by   Int?     @db.Int
+  product_id         Int      @id @default(autoincrement()) @db.Int
+  fashiondesign_code String?  @db.VarChar(10)
+  product_name       String   @unique @db.VarChar(255)
+  cogs               Int?     @db.Int
+  selling_price      Int?     @db.Int
+  created_at         DateTime @default(now())
+  created_by         Int?     @db.Int
+  updated_at         DateTime @default(now())
+  updated_by         Int?     @db.Int
+
+  CreatedBy User? @relation("ProductCreatedBy", fields: [created_by], references: [user_id])
+  UpdatedBy User? @relation("ProductUpdatedBy", fields: [updated_by], references: [user_id])
 
   Inbound             Inbound[]
   ProjectItem         ProjectItem[]
   Order               Order[]
   MerchandiseOutbound MerchandiseOutbound[]
+  Outbound            Outbound[]
 
   @@map("products")
 }
@@ -110,6 +141,7 @@ model Order {
   Product Product? @relation(fields: [product_id], references: [product_id])
   Variant Variant? @relation(fields: [variant_id], references: [variant_id])
   Project Project? @relation(fields: [project_id], references: [project_id])
+  User    User?    @relation(fields: [created_by], references: [user_id])
 
   @@unique([channel, order_number, product_name, variant_name])
   @@index([start_date, end_date])
@@ -188,23 +220,50 @@ model Inbound {
   @@map("inbounds")
 }
 
-model FashionDesign {
-  fashiondesign_id    Int       @id @default(autoincrement()) @db.Int
-  sample_code         String    @db.VarChar(10)
-  sample_file         String?   @db.VarChar(255)
-  tailor_id           Int?      @db.Int
-  send_sample_date    DateTime? @db.Date()
-  receive_sample_date DateTime? @db.Date()
-  revision_date       DateTime? @db.Date()
-  revision_file       String?   @db.VarChar(255)
-  on_production_date  DateTime? @db.Date()
-  fix_sample_date     DateTime? @db.Date()
-  obstacle            String?   @db.VarChar(255)
-  created_at          DateTime  @default(now())
-  created_by          Int?      @db.Int
+enum OutboundStatus {
+  OK
+  REJECT
+}
 
-  Tailor              Tailor?               @relation(fields: [tailor_id], references: [tailor_id])
+model Outbound {
+  outbound_id   Int            @id @default(autoincrement()) @db.Int
+  outbound_date DateTime       @db.Date()
+  product_id    Int            @db.Int
+  variant_id    Int            @db.Int
+  quantity      Int            @db.Int
+  notes         String         @db.VarChar(100)
+  status        OutboundStatus @default(OK)
+  created_at    DateTime       @default(now())
+  created_by    Int?           @db.Int
+
+  Product Product? @relation(fields: [product_id], references: [product_id])
+  Variant Variant? @relation(fields: [variant_id], references: [variant_id])
+  User    User?    @relation(fields: [created_by], references: [user_id])
+
+  @@map("outbounds")
+}
+
+model FashionDesign {
+  fashiondesign_id    Int                   @id @default(autoincrement()) @db.Int
+  sample_code         String                @db.VarChar(10)
+  sample_file         String?               @db.VarChar(255)
+  tailor_id           Int?                  @db.Int
+  send_sample_date    DateTime?             @db.Date()
+  receive_sample_date DateTime?             @db.Date()
+  revision_date       DateTime?             @db.Date()
+  revision_file       String?               @db.VarChar(255)
+  on_production_date  DateTime?             @db.Date()
+  fix_sample_date     DateTime?             @db.Date()
+  obstacle            String?               @db.VarChar(255)
+  created_at          DateTime              @default(now())
+  created_by          Int?                  @db.Int
+  updated_at          DateTime              @default(now())
+  updated_by          Int?                  @db.Int
   MerchandiseOutbound MerchandiseOutbound[]
+
+  Tailor    Tailor? @relation(fields: [tailor_id], references: [tailor_id])
+  CreatedBy User?   @relation("FashionDesignCreatedBy", fields: [created_by], references: [user_id])
+  UpdatedBy User?   @relation("FashionDesignUpdatedBy", fields: [updated_by], references: [user_id])
 
   @@map("fashiondesigns")
 }
@@ -215,11 +274,17 @@ enum Category {
 }
 
 model Merchandise {
-  merchandise_id      Int                   @id @default(autoincrement()) @db.Int
-  product_name        String                @unique @db.VarChar(255)
-  category            Category              @default(MATERIAL)
-  created_at          DateTime              @default(now())
-  created_by          Int?                  @db.Int
+  merchandise_id Int      @id @default(autoincrement()) @db.Int
+  product_name   String   @unique @db.VarChar(255)
+  category       Category @default(MATERIAL)
+  created_at     DateTime @default(now())
+  created_by     Int?     @db.Int
+  updated_at     DateTime @default(now())
+  updated_by     Int?     @db.Int
+
+  CreatedBy User? @relation("MerchandiseCreatedBy", fields: [created_by], references: [user_id])
+  UpdatedBy User? @relation("MerchandiseUpdatedBy", fields: [updated_by], references: [user_id])
+
   MerchandiseInbound  MerchandiseInbound[]
   MerchandiseOutbound MerchandiseOutbound[]
 
@@ -227,41 +292,60 @@ model Merchandise {
 }
 
 model Supplier {
-  supplier_id        Int                  @id @default(autoincrement()) @db.Int
-  supplier_name      String               @unique @db.VarChar(100)
-  created_at         DateTime             @default(now())
-  created_by         Int?                 @db.Int
+  supplier_id   Int      @id @default(autoincrement()) @db.Int
+  supplier_name String   @unique @db.VarChar(100)
+  created_at    DateTime @default(now())
+  created_by    Int?     @db.Int
+  updated_at    DateTime @default(now())
+  updated_by    Int?     @db.Int
+
+  CreatedBy User? @relation("SupplierCreatedBy", fields: [created_by], references: [user_id])
+  UpdatedBy User? @relation("SupplierUpdatedBy", fields: [updated_by], references: [user_id])
+
   MerchandiseInbound MerchandiseInbound[]
 
   @@map("suppliers")
 }
 
 model Color {
-  color_id           Int                  @id @default(autoincrement()) @db.Int
-  color_name         String               @unique @db.VarChar(100)
-  created_at         DateTime             @default(now())
-  created_by         Int?                 @db.Int
+  color_id   Int      @id @default(autoincrement()) @db.Int
+  color_name String   @unique @db.VarChar(100)
+  created_at DateTime @default(now())
+  created_by Int?     @db.Int
+  updated_at DateTime @default(now())
+  updated_by Int?     @db.Int
+
+  CreatedBy User? @relation("ColorCreatedBy", fields: [created_by], references: [user_id])
+  UpdatedBy User? @relation("ColorUpdatedBy", fields: [updated_by], references: [user_id])
+
   MerchandiseInbound MerchandiseInbound[]
 
   @@map("colors")
 }
 
+enum MerchandiseInboundStatus {
+  OPEN
+  CANCEL
+  CLOSED
+}
+
 model MerchandiseInbound {
-  merchandise_inbound_id Int      @id @default(autoincrement()) @db.Int
-  inbound_date           DateTime @db.Date()
-  inbound_code           String   @db.VarChar(100)
-  merchandise_id         Int      @db.Int
-  supplier_id            Int      @db.Int
-  color_id               Int      @db.Int
-  store_name             String?  @db.VarChar(100)
-  price                  Int      @db.Int
-  quantity               Int      @db.Int
-  created_at             DateTime @default(now())
-  created_by             Int?     @db.Int
+  merchandise_inbound_id Int                      @id @default(autoincrement()) @db.Int
+  inbound_date           DateTime                 @db.Date()
+  inbound_code           String                   @db.VarChar(100)
+  merchandise_id         Int                      @db.Int
+  supplier_id            Int                      @db.Int
+  color_id               Int                      @db.Int
+  price                  Int                      @db.Int
+  quantity               Int                      @db.Int
+  status                 MerchandiseInboundStatus @default(OPEN)
+  created_at             DateTime                 @default(now())
+  created_by             Int?                     @db.Int
 
   Merchandise Merchandise? @relation(fields: [merchandise_id], references: [merchandise_id])
   Supplier    Supplier?    @relation(fields: [supplier_id], references: [supplier_id])
   Color       Color?       @relation(fields: [color_id], references: [color_id])
+  User        User?        @relation(fields: [created_by], references: [user_id])
 
   @@index([inbound_code])
   @@map("merchandiseinbounds")
@@ -272,6 +356,7 @@ model MerchandiseOutbound {
   outbound_date           DateTime @db.Date()
   outbound_code           String   @db.VarChar(100)
   merchandise_id          Int      @db.Int
+  color_id                Int      @db.Int
   fashiondesign_id        Int?     @db.Int
   product_id              Int?     @db.Int
   tailor_id               Int      @db.Int
@@ -283,6 +368,7 @@ model MerchandiseOutbound {
   FashionDesign FashionDesign? @relation(fields: [fashiondesign_id], references: [fashiondesign_id])
   Product       Product?       @relation(fields: [product_id], references: [product_id])
   Tailor        Tailor?        @relation(fields: [tailor_id], references: [tailor_id])
+  User          User?          @relation(fields: [created_by], references: [user_id])
 
   @@index([outbound_code])
   @@map("merchandiseoutbounds")

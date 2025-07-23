@@ -16,6 +16,9 @@ const search = async (req) => {
     where,
     take: searchRequest.size,
     skip: skip,
+    orderBy: {
+      variant_name: "asc",
+    },
   });
   const total = await prismaClient.variant.count({ where });
 

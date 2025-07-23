@@ -8,7 +8,7 @@ const createProjectValidation = Joi.array().items(
     variant_id: Joi.number().required(),
     quantity: Joi.number().required(),
   })
-);
+).min(1);
 
 const cancelProjectValidation = Joi.number().positive().required();
 
@@ -18,11 +18,14 @@ const searchProjectValidation = Joi.object({
   search: Joi.string().min(0).max(100).optional(),
 });
 
-const getItemByProjectIdValidation = Joi.number().positive().required();
+const projectItemsValidation = Joi.number().positive().required();
+
+const productItemsValidation = Joi.number().positive().required();
 
 export {
   createProjectValidation,
   cancelProjectValidation,
   searchProjectValidation,
-  getItemByProjectIdValidation,
+  projectItemsValidation,
+  productItemsValidation
 };

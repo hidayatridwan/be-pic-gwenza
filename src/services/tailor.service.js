@@ -43,14 +43,42 @@ const search = async (req) => {
     };
   }
 
-  const data = await prismaClient.tailor.findMany({
+  const result = await prismaClient.tailor.findMany({
     where,
+    select: {
+      tailor_id: true,
+      tailor_name: true,
+      created_at: true,
+      CreatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+      updated_at: true,
+      UpdatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+    },
     take: searchRequest.size,
     skip: skip,
     orderBy: {
       tailor_name: "asc",
     },
   });
+
+  const data = result.map((item) => {
+    return {
+      tailor_id: item.tailor_id,
+      tailor_name: item.tailor_name,
+      created_at: item.created_at,
+      created_by: item.CreatedBy.full_name,
+      updated_at: item.updated_at,
+      updated_by: item.UpdatedBy?.full_name || null,
+    };
+  });
+
   const total = await prismaClient.tailor.count({ where });
 
   return { data, total };
@@ -72,8 +100,10 @@ const get = async (tailorId) => {
   return result;
 };
 
-const update = async (req) => {
+const update = async (user, req) => {
   const updateRequest = validate(updateTailorValidation, req);
+  updateRequest.updated_at = new Date();
+  updateRequest.updated_by = user.user_id;
   const { tailor_id, ...newRequest } = updateRequest;
 
   return await prismaClient.tailor.update({

@@ -5,7 +5,7 @@ const createInboundValidation = Joi.array().items(
     projectitem_id: Joi.number().required(),
     quantity: Joi.number().required(),
   })
-);
+).min(1);
 
 const rejectInboundValidation = Joi.number().positive().required();
 

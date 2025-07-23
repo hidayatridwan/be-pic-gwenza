@@ -3,8 +3,9 @@ import { validate } from "../validations/validation.js";
 import {
   cancelProjectValidation,
   createProjectValidation,
-  getItemByProjectIdValidation,
   searchProjectValidation,
+  projectItemsValidation,
+  productItemsValidation,
 } from "../validations/project.validation.js";
 import { generateBatchId } from "../utils/generate.js";
 import { ProjectStatus } from "../generated/prisma/index.js";
@@ -114,7 +115,7 @@ const cancel = async (projectId) => {
   });
 };
 
-const searchProject = async (req) => {
+const search = async (req) => {
   const searchRequest = validate(searchProjectValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
   let where = {};
@@ -146,6 +147,9 @@ const searchProject = async (req) => {
     },
     take: searchRequest.size,
     skip: skip,
+    orderBy: {
+      created_at: "desc",
+    }
   });
 
   const data = items.map((item) => {
@@ -163,8 +167,8 @@ const searchProject = async (req) => {
   return { data, total };
 };
 
-const getItemByProjectId = async (projectId) => {
-  projectId = validate(getItemByProjectIdValidation, projectId);
+const projectItems = async (projectId) => {
+  projectId = validate(projectItemsValidation, projectId);
 
   const result = await prismaClient.$queryRaw`SELECT
 	projectitems.projectitem_id,
@@ -200,24 +204,74 @@ GROUP BY
   }));
 };
 
-const getBatchProject = async () => {
-  return await prismaClient.project.findMany({
+const productItems = async (productId) => {
+  productId = validate(productItemsValidation, productId);
+
+  const result = await prismaClient.$queryRaw`SELECT
+	projectitems.projectitem_id,
+	projects.batch_id,
+	users.full_name AS pic_name,
+	tailors.tailor_name,
+	products.product_name,
+	variants.variant_name,
+  projectitems.status,
+	projectitems.assign_date,
+	DATEDIFF(CURDATE(), projectitems.assign_date) AS assign_age,
+	projectitems.quantity,
+	sum(inbounds.quantity) AS received,
+	projectitems.created_at,
+	users.username AS created_by
+FROM
+	projectitems
+	JOIN projects ON projectitems.project_id = projects.project_id
+	JOIN users ON projectitems.pic_id = users.user_id
+	JOIN tailors ON projectitems.tailor_id = tailors.tailor_id
+	JOIN products ON projectitems.product_id = products.product_id
+	JOIN variants ON projectitems.variant_id = variants.variant_id
+	LEFT JOIN inbounds ON projectitems.projectitem_id = inbounds.projectitem_id
+WHERE
+  projectitems.product_id = ${productId}
+	AND projectitems.status IN ('OPEN', 'PARTIAL')
+GROUP BY
+	projectitems.projectitem_id`;
+
+  return result.map((item) => ({
+    ...item,
+    assign_age: Number(item.assign_age ?? 0),
+    quantity: Number(item.quantity ?? 0),
+    received: Number(item.received ?? 0),
+  }));
+};
+
+const products = async () => {
+  const result = await prismaClient.projectItem.findMany({
     where: {
       status: {
         in: [ProjectStatus.OPEN, ProjectStatus.PARTIAL],
-      }
+      },
     },
     select: {
-      project_id: true,
-      batch_id: true
-    }
+      product_id: true,
+      Product: {
+        select: {
+          product_name: true,
+        },
+      },
+    },
+    distinct: ['product_id'],
   });
+
+  return result.map((item) => ({
+    product_id: item.product_id,
+    product_name: item.Product.product_name,
+  }));
 };
 
 export default {
   create,
   cancel,
-  searchProject,
-  getItemByProjectId,
-  getBatchProject
+  search,
+  projectItems,
+  productItems,
+  products
 };

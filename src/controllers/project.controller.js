@@ -19,30 +19,40 @@ const cancel = async (req, res, next) => {
   }
 };
 
-const searchProject = async (req, res, next) => {
+const search = async (req, res, next) => {
   try {
     req.query.page = Number(req.query.page);
     req.query.size = Number(req.query.size);
-    const result = await projectService.searchProject(req.query);
+    const result = await projectService.search(req.query);
     res.status(200).json(result);
   } catch (err) {
     next(err);
   }
 };
 
-const getItemByProjectId = async (req, res, next) => {
+const projectItems = async (req, res, next) => {
   try {
     const projectId = Number(req.params.projectId);
-    const result = await projectService.getItemByProjectId(projectId);
+    const result = await projectService.projectItems(projectId);
     res.status(200).json({ data: result });
   } catch (err) {
     next(err);
   }
 };
 
-const getBatchProject = async (req, res, next) => {
+const productItems = async (req, res, next) => {
   try {
-    const result = await projectService.getBatchProject();
+    const productId = Number(req.params.productId);
+    const result = await projectService.productItems(productId);
+    res.status(200).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const products = async (req, res, next) => {
+  try {
+    const result = await projectService.products();
     res.status(200).json({ data: result });
   } catch (err) {
     next(err);
@@ -52,7 +62,8 @@ const getBatchProject = async (req, res, next) => {
 export default {
   create,
   cancel,
-  searchProject,
-  getItemByProjectId,
-  getBatchProject
+  search,
+  projectItems,
+  productItems,
+  products
 };

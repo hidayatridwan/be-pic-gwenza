@@ -16,6 +16,7 @@ import merchandiseInboundController from "../controllers/merchandise.inbound.con
 import merchandiseOutboundController from "../controllers/merchandise.outbound.controller.js";
 import supplierController from "../controllers/supplier.controller.js";
 import colorController from "../controllers/color.controller.js";
+import outboundController from "../controllers/outbound.controller.js";
 
 const router = express.Router();
 
@@ -49,16 +50,23 @@ router.get("/orders/{:productId}/{:variantId}", orderController.get);
 
 router.post("/projects", projectController.create);
 router.delete("/projects/{:projectId}", projectController.cancel);
-router.get("/projects", projectController.searchProject);
+router.get("/projects", projectController.search);
 router.get(
-  "/projects/{:projectId}/items",
-  projectController.getItemByProjectId
+  "/projects/{:projectId}/project-items",
+  projectController.projectItems
 );
-router.get("/projects/batch", projectController.getBatchProject);
+router.get(
+  "/projects/{:productId}/product-items",
+  projectController.productItems
+);
+router.get("/projects/products", projectController.products);
 
 router.post("/inbounds", inboundController.create);
 router.delete("/inbounds/{:inboundId}", inboundController.reject);
 router.get("/inbounds", inboundController.search);
+
+router.post("/outbounds", outboundController.create);
+router.get("/outbounds", outboundController.search);
 
 router.get("/reports/products", reportController.byProducts);
 router.get("/reports/pic", reportController.byPIC);

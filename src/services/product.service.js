@@ -40,11 +40,48 @@ const search = async (req) => {
     };
   }
 
-  const data = await prismaClient.product.findMany({
+  const result = await prismaClient.product.findMany({
     where,
+    select: {
+      product_id: true,
+      fashiondesign_code: true,
+      product_name: true,
+      cogs: true,
+      selling_price: true,
+      created_at: true,
+      CreatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+      updated_at: true,
+      UpdatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+    },
     take: searchRequest.size,
     skip: skip,
+    orderBy: {
+      product_name: "asc",
+    }
   });
+
+  const data = result.map(item => {
+    return {
+      product_id: item.product_id,
+      fashiondesign_code: item.fashiondesign_code,
+      product_name: item.product_name,
+      cogs: item.cogs,
+      selling_price: item.selling_price,
+      created_at: item.created_at,
+      created_by: item.CreatedBy?.full_name || null,
+      updated_at: item.updated_at,
+      updated_by: item.UpdatedBy?.full_name || null,
+    }
+  })
+
   const total = await prismaClient.product.count({ where });
 
   return { data, total };
@@ -66,8 +103,10 @@ const get = async (productId) => {
   return result;
 };
 
-const update = async (req) => {
+const update = async (user, req) => {
   const updateRequest = validate(updateProductValidation, req);
+  updateRequest.updated_at = new Date();
+  updateRequest.updated_by = user.user_id;
   const { product_id, ...newRequest } = updateRequest;
 
   return await prismaClient.product.update({

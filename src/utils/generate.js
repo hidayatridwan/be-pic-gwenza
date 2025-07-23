@@ -16,4 +16,15 @@ const generateBatchId = () => {
   return id;
 };
 
-export { generateBatchId };
+
+
+const buildS3Url = (path) => {
+  if (!path) return null;
+  const baseUrl = process.env.S3_URL?.replace(/\/$/, "") || "";
+  const bucket = process.env.S3_BUCKET?.replace(/\/$/, "") || "";
+  const filePath = path.replace(/^\//, "");
+  return `${baseUrl}/${bucket}/${filePath}`;
+}
+
+
+export { generateBatchId, buildS3Url };

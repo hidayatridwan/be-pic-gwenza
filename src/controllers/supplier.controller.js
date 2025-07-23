@@ -33,7 +33,7 @@ const get = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     req.body.supplier_id = Number(req.params.supplierId);
-    const result = await supplierService.update(req.body);
+    const result = await supplierService.update(req.user, req.body);
     res.status(200).json(result);
   } catch (err) {
     next(err);

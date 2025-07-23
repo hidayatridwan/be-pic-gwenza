@@ -11,7 +11,7 @@ const createMerchandiseInboundValidation = Joi.array().items(
     price: Joi.number().required(),
     quantity: Joi.number().required(),
   })
-);
+).min(1);
 
 const searchMerchandiseInboundValidation = Joi.object({
   page: Joi.number().min(1).positive().default(1),

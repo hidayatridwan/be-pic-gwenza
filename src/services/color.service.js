@@ -40,11 +40,39 @@ const search = async (req) => {
     };
   }
 
-  const data = await prismaClient.color.findMany({
+  const result = await prismaClient.color.findMany({
     where,
+    select: {
+      color_id: true,
+      color_name: true,
+      created_at: true,
+      CreatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+      updated_at: true,
+      UpdatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+    },
     take: searchRequest.size,
     skip: skip,
   });
+
+  const data = result.map((item) => {
+    return {
+      color_id: item.color_id,
+      color_name: item.color_name,
+      created_at: item.created_at,
+      created_by: item.CreatedBy.full_name,
+      updated_at: item.updated_at,
+      updated_by: item.UpdatedBy?.full_name || null,
+    };
+  });
+
   const total = await prismaClient.color.count({ where });
 
   return { data, total };
@@ -66,8 +94,10 @@ const get = async (colorId) => {
   return result;
 };
 
-const update = async (req) => {
+const update = async (user, req) => {
   const updateRequest = validate(updateColorValidation, req);
+  updateRequest.updated_at = new Date();
+  updateRequest.updated_by = user.user_id;
   const { color_id, ...newRequest } = updateRequest;
 
   return await prismaClient.color.update({

@@ -1,4 +1,5 @@
 import { prismaClient } from "../apps/database.js";
+import { MerchandiseInboundStatus } from "../generated/prisma/index.js";
 import { createMerchandiseInboundValidation, inboundCodesValidation, searchMerchandiseInboundValidation } from "../validations/merchandise.inbound.validation.js";
 import { validate } from "../validations/validation.js";
 
@@ -38,7 +39,6 @@ const search = async (req) => {
             color_name: { contains: searchRequest.search },
           },
         },
-        { store_name: { contains: searchRequest.search } },
       ],
     };
   }
@@ -64,10 +64,15 @@ const search = async (req) => {
           color_name: true,
         },
       },
-      store_name: true,
       price: true,
       quantity: true,
+      status: true,
       created_at: true,
+      User: {
+        select: {
+          full_name: true,
+        },
+      },
     },
     take: searchRequest.size,
     skip: skip,
@@ -81,10 +86,11 @@ const search = async (req) => {
       product_name: item.Merchandise.product_name,
       supplier_name: item.Supplier.supplier_name,
       color_name: item.Color.color_name,
-      store_name: item.store_name,
       price: item.price,
       quantity: item.quantity,
+      status: item.status,
       created_at: item.created_at,
+      created_by: item.User.full_name
     };
   });
 
@@ -93,16 +99,40 @@ const search = async (req) => {
   return { data, total };
 };
 
-const inboundCodes = async (merchandiseId) => {
-  merchandiseId = validate(inboundCodesValidation, merchandiseId);
-  return await prismaClient.merchandiseInbound.findMany({
+const inboundCodes = async (merchandiseIdInput) => {
+  const merchandiseId = validate(inboundCodesValidation, merchandiseIdInput);
+
+  const merchandiseInbounds = await prismaClient.merchandiseInbound.findMany({
     where: {
       merchandise_id: merchandiseId,
+      status: MerchandiseInboundStatus.OPEN,
     },
     select: {
       inbound_code: true,
+      quantity: true
     },
   });
+
+  const inboundCodeList = merchandiseInbounds.map((item) => item.inbound_code);
+
+  const summaryMerchandiseOutbounds = await prismaClient.merchandiseOutbound.groupBy({
+    by: ["outbound_code"],
+    where: {
+      outbound_code: { in: inboundCodeList },
+    },
+    _sum: {
+      quantity: true,
+    },
+  });
+
+  const outboundQuantityMap = new Map(
+    summaryMerchandiseOutbounds.map((item) => [item.outbound_code, item._sum.quantity || 0])
+  );
+
+  return merchandiseInbounds.map((item) => ({
+    inbound_code: item.inbound_code,
+    quantity: item.quantity - (outboundQuantityMap.get(item.inbound_code) || 0),
+  }));
 };
 
 export default {

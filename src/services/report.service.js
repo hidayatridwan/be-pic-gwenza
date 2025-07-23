@@ -10,6 +10,178 @@ import {
 } from "../validations/report.validation.js";
 import { validate } from "../validations/validation.js";
 
+const byExpiredDate = async (req) => {
+  const input_date = validate(getExpiredProductsValidation, req.input_date);
+  const reportStartDate = new Date(input_date);
+  const reportEndDate = new Date(reportStartDate);
+  reportEndDate.setDate(reportEndDate.getDate() + 7);
+
+  // Get expired orders (orders completed before report period)
+  const expiredOrders = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    orders
+  WHERE
+    DATE(end_date) < DATE(${reportStartDate})
+  GROUP BY
+    product_id,
+    variant_id`;
+
+  // Get current period orders
+  const currentOrders = await prismaClient.$queryRaw`SELECT
+    product_id,
+    product_name,
+    variant_id,
+    variant_name,
+    DATE(end_date) AS end_date,
+    SUM(quantity) AS quantity
+  FROM
+    orders
+  WHERE
+    DATE(end_date) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
+  GROUP BY
+    product_id,
+    variant_id,
+    DATE(end_date)
+  ORDER BY
+    product_name,
+    variant_name,
+    end_date`;
+
+  // Get inbounds data
+  const inbounds = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    inbounds
+  WHERE
+    status = 'OK'
+  GROUP BY
+    product_id,
+    variant_id`;
+
+  // Get project items data
+  const projectItems = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    projectitems
+  WHERE
+    status != 'CANCEL'
+  GROUP BY
+    product_id,
+    variant_id`;
+
+  // Get outbounds data
+  const outbounds = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    outbounds
+  WHERE
+    status = 'OK'
+  GROUP BY
+    product_id,
+    variant_id`;
+
+  // Create lookup maps
+  const inboundMap = {};
+  const outboundMap = {};
+  const projectItemMap = {};
+  const expiredOrderMap = {};
+
+  inbounds.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    inboundMap[key] = Number(item.quantity) || 0;
+  });
+
+  outbounds.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    outboundMap[key] = Number(item.quantity) || 0;
+  });
+
+  projectItems.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    projectItemMap[key] = Number(item.quantity) || 0;
+  });
+
+  expiredOrders.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    expiredOrderMap[key] = Number(item.quantity) || 0;
+  });
+
+  // Generate date columns for report period
+  const dateColumns = [];
+  const currentDate = new Date(reportStartDate);
+
+  while (currentDate <= reportEndDate) {
+    dateColumns.push(currentDate.toISOString().split("T")[0]);
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  // Transform data for reporting
+  const reportData = {};
+
+  currentOrders.forEach((item) => {
+    const compositeKey = `${item.product_id}|${item.variant_id}`;
+
+    if (!reportData[compositeKey]) {
+      reportData[compositeKey] = {
+        product_id: item.product_id,
+        product_name: item.product_name,
+        variant_id: item.variant_id,
+        variant_name: item.variant_name,
+        current_period_orders: 0,
+        inbounds: inboundMap[compositeKey] || 0,
+        outbounds: outboundMap[compositeKey] || 0,
+        project_items: projectItemMap[compositeKey] || 0,
+        expired_order: expiredOrderMap[compositeKey] || 0,
+      };
+
+      // Initialize daily order quantities
+      dateColumns.forEach((date) => {
+        reportData[compositeKey][date] = 0;
+      });
+    }
+
+    // Set daily quantities
+    const dateStr = new Date(item.end_date).toISOString().split("T")[0];
+    reportData[compositeKey][dateStr] = Number(item.quantity);
+    reportData[compositeKey].current_period_orders += Number(item.quantity);
+  });
+
+  // Prepare final output
+  const data = Object.values(reportData).map((item) => ({
+    product_id: item.product_id,
+    product_name: item.product_name,
+    variant_id: item.variant_id,
+    variant_name: item.variant_name,
+    ...dateColumns.reduce((acc, date) => {
+      acc[date] = item[date];
+      return acc;
+    }, {}),
+    project_items: item.project_items, // di ambil dari keseluruhan project items
+    inbounds: item.inbounds, // di ambil dari keseluruhan inbounds
+    expired_order: item.expired_order, // di ambil dari periode tgl awal order yg dipilih
+    current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan
+    outbounds: item.outbounds, // di ambil dari keseluruhan outbounds
+    available_stock: item.inbounds - item.expired_order - item.outbounds, // di ambil dari inbounds di kurangi expired stock
+    fulfillment_gap: item.inbounds - item.expired_order - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
+    work_in_progress: item.project_items - item.inbounds, // di ambil dari keseluruhan project items di kurangi inbounds
+  }));
+
+  return {
+    data,
+    total: data.length,
+    date_columns: dateColumns,
+  };
+};
+
 const byProducts = async (req) => {
   const searchRequest = validate(getOrderProductsValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
@@ -58,6 +230,8 @@ OFFSET ${skip}`;
 	sum(quantity) AS quantity
 FROM
 	projectitems
+WHERE
+  status != 'CANCEL'
 GROUP BY
 	product_id,
 	variant_id`;
@@ -73,6 +247,19 @@ WHERE
 GROUP BY
 	product_id,
 	variant_id`;
+
+  const outbounds = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	outbounds
+WHERE
+	status = 'OK'
+GROUP BY
+	product_id,
+	variant_id`;
+
   // Count total matching rows without re-running the full query
   const countResult = await prismaClient.$queryRaw`
     SELECT COUNT(*) as total FROM (
@@ -101,24 +288,26 @@ GROUP BY
   const expiredOrderMap = toMap(pastOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
+  const outboundMap = toMap(outbounds);
 
   const items = openOrders.map((order) => {
     const key = `${order.product_id}-${order.variant_id}`;
     return {
       product_name: order.product_name,
       variant_name: order.variant_name,
-      past_due_orders: expiredOrderMap[key] || 0,
+      expired_orders: expiredOrderMap[key] || 0,
       open_orders: Number(order.quantity, 10),
-      assigned_to_project: projectMap[key] || 0,
-      inbound_received: inboundMap[key] || 0,
+      project_items: projectMap[key] || 0,
+      inbounds: inboundMap[key] || 0,
+      outbounds: outboundMap[key] || 0,
     };
   });
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      item.inbound_received - (item.past_due_orders + item.open_orders);
+      item.inbounds - item.outbounds - (item.expired_orders + item.open_orders);
 
-    const work_in_progress = item.assigned_to_project - item.inbound_received;
+    const work_in_progress = item.project_items - item.inbounds;
 
     let fulfillment_status = "FULFILLED";
     if (fulfillment_stock < 0 && work_in_progress > 0) {
@@ -280,174 +469,31 @@ GROUP BY
   return { data, total };
 };
 
-const byExpiredDate = async (req) => {
-  const input_date = validate(getExpiredProductsValidation, req.input_date);
-  const reportStartDate = new Date(input_date);
-  const reportEndDate = new Date(reportStartDate);
-  reportEndDate.setDate(reportEndDate.getDate() + 7);
-
-  // Get expired orders (orders completed before report period)
-  const expiredOrders = await prismaClient.$queryRaw`SELECT
-    product_id,
-    variant_id,
-    SUM(quantity) AS quantity
-  FROM
-    orders
-  WHERE
-    DATE(end_date) < DATE(${reportStartDate})
-  GROUP BY
-    product_id,
-    variant_id`;
-
-  // Get current period orders
-  const currentOrders = await prismaClient.$queryRaw`SELECT
-    product_id,
-    product_name,
-    variant_id,
-    variant_name,
-    DATE(end_date) AS end_date,
-    SUM(quantity) AS quantity
-  FROM
-    orders
-  WHERE
-    DATE(end_date) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
-  GROUP BY
-    product_id,
-    variant_id,
-    DATE(end_date)
-  ORDER BY
-    product_id,
-    variant_id,
-    end_date`;
-
-  // Get inventory data
-  const inventory = await prismaClient.$queryRaw`SELECT
-    product_id,
-    variant_id,
-    SUM(quantity) AS quantity
-  FROM
-    inbounds
-  WHERE
-    status = 'OK'
-  GROUP BY
-    product_id,
-    variant_id`;
-
-  // Get work-in-progress data
-  const workInProgress = await prismaClient.$queryRaw`SELECT
-    product_id,
-    variant_id,
-    SUM(quantity) AS quantity
-  FROM
-    projectitems
-  WHERE
-    status = 'OK'
-  GROUP BY
-    product_id,
-    variant_id`;
-
-  // Create lookup maps
-  const inventoryMap = {};
-  const wipMap = {};
-  const expiredStockMap = {};
-
-  inventory.forEach((item) => {
-    const key = `${item.product_id}|${item.variant_id}`;
-    inventoryMap[key] = Number(item.quantity) || 0;
-  });
-
-  workInProgress.forEach((item) => {
-    const key = `${item.product_id}|${item.variant_id}`;
-    wipMap[key] = Number(item.quantity) || 0;
-  });
-
-  expiredOrders.forEach((item) => {
-    const key = `${item.product_id}|${item.variant_id}`;
-    expiredStockMap[key] = Number(item.quantity) || 0;
-  });
-
-  // Generate date columns for report period
-  const dateColumns = [];
-  const currentDate = new Date(reportStartDate);
-
-  while (currentDate <= reportEndDate) {
-    dateColumns.push(currentDate.toISOString().split("T")[0]);
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  // Transform data for reporting
-  const reportData = {};
-
-  currentOrders.forEach((item) => {
-    const compositeKey = `${item.product_id}|${item.variant_id}`;
-
-    if (!reportData[compositeKey]) {
-      reportData[compositeKey] = {
-        product_id: item.product_id,
-        product_name: item.product_name,
-        variant_id: item.variant_id,
-        variant_name: item.variant_name,
-        current_period_orders: 0,
-        inventory: inventoryMap[compositeKey] || 0,
-        work_in_progress: wipMap[compositeKey] || 0,
-        expired_stock: expiredStockMap[compositeKey] || 0,
-      };
-
-      // Initialize daily order quantities
-      dateColumns.forEach((date) => {
-        reportData[compositeKey][date] = 0;
-      });
-    }
-
-    // Set daily quantities
-    const dateStr = new Date(item.end_date).toISOString().split("T")[0];
-    reportData[compositeKey][dateStr] = Number(item.quantity);
-    reportData[compositeKey].current_period_orders += Number(item.quantity);
-  });
-
-  // Prepare final output
-  const data = Object.values(reportData).map((item) => ({
-    product_id: item.product_id,
-    product_name: item.product_name,
-    variant_id: item.variant_id,
-    variant_name: item.variant_name,
-    ...dateColumns.reduce((acc, date) => {
-      acc[date] = item[date];
-      return acc;
-    }, {}),
-    // inventory: item.inventory, // di ambil dari keseluruhan inbounds
-    // expired_stock: item.expired_stock, // di ambil dari periode tgl awal order yg dipilih
-    current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan
-    available_stock: item.inventory - item.expired_stock, // di ambil dari inventory di kurangi expired stock
-    gap: item.inventory - item.expired_stock - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
-    work_in_progress: item.work_in_progress - item.inventory, // di ambil dari keseluruhan work in progress di kurangi inventory
-  }));
-
-  return {
-    data,
-    total: data.length,
-    date_columns: dateColumns,
-  };
-};
-
 const byMerchandiseSummary = async (req) => {
   const searchRequest = validate(searchMerchandiseSummaryValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
-  let where = {};
-  if (searchRequest.search) {
-    where = {
-      product_name: { contains: searchRequest.search },
-    };
-  }
+  const search = `%${searchRequest.search ?? ""}%`;
 
-  const products = await prismaClient.merchandise.findMany({
-    where,
-    take: searchRequest.size,
-    skip: skip,
-    orderBy: {
-      product_name: "asc",
-    },
-  });
+  const products = await prismaClient.$queryRaw`SELECT
+	merchandises.category,
+	merchandises.merchandise_id,
+	merchandises.product_name,
+	colors.color_id,
+	colors.color_name
+FROM
+	merchandises
+	LEFT JOIN merchandiseinbounds ON merchandises.merchandise_id = merchandiseinbounds.merchandise_id
+	LEFT JOIN colors ON merchandiseinbounds.color_id = colors.color_id
+WHERE
+  merchandises.product_name LIKE ${search}
+  OR colors.color_name LIKE ${search}
+GROUP BY
+	merchandises.merchandise_id,
+	merchandiseinbounds.color_id
+ORDER BY
+	product_name
+LIMIT ${searchRequest.size}
+OFFSET ${skip}`;
 
   const inbounds = await prismaClient.merchandiseInbound.groupBy({
     where: {
@@ -455,7 +501,7 @@ const byMerchandiseSummary = async (req) => {
         in: products.map(item => item.merchandise_id)
       }
     },
-    by: ['merchandise_id'],
+    by: ['merchandise_id', 'color_id'],
     _sum: {
       quantity: true,
     },
@@ -467,30 +513,48 @@ const byMerchandiseSummary = async (req) => {
         in: products.map(item => item.merchandise_id)
       }
     },
-    by: ['merchandise_id'],
+    by: ['merchandise_id', 'color_id'],
     _sum: {
       quantity: true,
     },
   });
 
   const data = products.map(product => {
-    const inboundData = inbounds.find(item => item.merchandise_id === product.merchandise_id);
+    const inboundData = inbounds.find(item => item.merchandise_id === product.merchandise_id && item.color_id === product.color_id);
     const inboundQty = inboundData ? inboundData._sum.quantity : 0;
 
-    const outboundData = outbounds.find(item => item.merchandise_id === product.merchandise_id);
+    const outboundData = outbounds.find(item => item.merchandise_id === product.merchandise_id && item.color_id === product.color_id);
     const outboundQty = outboundData ? outboundData._sum.quantity : 0;
 
     const availableQty = inboundQty - outboundQty;
 
     return {
+      category: product.category,
       product_name: product.product_name,
+      color_name: product.color_name,
       inbound: inboundQty,
       outbound: outboundQty,
       available: availableQty
     };
   });
 
-  const total = await prismaClient.merchandise.count({ where });
+  // Count total matching rows without re-running the full query
+  const countResult = await prismaClient.$queryRaw`
+    SELECT COUNT(*) as total FROM (
+      SELECT 1
+FROM
+	merchandises
+	LEFT JOIN merchandiseinbounds ON merchandises.merchandise_id = merchandiseinbounds.merchandise_id
+	LEFT JOIN colors ON merchandiseinbounds.color_id = colors.color_id
+WHERE
+  merchandises.product_name LIKE ${search}
+  OR colors.color_name LIKE ${search}
+GROUP BY
+	merchandises.merchandise_id,
+	merchandiseinbounds.color_id
+    ) AS grouped`;
+
+  const total = Number(countResult[0]?.total ?? 0);
 
   return { data, total };
 };

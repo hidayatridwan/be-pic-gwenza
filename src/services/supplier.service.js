@@ -40,11 +40,39 @@ const search = async (req) => {
     };
   }
 
-  const data = await prismaClient.supplier.findMany({
+  const result = await prismaClient.supplier.findMany({
     where,
+    select: {
+      supplier_id: true,
+      supplier_name: true,
+      created_at: true,
+      CreatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+      updated_at: true,
+      UpdatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+    },
     take: searchRequest.size,
     skip: skip,
   });
+
+  const data = result.map((item) => {
+    return {
+      supplier_id: item.supplier_id,
+      supplier_name: item.supplier_name,
+      created_at: item.created_at,
+      created_by: item.CreatedBy.full_name,
+      updated_at: item.updated_at,
+      updated_by: item.UpdatedBy?.full_name || null,
+    };
+  });
+
   const total = await prismaClient.supplier.count({ where });
 
   return { data, total };
@@ -66,8 +94,10 @@ const get = async (supplierId) => {
   return result;
 };
 
-const update = async (req) => {
+const update = async (user, req) => {
   const updateRequest = validate(updateSupplierValidation, req);
+  updateRequest.updated_at = new Date();
+  updateRequest.updated_by = user.user_id;
   const { supplier_id, ...newRequest } = updateRequest;
 
   return await prismaClient.supplier.update({

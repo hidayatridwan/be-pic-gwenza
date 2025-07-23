@@ -50,11 +50,41 @@ const search = async (req) => {
     };
   }
 
-  const data = await prismaClient.merchandise.findMany({
+  const result = await prismaClient.merchandise.findMany({
     where,
+    select: {
+      merchandise_id: true,
+      category: true,
+      product_name: true,
+      created_at: true,
+      CreatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+      updated_at: true,
+      UpdatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
+    },
     take: searchRequest.size,
     skip: skip,
   });
+
+  const data = result.map((item) => {
+    return {
+      merchandise_id: item.merchandise_id,
+      category: item.category,
+      product_name: item.product_name,
+      created_at: item.created_at,
+      created_by: item.CreatedBy.full_name,
+      updated_at: item.updated_at,
+      updated_by: item.UpdatedBy?.full_name || null,
+    };
+  });
+
   const total = await prismaClient.merchandise.count({ where });
 
   return { data, total };

@@ -34,7 +34,7 @@ const update = async (req, res, next) => {
     }
     req.body.sample_file = req.files?.sample_file?.[0].key || "";
     req.body.revision_file = req.files?.revision_file?.[0].key || "";
-    const result = await fashionDesignService.update(req.body);
+    const result = await fashionDesignService.update(req.user, req.body);
     res.status(200).json(result);
   } catch (err) {
     next(err);
