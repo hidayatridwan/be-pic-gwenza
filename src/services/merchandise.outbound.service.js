@@ -87,6 +87,7 @@ const search = async (req) => {
   const search = `%${searchRequest.search ?? ""}%`;
 
   const items = await prismaClient.$queryRaw`SELECT
+  merchandiseoutbounds.merchandise_outbound_id,
 	merchandiseoutbounds.outbound_date,
 	merchandiseoutbounds.outbound_code,
 	merchandises.product_name AS material_name,

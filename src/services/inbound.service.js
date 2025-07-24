@@ -141,28 +141,58 @@ const reject = async (inboundId) => {
 const search = async (req) => {
   const searchRequest = validate(searchInboundValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
+
   let where = {};
   if (searchRequest.search) {
     where = {
       OR: [
         {
+          ProjectItem: {
+            is: {
+              Project: {
+                is: {
+                  batch_id: {
+                    contains: searchRequest.search,
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
           User: {
-            full_name: { contains: searchRequest.search },
+            is: {
+              full_name: {
+                contains: searchRequest.search,
+              },
+            },
           },
         },
         {
           Tailor: {
-            tailor_name: { contains: searchRequest.search },
+            is: {
+              tailor_name: {
+                contains: searchRequest.search,
+              },
+            },
           },
         },
         {
           Product: {
-            product_name: { contains: searchRequest.search },
+            is: {
+              product_name: {
+                contains: searchRequest.search,
+              },
+            },
           },
         },
         {
           Variant: {
-            variant_name: { contains: searchRequest.search },
+            is: {
+              variant_name: {
+                contains: searchRequest.search,
+              },
+            },
           },
         },
       ],
@@ -227,7 +257,7 @@ const search = async (req) => {
     created_by: item.User.full_name,
   }));
 
-  const total = await prismaClient.projectItem.count({ where });
+  const total = await prismaClient.inbound.count({ where });
 
   return { data, total };
 };
