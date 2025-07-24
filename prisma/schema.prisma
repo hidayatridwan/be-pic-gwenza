@@ -21,6 +21,9 @@ enum Role {
   FD
   MD
   RECEIVER
+  INBOUND_OPERATOR
+  OUTBOUND_OPERATOR
+  PRODUCT_ADMIN
 }
 
 model User {
