@@ -562,15 +562,11 @@ GROUP BY
 const byMerchandiseDate = async (req) => {
   const searchRequest = validate(searchMerchandiseDateValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
-  let where = {};
-  if (searchRequest.search) {
-    where = {
-      product_name: { contains: searchRequest.search },
-    };
-  }
+  const search = `%${searchRequest.search ?? ""}%`;
 
   const products = await prismaClient.$queryRaw`SELECT
-	merchandises.merchandise_id
+	merchandise_id,
+  product_name
 FROM
 	merchandises
 WHERE
@@ -579,9 +575,16 @@ WHERE
 			merchandise_id
 		FROM
 			merchandiseinbounds
-	)`;
+	)
+ORDER BY
+  product_name
+LIMIT ${searchRequest.size}
+OFFSET ${skip}`;
 
   const merchandiseIds = products.map(item => item.merchandise_id);
+  if (merchandiseIds.length === 0) {
+    return { data: [], total: 0 };
+  }
 
   const transactions = await prismaClient.$queryRaw`SELECT
 	merchandiseinbounds.merchandise_id,
@@ -627,7 +630,22 @@ ORDER BY
     };
   });
 
-  const total = await prismaClient.merchandise.count({ where });
+  const countResult = await prismaClient.$queryRaw`
+    SELECT COUNT(*) as total FROM (
+      SELECT 1
+FROM
+	merchandises
+WHERE
+	merchandise_id IN (
+		SELECT DISTINCT
+			merchandise_id
+		FROM
+			merchandiseinbounds
+	)
+AND product_name LIKE ${search}
+    ) AS grouped`;
+
+  const total = Number(countResult[0]?.total ?? 0);
 
   return { data: result, total };
 };
