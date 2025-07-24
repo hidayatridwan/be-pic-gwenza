@@ -645,7 +645,8 @@ WHERE
 AND product_name LIKE ${search}
     ) AS grouped`;
 
-  const total = Number(countResult[0]?.total ?? 0);
+  const total = countResult[0]?.total ? Number(countResult[0].total) : 0;
+
 
   return { data: result, total };
 };
