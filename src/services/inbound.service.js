@@ -70,6 +70,7 @@ const create = async (user, req) => {
       tailor_id: item.tailor_id,
       product_id: item.product_id,
       variant_id: item.variant_id,
+      inbound_date: request.inbound_date,
       quantity: currentInboundQty,
       created_by: user.user_id,
     });
@@ -233,6 +234,7 @@ const search = async (req) => {
           variant_name: true,
         },
       },
+      inbound_date: true,
       quantity: true,
       created_at: true,
     },
@@ -252,6 +254,7 @@ const search = async (req) => {
     product_name: item.Product.product_name,
     variant_name: item.Variant.variant_name,
     assign_date: item.ProjectItem.assign_date,
+    inbound_date: item.inbound_date,
     quantity: item.quantity,
     created_at: item.created_at,
     created_by: item.User.full_name,

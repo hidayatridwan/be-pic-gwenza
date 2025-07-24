@@ -72,6 +72,16 @@ const syncWorker = async () => {
         JOIN variants ON variants.variant_name = orders.variant_name
         SET orders.variant_id = variants.variant_id
         WHERE orders.variant_id IS NULL`;
+      console.log(`update orders synced: ${uniqueVariants.length}`);
+
+      await prismaClient.$executeRaw`INSERT IGNORE INTO
+          productvariants (product_id, variant_id)
+        SELECT DISTINCT
+          product_id,
+          variant_id
+        FROM
+          orders`;
+      console.log(`product variants synced: ${uniqueVariants.length}`);
 
       console.log("Sync product variant finished");
     }

@@ -3,6 +3,7 @@ import Joi from "joi";
 const createInboundValidation = Joi.array().items(
   Joi.object({
     projectitem_id: Joi.number().required(),
+    inbound_date: Joi.date().required(),
     quantity: Joi.number().required(),
   })
 ).min(1);
