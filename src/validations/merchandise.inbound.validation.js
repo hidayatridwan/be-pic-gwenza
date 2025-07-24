@@ -7,7 +7,6 @@ const createMerchandiseInboundValidation = Joi.array().items(
     merchandise_id: Joi.number().required(),
     supplier_id: Joi.number().required(),
     color_id: Joi.number().required(),
-    store_name: Joi.string().required(),
     price: Joi.number().required(),
     quantity: Joi.number().required(),
   })

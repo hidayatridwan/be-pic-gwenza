@@ -159,6 +159,7 @@ const search = async (req) => {
       pic_name: item.User.full_name,
       status: item.status,
       created_at: item.created_at,
+      created_by: item.User.full_name,
     };
   });
 
