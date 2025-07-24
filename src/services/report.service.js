@@ -625,8 +625,10 @@ ORDER BY
 
     // Return merged object
     return {
+      ...transaction,
       product_name: product ? product.product_name : 'Unknown Product',
-      ...transaction
+      qty_in: Number(transaction.qty_in),
+      qty_out: Number(transaction.qty_out)
     };
   });
 
@@ -645,7 +647,7 @@ WHERE
 AND product_name LIKE ${search}
     ) AS grouped`;
 
-  const total = Number(countResult[0]?.total.toString(), 10);
+  const total = Number(countResult[0]?.total ?? 0);
 
   return { data: result, total };
 };
