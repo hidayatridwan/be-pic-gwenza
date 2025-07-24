@@ -569,14 +569,17 @@ const byMerchandiseDate = async (req) => {
     };
   }
 
-  const products = await prismaClient.merchandise.findMany({
-    where,
-    take: searchRequest.size,
-    skip: skip,
-    orderBy: {
-      product_name: "asc",
-    },
-  });
+  const products = await prismaClient.$queryRaw`SELECT
+	merchandises.merchandise_id
+FROM
+	merchandises
+WHERE
+	merchandise_id IN (
+		SELECT DISTINCT
+			merchandise_id
+		FROM
+			merchandiseinbounds
+	)`;
 
   const merchandiseIds = products.map(item => item.merchandise_id);
 
@@ -586,7 +589,7 @@ const byMerchandiseDate = async (req) => {
 	merchandiseinbounds.inbound_code AS tx_code,
 	merchandiseinbounds.quantity AS qty_in,
 	0 AS qty_out,
-	concat('[Supplier: ', suppliers.supplier_name, '] [Toko: ', merchandiseinbounds.store_name, '] [Warna: ', colors.color_name, ']') AS notes
+	concat('[Supplier: ', suppliers.supplier_name, '] [Warna: ', colors.color_name, ']') AS notes
 FROM
 	merchandiseinbounds
 JOIN colors ON merchandiseinbounds.color_id = colors.color_id
