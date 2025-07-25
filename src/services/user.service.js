@@ -2,6 +2,7 @@ import { prismaClient } from "../apps/database.js";
 import { ResponseError } from "../errors/response.error.js";
 import { validate } from "../validations/validation.js";
 import {
+  changePasswordValidation,
   loginUserValidation,
   registerUserValidation,
   searchUserValidation,
@@ -199,4 +200,38 @@ const search = async (req) => {
   return { data, total };
 };
 
-export default { register, login, refreshToken, logout, search };
+const changePassword = async (user, req) => {
+  const changePasswordRequest = validate(changePasswordValidation, req);
+
+  const userData = await prismaClient.user.findUnique({
+    where: {
+      username: user.username,
+    },
+  });
+
+  if (!userData) {
+    throw new ResponseError(401, constants.INVALID_CREDENTIALS);
+  }
+
+  const isValidPassword = await bcrypt.compare(
+    changePasswordRequest.old_password,
+    userData.password
+  );
+
+  if (!isValidPassword) {
+    throw new ResponseError(401, constants.INVALID_CREDENTIALS);
+  }
+
+  // Update password
+  const newPassword = await bcrypt.hash(changePasswordRequest.new_password, 10);
+  return await prismaClient.user.update({
+    where: {
+      user_id: user.user_id,
+    },
+    data: {
+      password: newPassword,
+    }
+  });
+};
+
+export default { register, login, refreshToken, logout, search, changePassword };

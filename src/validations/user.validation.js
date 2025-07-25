@@ -25,4 +25,17 @@ const searchUserValidation = Joi.object({
   search: Joi.string().min(0).max(100).optional(),
 });
 
-export { registerUserValidation, loginUserValidation, searchUserValidation };
+const changePasswordValidation = Joi.object({
+  old_password: Joi.string().max(100).required(),
+  new_password: Joi.string()
+    .min(6)
+    .max(100)
+    .pattern(new RegExp('^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=[\\]{};\'"\\\\|,.<>/?]).*$'))
+    .required()
+    .messages({
+      'string.pattern.base': 'Password must contain at least one uppercase letter, one number, and one special character.',
+      'string.min': 'Password must be at least 6 characters long.',
+    })
+});
+
+export { registerUserValidation, loginUserValidation, searchUserValidation, changePasswordValidation };

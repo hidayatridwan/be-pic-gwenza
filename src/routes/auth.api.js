@@ -24,6 +24,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.get("/users", userController.search);
+router.post("/users/change-password", userController.changePassword);
 
 router.post("/tailors", tailorController.create);
 router.get("/tailors", tailorController.search);
