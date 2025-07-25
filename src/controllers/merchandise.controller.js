@@ -24,7 +24,7 @@ const get = async (req, res, next) => {
   try {
     const merchandiseId = Number(req.params.merchandiseId);
     const result = await merchandiseService.get(merchandiseId);
-    res.status(200).json(result);
+    res.status(200).json({ data: result });
   } catch (err) {
     next(err);
   }

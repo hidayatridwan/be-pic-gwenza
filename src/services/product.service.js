@@ -4,6 +4,7 @@ import {
   getProductValidation,
   searchProductValidation,
   updateProductValidation,
+  getVariantValidation
 } from "../validations/product.validation.js";
 import { validate } from "../validations/validation.js";
 
@@ -117,4 +118,27 @@ const update = async (user, req) => {
   });
 };
 
-export default { create, search, get, update };
+const getVariants = async (productId) => {
+  productId = validate(getVariantValidation, productId);
+
+  const result = await prismaClient.productVariant.findMany({
+    where: {
+      product_id: productId,
+    },
+    select: {
+      Variant: {
+        select: {
+          variant_id: true,
+          variant_name: true,
+        },
+      }
+    }
+  });
+
+  return result.map((item) => ({
+    variant_id: item.Variant.variant_id,
+    variant_name: item.Variant.variant_name,
+  }));
+};
+
+export default { create, search, get, update, getVariants };

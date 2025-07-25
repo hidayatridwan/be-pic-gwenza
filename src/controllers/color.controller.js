@@ -24,7 +24,7 @@ const get = async (req, res, next) => {
   try {
     const colorId = Number(req.params.colorId);
     const result = await colorService.get(colorId);
-    res.status(200).json(result);
+    res.status(200).json({ data: result });
   } catch (err) {
     next(err);
   }

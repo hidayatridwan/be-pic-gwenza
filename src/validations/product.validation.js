@@ -23,9 +23,12 @@ const updateProductValidation = Joi.object({
   selling_price: Joi.number().min(0).allow(null).default(null),
 });
 
+const getVariantValidation = Joi.number().positive().required();
+
 export {
   createProductValidation,
   searchProductValidation,
   getProductValidation,
   updateProductValidation,
+  getVariantValidation
 };

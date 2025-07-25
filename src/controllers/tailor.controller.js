@@ -23,8 +23,8 @@ const search = async (req, res, next) => {
 const get = async (req, res, next) => {
   try {
     const tailorId = Number(req.params.tailorId);
-    const result = await tailorService.search(tailorId);
-    res.status(200).json(result);
+    const result = await tailorService.get(tailorId);
+    res.status(200).json({ data: result });
   } catch (err) {
     next(err);
   }

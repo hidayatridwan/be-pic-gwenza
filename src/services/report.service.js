@@ -63,6 +63,19 @@ const byExpiredDate = async (req) => {
     product_id,
     variant_id`;
 
+  // Get returns data
+  const returns = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    returns
+  WHERE
+    status = 'OK'
+  GROUP BY
+    product_id,
+    variant_id`;
+
   // Get project items data
   const projectItems = await prismaClient.$queryRaw`SELECT
     product_id,
@@ -91,6 +104,7 @@ const byExpiredDate = async (req) => {
 
   // Create lookup maps
   const inboundMap = {};
+  const returnMap = {};
   const outboundMap = {};
   const projectItemMap = {};
   const expiredOrderMap = {};
@@ -98,6 +112,11 @@ const byExpiredDate = async (req) => {
   inbounds.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
     inboundMap[key] = Number(item.quantity) || 0;
+  });
+
+  returns.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    returnMap[key] = Number(item.quantity) || 0;
   });
 
   outbounds.forEach((item) => {
@@ -138,6 +157,7 @@ const byExpiredDate = async (req) => {
         variant_name: item.variant_name,
         current_period_orders: 0,
         inbounds: inboundMap[compositeKey] || 0,
+        returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
         project_items: projectItemMap[compositeKey] || 0,
         expired_order: expiredOrderMap[compositeKey] || 0,
@@ -167,11 +187,12 @@ const byExpiredDate = async (req) => {
     }, {}),
     project_items: item.project_items, // di ambil dari keseluruhan project items
     inbounds: item.inbounds, // di ambil dari keseluruhan inbounds
+    returns: item.returns, // di ambil dari keseluruhan returns
     expired_order: item.expired_order, // di ambil dari periode tgl awal order yg dipilih
     current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan
     outbounds: item.outbounds, // di ambil dari keseluruhan outbounds
-    available_stock: item.inbounds - item.expired_order - item.outbounds, // di ambil dari inbounds di kurangi expired stock
-    fulfillment_gap: item.inbounds - item.expired_order - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
+    available_stock: (item.inbounds + item.inbounds) - item.expired_order - item.outbounds, // di ambil dari inbounds di kurangi expired stock
+    fulfillment_gap: (item.inbounds + item.inbounds) - item.expired_order - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
     work_in_progress: item.project_items - item.inbounds, // di ambil dari keseluruhan project items di kurangi inbounds
   }));
 
@@ -248,6 +269,18 @@ GROUP BY
 	product_id,
 	variant_id`;
 
+  const returns = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	returns
+WHERE
+	status = 'OK'
+GROUP BY
+	product_id,
+	variant_id`;
+
   const outbounds = await prismaClient.$queryRaw`SELECT
 	product_id,
 	variant_id,
@@ -288,6 +321,7 @@ GROUP BY
   const expiredOrderMap = toMap(pastOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
+  const returnMap = toMap(returns);
   const outboundMap = toMap(outbounds);
 
   const items = openOrders.map((order) => {
@@ -299,13 +333,14 @@ GROUP BY
       open_orders: Number(order.quantity, 10),
       project_items: projectMap[key] || 0,
       inbounds: inboundMap[key] || 0,
+      returns: returnMap[key] || 0,
       outbounds: outboundMap[key] || 0,
     };
   });
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      item.inbounds - item.outbounds - (item.expired_orders + item.open_orders);
+      (item.inbounds + item.returns) - item.outbounds - (item.expired_orders + item.open_orders);
 
     const work_in_progress = item.project_items - item.inbounds;
 

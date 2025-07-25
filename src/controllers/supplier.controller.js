@@ -24,7 +24,7 @@ const get = async (req, res, next) => {
   try {
     const supplierId = Number(req.params.supplierId);
     const result = await supplierService.get(supplierId);
-    res.status(200).json(result);
+    res.status(200).json({ data: result });
   } catch (err) {
     next(err);
   }

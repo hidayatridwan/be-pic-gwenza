@@ -55,6 +55,7 @@ model User {
   Outbound             Outbound[]
   MerchandiseInbound   MerchandiseInbound[]
   MerchandiseOutbound  MerchandiseOutbound[]
+  Return               Return[]
 
   @@map("users")
 }
@@ -88,6 +89,7 @@ model Variant {
   Order          Order[]
   Outbound       Outbound[]
   ProductVariant ProductVariant[]
+  Return         Return[]
 
   @@map("variants")
 }
@@ -112,6 +114,7 @@ model Product {
   MerchandiseOutbound MerchandiseOutbound[]
   Outbound            Outbound[]
   ProductVariant      ProductVariant[]
+  Return              Return[]
 
   @@map("products")
 }
@@ -212,12 +215,12 @@ model ProjectItem {
 
 enum InboundStatus {
   OK
-  REJECT
+  CANCEL
 }
 
 model Inbound {
   inbound_id     Int           @id @default(autoincrement()) @db.Int
-  inbound_date   DateTime?     @db.Date()
+  inbound_date   DateTime      @db.Date()
   projectitem_id Int           @db.Int
   pic_id         Int           @db.Int
   tailor_id      Int           @db.Int
@@ -237,9 +240,32 @@ model Inbound {
   @@map("inbounds")
 }
 
+enum ReturnStatus {
+  OK
+  CANCEL
+}
+
+model Return {
+  return_id   Int          @id @default(autoincrement()) @db.Int
+  return_date DateTime     @db.Date()
+  product_id  Int          @db.Int
+  variant_id  Int          @db.Int
+  quantity    Int          @db.Int
+  notes       String       @db.VarChar(100)
+  status      ReturnStatus @default(OK)
+  created_at  DateTime     @default(now())
+  created_by  Int?         @db.Int
+
+  Product Product? @relation(fields: [product_id], references: [product_id])
+  Variant Variant? @relation(fields: [variant_id], references: [variant_id])
+  User    User?    @relation(fields: [created_by], references: [user_id])
+
+  @@map("returns")
+}
+
 enum OutboundStatus {
   OK
-  REJECT
+  CANCEL
 }
 
 model Outbound {

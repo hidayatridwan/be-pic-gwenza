@@ -132,7 +132,7 @@ const reject = async (inboundId) => {
       inbound_id: inboundId,
     },
     data: {
-      status: InboundStatus.REJECT,
+      status: InboundStatus.CANCEL,
     },
   });
 

@@ -24,7 +24,7 @@ const get = async (req, res, next) => {
   try {
     const productId = Number(req.params.productId);
     const result = await productService.get(productId);
-    res.status(200).json(result);
+    res.status(200).json({ data: result });
   } catch (err) {
     next(err);
   }
@@ -40,4 +40,14 @@ const update = async (req, res, next) => {
   }
 };
 
-export default { create, search, get, update };
+const getVariants = async (req, res, next) => {
+  try {
+    const productId = Number(req.params.productId);
+    const result = await productService.getVariants(productId);
+    res.status(200).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export default { create, search, get, update, getVariants };

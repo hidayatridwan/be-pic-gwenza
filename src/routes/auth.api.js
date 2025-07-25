@@ -17,6 +17,7 @@ import merchandiseOutboundController from "../controllers/merchandise.outbound.c
 import supplierController from "../controllers/supplier.controller.js";
 import colorController from "../controllers/color.controller.js";
 import outboundController from "../controllers/outbound.controller.js";
+import returnController from "../controllers/return.controller.js";
 
 const router = express.Router();
 
@@ -34,6 +35,7 @@ router.post("/products", productController.create);
 router.get("/products", productController.search);
 router.get("/products/{:productId}", productController.get);
 router.put("/products/{:productId}", productController.update);
+router.get("/products/{:productId}/variants", productController.getVariants);
 
 router.get("/variants", variantController.search);
 
@@ -67,6 +69,9 @@ router.get("/inbounds", inboundController.search);
 
 router.post("/outbounds", outboundController.create);
 router.get("/outbounds", outboundController.search);
+
+router.post("/returns", returnController.create);
+router.get("/returns", returnController.search);
 
 router.get("/reports/products", reportController.byProducts);
 router.get("/reports/pic", reportController.byPIC);
