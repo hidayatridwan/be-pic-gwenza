@@ -22,12 +22,31 @@ const create = async (user, req) => {
     throw new ResponseError(400, constants.RECORD_EXISTS);
   }
 
-  return await prismaClient.product.create({
-    data: createRequest,
-    select: {
-      product_name: true,
-      created_at: true,
-    },
+  const { variants = [], ...productData } = createRequest;
+
+  return await prismaClient.$transaction(async (tx) => {
+    const createdProduct = await tx.product.create({
+      data: productData,
+      select: {
+        product_id: true,
+        product_name: true,
+        created_at: true,
+      },
+    });
+
+    if (variants.length > 0) {
+      const variantData = variants.map((v) => ({
+        product_id: createdProduct.product_id,
+        variant_id: v.variant_id,
+      }));
+
+      await tx.productVariant.createMany({
+        data: variantData,
+        skipDuplicates: true,
+      });
+    }
+
+    return createdProduct;
   });
 };
 
@@ -43,22 +62,25 @@ const search = async (req) => {
 
   const result = await prismaClient.product.findMany({
     where,
-    select: {
-      product_id: true,
-      fashiondesign_code: true,
-      product_name: true,
-      cogs: true,
-      selling_price: true,
-      created_at: true,
+    include: {
       CreatedBy: {
         select: {
           full_name: true,
         },
       },
-      updated_at: true,
       UpdatedBy: {
         select: {
           full_name: true,
+        },
+      },
+      ProductVariant: {
+        select: {
+          Variant: {
+            select: {
+              variant_id: true,
+              variant_name: true,
+            },
+          },
         },
       },
     },
@@ -76,6 +98,10 @@ const search = async (req) => {
       product_name: item.product_name,
       cogs: item.cogs,
       selling_price: item.selling_price,
+      variants: item.ProductVariant.map((item) => ({
+        variant_id: item.Variant.variant_id,
+        variant_name: item.Variant.variant_name,
+      })),
       created_at: item.created_at,
       created_by: item.CreatedBy?.full_name || null,
       updated_at: item.updated_at,
@@ -95,26 +121,100 @@ const get = async (productId) => {
     where: {
       product_id: productId,
     },
+    include: {
+      ProductVariant: {
+        select: {
+          Variant: {
+            select: {
+              variant_id: true,
+              variant_name: true,
+            },
+          },
+        },
+      }
+    },
   });
 
   if (!result) {
     throw new ResponseError(404, constants.RECORD_NOT_FOUND);
   }
 
-  return result;
+  const { ProductVariant, ...data } = result;
+
+  return {
+    ...data,
+    variants: ProductVariant.map((item) => ({
+      variant_id: item.Variant.variant_id,
+      variant_name: item.Variant.variant_name,
+    })),
+  };
 };
 
 const update = async (user, req) => {
   const updateRequest = validate(updateProductValidation, req);
   updateRequest.updated_at = new Date();
   updateRequest.updated_by = user.user_id;
-  const { product_id, ...newRequest } = updateRequest;
 
-  return await prismaClient.product.update({
-    where: {
-      product_id,
-    },
-    data: newRequest,
+  const { product_id, variants, ...newRequest } = updateRequest;
+
+  return await prismaClient.$transaction(async (tx) => {
+    // Update main product data
+    await tx.product.update({
+      where: { product_id },
+      data: newRequest,
+    });
+
+    // Ambil data ProductVariant saat ini dari DB
+    const existingProductVariants = await tx.productVariant.findMany({
+      where: { product_id },
+      select: { variant_id: true },
+    });
+
+    const existingVariantIds = existingProductVariants.map((pv) => pv.variant_id);
+    const incomingVariantIds = variants.map((v) => v.variant_id);
+
+    // Cari variant_id yang baru (belum ada di DB)
+    const variantsToAdd = incomingVariantIds.filter(
+      (id) => !existingVariantIds.includes(id)
+    );
+
+    // Cari variant_id yang harus dihapus
+    const variantsToRemove = existingVariantIds.filter(
+      (id) => !incomingVariantIds.includes(id)
+    );
+
+    // Tambahkan yang baru
+    if (variantsToAdd.length > 0) {
+      await tx.productVariant.createMany({
+        data: variantsToAdd.map((variant_id) => ({
+          product_id,
+          variant_id,
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    // Hapus yang tidak ada lagi
+    if (variantsToRemove.length > 0) {
+      await tx.productVariant.deleteMany({
+        where: {
+          product_id,
+          variant_id: { in: variantsToRemove },
+        },
+      });
+    }
+
+    // Return product setelah update (optional)
+    return tx.product.findUnique({
+      where: { product_id },
+      include: {
+        ProductVariant: {
+          include: {
+            Variant: true,
+          },
+        },
+      },
+    });
   });
 };
 

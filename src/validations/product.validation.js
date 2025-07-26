@@ -5,6 +5,12 @@ const createProductValidation = Joi.object({
   product_name: Joi.string().max(255).required(),
   cogs: Joi.number().min(0).allow(null).default(null),
   selling_price: Joi.number().min(0).allow(null).default(null),
+  variants: Joi.array().items(
+    Joi.object({
+      variant_id: Joi.number().min(1).positive().required(),
+      variant_name: Joi.string().max(100).required(),
+    })
+  )
 });
 
 const searchProductValidation = Joi.object({
@@ -21,6 +27,12 @@ const updateProductValidation = Joi.object({
   product_name: Joi.string().max(255).required(),
   cogs: Joi.number().min(0).allow(null).default(null),
   selling_price: Joi.number().min(0).allow(null).default(null),
+  variants: Joi.array().items(
+    Joi.object({
+      variant_id: Joi.number().min(1).positive().required(),
+      variant_name: Joi.string().max(100).required(),
+    })
+  )
 });
 
 const getVariantValidation = Joi.number().positive().required();
