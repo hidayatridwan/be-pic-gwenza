@@ -41,9 +41,6 @@ const search = async (req) => {
     where = {
       OR: [
         {
-          category: { contains: searchRequest.search },
-        },
-        {
           product_name: { contains: searchRequest.search },
         },
       ],
