@@ -1,6 +1,5 @@
 import { prismaClient } from "../apps/database.js";
 import {
-  getOrderValidation,
   searchOrderValidation,
 } from "../validations/order.validation.js";
 import { validate } from "../validations/validation.js";
@@ -77,52 +76,49 @@ const search = async (req) => {
   return { data, total };
 };
 
-const summary = async () => {
-  const result = await prismaClient.order.groupBy({
-    by: ["product_id", "product_name", "variant_id", "variant_name"],
-    where: {
-      project_id: null,
-    },
-    _sum: {
-      quantity: true,
-    },
-    orderBy: [{ product_name: "asc" }, { variant_name: "asc" }],
-  });
+const summary = async (req) => {
+  const searchRequest = validate(searchOrderValidation, req);
+  const skip = (searchRequest.page - 1) * searchRequest.size;
+  let where = {};
 
-  return result.map((item) => ({
-    product_id: item.product_id,
-    product_name: item.product_name,
-    variant_id: item.variant_id,
-    variant_name: item.variant_name,
-    quantity: item._sum.quantity,
-  }));
+  if (searchRequest.search) {
+    where = {
+      OR: [
+        { product_name: { contains: searchRequest.search } },
+        { variant_name: { contains: searchRequest.search } }
+      ],
+    };
+  }
+
+  // Get both the paginated data and total count in parallel
+  const [data, total] = await Promise.all([
+    prismaClient.order.groupBy({
+      by: ["product_id", "product_name", "variant_id", "variant_name"],
+      where,
+      _sum: {
+        quantity: true,
+      },
+      take: searchRequest.size,
+      skip: skip,
+      orderBy: [{ product_name: "asc" }, { variant_name: "asc" }],
+    }),
+    prismaClient.order.groupBy({
+      by: ["product_id", "product_name", "variant_id", "variant_name"],
+      where,
+      // Just need the count, no need for _sum here
+    }).then(groups => groups.length)
+  ]);
+
+  return {
+    data: data.map((item) => ({
+      product_id: item.product_id,
+      product_name: item.product_name,
+      variant_id: item.variant_id,
+      variant_name: item.variant_name,
+      quantity: item._sum.quantity,
+    })),
+    total,
+  };
 };
 
-const get = async (req) => {
-  const getRequest = validate(getOrderValidation, {
-    product_id: req.productId,
-    variant_id: req.variantId,
-  });
-
-  const result = await prismaClient.order.groupBy({
-    by: ["product_id", "product_name", "variant_id", "variant_name"],
-    where: {
-      project_id: null,
-      product_id: getRequest.product_id,
-      variant_id: getRequest.variant_id,
-    },
-    _sum: {
-      quantity: true,
-    },
-  });
-
-  return result.map((item) => ({
-    product_id: item.product_id,
-    product_name: item.product_name,
-    variant_id: item.variant_id,
-    variant_name: item.variant_name,
-    quantity: item._sum.quantity,
-  }));
-};
-
-export default { search, summary, get };
+export default { search, summary };

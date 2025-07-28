@@ -56,6 +56,7 @@ model User {
   MerchandiseInbound   MerchandiseInbound[]
   MerchandiseOutbound  MerchandiseOutbound[]
   Return               Return[]
+  Import               Import[]
 
   @@map("users")
 }
@@ -137,6 +138,8 @@ model Import {
   is_processed Boolean  @default(false)
   created_at   DateTime @default(now())
   created_by   Int?     @db.Int
+
+  User User? @relation(fields: [created_by], references: [user_id])
 
   @@unique([file_name])
   @@map("imports")

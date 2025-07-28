@@ -13,20 +13,13 @@ const search = async (req, res, next) => {
 
 const summary = async (req, res, next) => {
   try {
-    const result = await orderService.summary();
-    res.status(200).json({ data: result });
+    req.query.page = Number(req.query.page);
+    req.query.size = Number(req.query.size);
+    const result = await orderService.summary(req.query);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
 };
 
-const get = async (req, res, next) => {
-  try {
-    const result = await orderService.get(req.params);
-    res.status(200).json({ data: result });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export default { search, summary, get };
+export default { search, summary };

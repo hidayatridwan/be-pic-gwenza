@@ -49,7 +49,6 @@ router.get("/imports", importController.search);
 
 router.get("/orders", orderController.search);
 router.get("/orders/summary", orderController.summary);
-router.get("/orders/{:productId}/{:variantId}", orderController.get);
 
 router.post("/projects", projectController.create);
 router.delete("/projects/{:projectId}", projectController.cancel);

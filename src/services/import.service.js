@@ -42,11 +42,32 @@ const search = async (req) => {
     };
   }
 
-  const data = await prismaClient.import.findMany({
+  const result = await prismaClient.import.findMany({
     where,
+    include: {
+      User: {
+        select: {
+          full_name: true,
+        },
+      },
+    },
     take: searchRequest.size,
     skip: skip,
+    orderBy: {
+      created_at: "desc",
+    }
   });
+
+  const data = result.map((item) => {
+    return {
+      import_id: item.import_id,
+      file_name: item.file_name,
+      is_processed: item.is_processed,
+      created_at: item.created_at,
+      created_by: item.User.full_name,
+    };
+  });
+
   const total = await prismaClient.import.count({ where });
 
   return { data, total };

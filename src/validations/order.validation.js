@@ -6,9 +6,4 @@ const searchOrderValidation = Joi.object({
   search: Joi.string().min(0).max(100).optional(),
 });
 
-const getOrderValidation = Joi.object({
-  product_id: Joi.number().required(),
-  variant_id: Joi.number().required(),
-});
-
-export { searchOrderValidation, getOrderValidation };
+export { searchOrderValidation };
