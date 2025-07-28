@@ -611,6 +611,7 @@ WHERE
 		FROM
 			merchandiseinbounds
 	)
+AND product_name LIKE ${search}
 ORDER BY
   product_name
 LIMIT ${searchRequest.size}
