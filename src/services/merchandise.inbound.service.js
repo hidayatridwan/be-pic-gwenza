@@ -67,6 +67,7 @@ const search = async (req) => {
       },
       price: true,
       quantity: true,
+      notes: true,
       status: true,
       created_at: true,
       User: {
@@ -89,6 +90,7 @@ const search = async (req) => {
       color_name: item.Color.color_name,
       price: item.price,
       quantity: item.quantity,
+      notes: item.notes,
       status: item.status,
       created_at: item.created_at,
       created_by: item.User.full_name
