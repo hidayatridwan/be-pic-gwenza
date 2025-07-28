@@ -5,6 +5,7 @@ const createInboundValidation = Joi.array().items(
     projectitem_id: Joi.number().required(),
     inbound_date: Joi.date().required(),
     quantity: Joi.number().required(),
+    notes: Joi.string().max(255).optional(),
   })
 ).min(1);
 

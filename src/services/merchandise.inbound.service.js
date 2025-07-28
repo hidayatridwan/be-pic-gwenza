@@ -1,6 +1,6 @@
 import { prismaClient } from "../apps/database.js";
 import { MerchandiseInboundStatus } from "../generated/prisma/index.js";
-import { createMerchandiseInboundValidation, inboundCodesValidation, searchMerchandiseInboundValidation } from "../validations/merchandise.inbound.validation.js";
+import { cancelMerchandiseInboundValidation, createMerchandiseInboundValidation, inboundCodesValidation, searchMerchandiseInboundValidation } from "../validations/merchandise.inbound.validation.js";
 import { validate } from "../validations/validation.js";
 
 const create = async (user, req) => {
@@ -24,6 +24,7 @@ const search = async (req) => {
     where = {
       OR: [
         { inbound_code: { contains: searchRequest.search } },
+        { notes: { contains: searchRequest.search } },
         {
           Merchandise: {
             product_name: { contains: searchRequest.search },
@@ -135,8 +136,34 @@ const inboundCodes = async (merchandiseIdInput) => {
   }));
 };
 
+const cancel = async (merchandiseInboundId) => {
+  merchandiseInboundId = validate(cancelMerchandiseInboundValidation, merchandiseInboundId);
+
+  await prismaClient.$transaction(async (tx) => {
+    const countMerchandiseInbound = await tx.merchandiseInbound.count({
+      where: {
+        merchandise_inbound_id: merchandiseInboundId,
+      },
+    });
+
+    if (countMerchandiseInbound === 0) {
+      throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+    }
+
+    return await tx.merchandiseInbound.updateMany({
+      where: {
+        merchandise_inbound_id: merchandiseInboundId,
+      },
+      data: {
+        status: MerchandiseInboundStatus.CANCEL,
+      },
+    });
+  });
+};
+
 export default {
   create,
   search,
-  inboundCodes
+  inboundCodes,
+  cancel
 };

@@ -20,7 +20,18 @@ const search = async (req, res, next) => {
   }
 };
 
+const cancel = async (req, res, next) => {
+  try {
+    const merchandiseOutboundId = Number(req.params.merchandiseOutboundId);
+    await merchandiseOutboundService.cancel(merchandiseOutboundId);
+    res.status(204).json({});
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
-  search
+  search,
+  cancel
 };

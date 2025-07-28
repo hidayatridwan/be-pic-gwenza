@@ -227,6 +227,7 @@ model Inbound {
   product_id     Int           @db.Int
   variant_id     Int           @db.Int
   quantity       Int           @db.Int
+  notes          String?       @db.VarChar(255)
   status         InboundStatus @default(OK)
   created_at     DateTime      @default(now())
   created_by     Int?          @db.Int
@@ -251,7 +252,7 @@ model Return {
   product_id  Int          @db.Int
   variant_id  Int          @db.Int
   quantity    Int          @db.Int
-  notes       String       @db.VarChar(100)
+  notes       String?      @db.VarChar(255)
   status      ReturnStatus @default(OK)
   created_at  DateTime     @default(now())
   created_by  Int?         @db.Int
@@ -274,7 +275,7 @@ model Outbound {
   product_id    Int            @db.Int
   variant_id    Int            @db.Int
   quantity      Int            @db.Int
-  notes         String         @db.VarChar(100)
+  notes         String?        @db.VarChar(255)
   status        OutboundStatus @default(OK)
   created_at    DateTime       @default(now())
   created_by    Int?           @db.Int
@@ -375,12 +376,13 @@ enum MerchandiseInboundStatus {
 model MerchandiseInbound {
   merchandise_inbound_id Int                      @id @default(autoincrement()) @db.Int
   inbound_date           DateTime                 @db.Date()
-  inbound_code           String                   @db.VarChar(100)
+  inbound_code           String                   @unique @db.VarChar(100)
   merchandise_id         Int                      @db.Int
   supplier_id            Int                      @db.Int
   color_id               Int                      @db.Int
   price                  Int                      @db.Int
   quantity               Int                      @db.Int
+  notes                  String?                  @db.VarChar(255)
   status                 MerchandiseInboundStatus @default(OPEN)
   created_at             DateTime                 @default(now())
   created_by             Int?                     @db.Int
@@ -394,18 +396,25 @@ model MerchandiseInbound {
   @@map("merchandiseinbounds")
 }
 
+enum MerchandiseOutboundStatus {
+  OK
+  CANCEL
+}
+
 model MerchandiseOutbound {
-  merchandise_outbound_id Int      @id @default(autoincrement()) @db.Int
-  outbound_date           DateTime @db.Date()
-  outbound_code           String   @db.VarChar(100)
-  merchandise_id          Int      @db.Int
-  color_id                Int      @db.Int
-  fashiondesign_id        Int?     @db.Int
-  product_id              Int?     @db.Int
-  tailor_id               Int      @db.Int
-  quantity                Int      @db.Int
-  created_at              DateTime @default(now())
-  created_by              Int?     @db.Int
+  merchandise_outbound_id Int                       @id @default(autoincrement()) @db.Int
+  outbound_date           DateTime                  @db.Date()
+  outbound_code           String                    @db.VarChar(100)
+  merchandise_id          Int                       @db.Int
+  color_id                Int                       @db.Int
+  fashiondesign_id        Int?                      @db.Int
+  product_id              Int?                      @db.Int
+  tailor_id               Int                       @db.Int
+  quantity                Int                       @db.Int
+  notes                   String?                   @db.VarChar(255)
+  status                  MerchandiseOutboundStatus @default(OK)
+  created_at              DateTime                  @default(now())
+  created_by              Int?                      @db.Int
 
   Merchandise   Merchandise?   @relation(fields: [merchandise_id], references: [merchandise_id])
   FashionDesign FashionDesign? @relation(fields: [fashiondesign_id], references: [fashiondesign_id])

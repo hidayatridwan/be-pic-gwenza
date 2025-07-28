@@ -121,8 +121,10 @@ router.put("/suppliers/{:supplierId}", supplierController.update);
 router.post("/merchandise-inbounds", merchandiseInboundController.create);
 router.get("/merchandise-inbounds", merchandiseInboundController.search);
 router.get("/merchandise-inbounds/{:merchandiseId}/inbound-codes", merchandiseInboundController.inboundCodes);
+router.delete("/merchandise-inbounds/{:merchandiseInboundId}", merchandiseInboundController.cancel);
 
 router.post("/merchandise-outbounds", merchandiseOutboundController.create);
 router.get("/merchandise-outbounds", merchandiseOutboundController.search);
+router.delete("/merchandise-outbounds/{:merchandiseOutboundId}", merchandiseOutboundController.cancel);
 
 export { router };

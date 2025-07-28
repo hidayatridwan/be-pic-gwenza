@@ -1,7 +1,7 @@
 import { prismaClient } from "../apps/database.js";
 import { ResponseError } from "../errors/response.error.js";
 import { MerchandiseInboundStatus } from "../generated/prisma/index.js";
-import { createMerchandiseOutboundValidation, searchMerchandiseOutboundValidation } from "../validations/merchandise.outbound.validation.js";
+import { cancelMerchandiseOutboundValidation, createMerchandiseOutboundValidation, searchMerchandiseOutboundValidation } from "../validations/merchandise.outbound.validation.js";
 import { validate } from "../validations/validation.js";
 
 const create = async (user, req) => {
@@ -95,6 +95,8 @@ const search = async (req) => {
 	tailors.tailor_name,
 	COALESCE(fashiondesigns.sample_code, products.product_name) AS product_name,
 	merchandiseoutbounds.quantity,
+  merchandiseoutbounds.notes,
+  merchandiseoutbounds.status,
   merchandiseoutbounds.created_at,
   users.full_name AS created_by
 FROM
@@ -126,6 +128,8 @@ OFFSET ${skip}`;
       tailor_name: item.tailor_name,
       product_name: item.product_name,
       quantity: item.quantity,
+      notes: item.notes,
+      status: item.status,
       created_at: item.created_at,
       created_by: item.created_by
     };
@@ -153,7 +157,33 @@ OFFSET ${skip}`;
   return { data, total };
 };
 
+const cancel = async (merchandiseOutboundId) => {
+  merchandiseOutboundId = validate(cancelMerchandiseOutboundValidation, merchandiseOutboundId);
+
+  await prismaClient.$transaction(async (tx) => {
+    const countMerchandiseOutbound = await tx.merchandiseOutbound.count({
+      where: {
+        merchandise_outbound_id: merchandiseOutboundId,
+      },
+    });
+
+    if (countMerchandiseOutbound === 0) {
+      throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+    }
+
+    return await tx.merchandiseOutbound.updateMany({
+      where: {
+        merchandise_outbound_id: merchandiseOutboundId,
+      },
+      data: {
+        status: MerchandiseInboundStatus.CANCEL,
+      },
+    });
+  });
+};
+
 export default {
   create,
-  search
+  search,
+  cancel
 };

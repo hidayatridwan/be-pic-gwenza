@@ -72,6 +72,7 @@ const create = async (user, req) => {
       variant_id: item.variant_id,
       inbound_date: request.inbound_date,
       quantity: currentInboundQty,
+      notes: request.notes,
       created_by: user.user_id,
     });
   }
@@ -147,6 +148,7 @@ const search = async (req) => {
   if (searchRequest.search) {
     where = {
       OR: [
+        { notes: { contains: searchRequest.search } },
         {
           ProjectItem: {
             is: {
@@ -236,6 +238,7 @@ const search = async (req) => {
       },
       inbound_date: true,
       quantity: true,
+      notes: true,
       created_at: true,
     },
     take: searchRequest.size,
@@ -256,6 +259,7 @@ const search = async (req) => {
     assign_date: item.ProjectItem.assign_date,
     inbound_date: item.inbound_date,
     quantity: item.quantity,
+    notes: item.notes,
     created_at: item.created_at,
     created_by: item.User.full_name,
   }));

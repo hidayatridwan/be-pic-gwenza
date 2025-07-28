@@ -29,8 +29,19 @@ const inboundCodes = async (req, res, next) => {
   }
 };
 
+const cancel = async (req, res, next) => {
+  try {
+    const merchandiseInboundId = Number(req.params.merchandiseInboundId);
+    await merchandiseInboundService.cancel(merchandiseInboundId);
+    res.status(204).json({});
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
   search,
-  inboundCodes
+  inboundCodes,
+  cancel
 };
