@@ -392,7 +392,6 @@ model MerchandiseInbound {
   Color       Color?       @relation(fields: [color_id], references: [color_id])
   User        User?        @relation(fields: [created_by], references: [user_id])
 
-  @@index([inbound_code])
   @@map("merchandiseinbounds")
 }
 

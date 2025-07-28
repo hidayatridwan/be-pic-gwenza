@@ -6,7 +6,7 @@ const createReturnValidation = Joi.array().items(
     product_id: Joi.number().required(),
     variant_id: Joi.number().required(),
     quantity: Joi.number().required(),
-    notes: Joi.string().max(100).optional(),
+    notes: Joi.string().min(0).max(255).optional()
   })
 ).min(1);
 

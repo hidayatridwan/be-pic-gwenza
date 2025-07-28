@@ -628,7 +628,7 @@ OFFSET ${skip}`;
 	merchandiseinbounds.inbound_code AS tx_code,
 	merchandiseinbounds.quantity AS qty_in,
 	0 AS qty_out,
-	concat('[Supplier: ', suppliers.supplier_name, '] [Warna: ', colors.color_name, ']') AS notes
+	concat('[Supplier: ', suppliers.supplier_name, '] [Warna: ', colors.color_name, '] [Keterangan: ', merchandiseinbounds.notes, ']') AS notes
 FROM
 	merchandiseinbounds
 JOIN colors ON merchandiseinbounds.color_id = colors.color_id
@@ -642,7 +642,7 @@ SELECT
 	merchandiseoutbounds.outbound_code AS tx_code,
 	0 AS qty_in,
 	merchandiseoutbounds.quantity AS qty_out,
-	concat('[Konveksi: ', tailors.tailor_name, '] [Produk: ', COALESCE(fashiondesigns.sample_code, products.product_name), '] [Warna: ', colors.color_name, ']') AS notes
+	concat('[Konveksi: ', tailors.tailor_name, '] [Produk: ', COALESCE(fashiondesigns.sample_code, products.product_name), '] [Warna: ', colors.color_name, '] [Keterangan: ', merchandiseoutbounds.notes, ']') AS notes
 FROM
 	merchandiseoutbounds
 	JOIN tailors ON merchandiseoutbounds.tailor_id = tailors.tailor_id

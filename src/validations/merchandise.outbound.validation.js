@@ -10,7 +10,7 @@ const createMerchandiseOutboundValidation = Joi.array().items(
     fashiondesign_id: Joi.number().allow(null).default(null),
     product_id: Joi.number().allow(null).default(null),
     quantity: Joi.number().required(),
-    notes: Joi.string().max(255).optional(),
+    notes: Joi.string().min(0).max(255).optional()
   })
 ).min(1);
 

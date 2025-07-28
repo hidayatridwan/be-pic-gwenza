@@ -9,7 +9,7 @@ const createMerchandiseInboundValidation = Joi.array().items(
     color_id: Joi.number().required(),
     price: Joi.number().required(),
     quantity: Joi.number().required(),
-    notes: Joi.string().max(255).optional(),
+    notes: Joi.string().min(0).max(255).optional()
   })
 ).min(1);
 
