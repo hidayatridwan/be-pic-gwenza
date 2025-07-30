@@ -141,7 +141,6 @@ model Import {
 
   User User? @relation(fields: [created_by], references: [user_id])
 
-  @@unique([file_name])
   @@map("imports")
 }
 
@@ -379,7 +378,7 @@ enum MerchandiseInboundStatus {
 model MerchandiseInbound {
   merchandise_inbound_id Int                      @id @default(autoincrement()) @db.Int
   inbound_date           DateTime                 @db.Date()
-  inbound_code           String                   @unique @db.VarChar(100)
+  inbound_code           String                   @db.VarChar(100)
   merchandise_id         Int                      @db.Int
   supplier_id            Int                      @db.Int
   color_id               Int                      @db.Int

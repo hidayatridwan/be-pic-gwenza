@@ -9,7 +9,7 @@ const createInboundValidation = Joi.array().items(
   })
 ).min(1);
 
-const rejectInboundValidation = Joi.number().positive().required();
+const cancelInboundValidation = Joi.number().positive().required();
 
 const searchInboundValidation = Joi.object({
   page: Joi.number().min(1).positive().default(1),
@@ -19,6 +19,6 @@ const searchInboundValidation = Joi.object({
 
 export {
   createInboundValidation,
-  rejectInboundValidation,
+  cancelInboundValidation,
   searchInboundValidation,
 };

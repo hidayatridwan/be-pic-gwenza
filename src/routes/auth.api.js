@@ -64,11 +64,12 @@ router.get(
 router.get("/projects/products", projectController.products);
 
 router.post("/inbounds", inboundController.create);
-router.delete("/inbounds/{:inboundId}", inboundController.reject);
+router.delete("/inbounds/{:inboundId}", inboundController.cancel);
 router.get("/inbounds", inboundController.search);
 
 router.post("/outbounds", outboundController.create);
 router.get("/outbounds", outboundController.search);
+router.delete("/outbounds/{:outboundId}", outboundController.cancel);
 
 router.post("/returns", returnController.create);
 router.get("/returns", returnController.search);

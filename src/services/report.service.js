@@ -1,5 +1,5 @@
 import { prismaClient } from "../apps/database.js";
-import { Prisma } from "../generated/prisma/index.js";
+import { MerchandiseInboundStatus, MerchandiseOutboundStatus, Prisma } from "../generated/prisma/index.js";
 import {
   getExpiredProductsValidation,
   getOrderProductsValidation,
@@ -534,7 +534,10 @@ OFFSET ${skip}`;
     where: {
       merchandise_id: {
         in: products.map(item => item.merchandise_id)
-      }
+      },
+      status: {
+        not: MerchandiseInboundStatus.CANCEL,
+      },
     },
     by: ['merchandise_id', 'color_id'],
     _sum: {
@@ -546,7 +549,10 @@ OFFSET ${skip}`;
     where: {
       merchandise_id: {
         in: products.map(item => item.merchandise_id)
-      }
+      },
+      status: {
+        not: MerchandiseOutboundStatus.CANCEL,
+      },
     },
     by: ['merchandise_id', 'color_id'],
     _sum: {

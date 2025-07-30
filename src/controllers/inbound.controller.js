@@ -9,10 +9,10 @@ const create = async (req, res, next) => {
   }
 };
 
-const reject = async (req, res, next) => {
+const cancel = async (req, res, next) => {
   try {
     const inboundId = Number(req.params.inboundId);
-    await inboundService.reject(inboundId);
+    await inboundService.cancel(inboundId);
     res.status(204).json({});
   } catch (err) {
     next(err);
@@ -30,4 +30,4 @@ const search = async (req, res, next) => {
   }
 };
 
-export default { create, reject, search };
+export default { create, cancel, search };

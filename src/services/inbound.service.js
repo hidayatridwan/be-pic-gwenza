@@ -1,7 +1,7 @@
 import { prismaClient } from "../apps/database.js";
 import { validate } from "../validations/validation.js";
 import {
-  rejectInboundValidation,
+  cancelInboundValidation,
   createInboundValidation,
   searchInboundValidation,
 } from "../validations/inbound.validation.js";
@@ -115,8 +115,8 @@ const create = async (user, req) => {
   });
 };
 
-const reject = async (inboundId) => {
-  inboundId = validate(rejectInboundValidation, inboundId);
+const cancel = async (inboundId) => {
+  inboundId = validate(cancelInboundValidation, inboundId);
 
   const countInbound = await prismaClient.inbound.count({
     where: {
@@ -239,6 +239,7 @@ const search = async (req) => {
       inbound_date: true,
       quantity: true,
       notes: true,
+      status: true,
       created_at: true,
     },
     take: searchRequest.size,
@@ -260,6 +261,7 @@ const search = async (req) => {
     inbound_date: item.inbound_date,
     quantity: item.quantity,
     notes: item.notes,
+    status: item.status,
     created_at: item.created_at,
     created_by: item.User.full_name,
   }));
@@ -269,4 +271,4 @@ const search = async (req) => {
   return { data, total };
 };
 
-export default { create, reject, search };
+export default { create, cancel, search };

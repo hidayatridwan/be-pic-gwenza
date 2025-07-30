@@ -16,7 +16,10 @@ const searchOutboundValidation = Joi.object({
   search: Joi.string().min(0).max(100).optional(),
 });
 
+const cancelOutboundValidation = Joi.number().positive().required();
+
 export {
   createOutboundValidation,
-  searchOutboundValidation
+  searchOutboundValidation,
+  cancelOutboundValidation
 };

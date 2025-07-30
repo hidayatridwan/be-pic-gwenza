@@ -1,4 +1,5 @@
 import { prismaClient } from "../apps/database.js";
+import { ResponseError } from "../errors/response.error.js";
 import { MerchandiseInboundStatus } from "../generated/prisma/index.js";
 import { cancelMerchandiseInboundValidation, createMerchandiseInboundValidation, inboundCodesValidation, searchMerchandiseInboundValidation } from "../validations/merchandise.inbound.validation.js";
 import { validate } from "../validations/validation.js";
@@ -10,6 +11,19 @@ const create = async (user, req) => {
     ...item,
     created_by: user.user_id
   }));
+
+  const merchandiseInboundExists = await prismaClient.merchandiseInbound.findMany({
+    where: {
+      inbound_code: { in: createRequest.map((item) => item.inbound_code) },
+      status: {
+        not: MerchandiseInboundStatus.CANCEL
+      }
+    },
+  });
+
+  if (merchandiseInboundExists.length > 0) {
+    throw new ResponseError(409, "Inbound code already exists.");
+  }
 
   return prismaClient.merchandiseInbound.createMany({
     data: merchandiseInbounds,

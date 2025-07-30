@@ -1,5 +1,6 @@
 import { prismaClient } from "../apps/database.js";
-import { createOutboundValidation, searchOutboundValidation } from "../validations/outbound.validation.js";
+import { OutboundStatus } from "../generated/prisma/index.js";
+import { cancelOutboundValidation, createOutboundValidation, searchOutboundValidation } from "../validations/outbound.validation.js";
 import { validate } from "../validations/validation.js";
 
 const create = async (user, req) => {
@@ -89,7 +90,33 @@ const search = async (req) => {
   return { data, total };
 };
 
+const cancel = async (outboundId) => {
+  outboundId = validate(cancelOutboundValidation, outboundId);
+
+  const countOutbound = await prismaClient.outbound.count({
+    where: {
+      outbound_id: outboundId,
+    },
+  });
+
+  if (countOutbound === 0) {
+    throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+  }
+
+  const result = await prismaClient.outbound.updateMany({
+    where: {
+      outbound_id: outboundId,
+    },
+    data: {
+      status: OutboundStatus.CANCEL,
+    },
+  });
+
+  return result;
+};
+
 export default {
   create,
-  search
+  search,
+  cancel
 };
