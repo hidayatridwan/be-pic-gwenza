@@ -1,4 +1,5 @@
 import { prismaClient } from "../apps/database.js";
+import { ResponseError } from "../errors/response.error.js";
 import { OutboundStatus } from "../generated/prisma/index.js";
 import { cancelOutboundValidation, createOutboundValidation, searchOutboundValidation } from "../validations/outbound.validation.js";
 import { validate } from "../validations/validation.js";

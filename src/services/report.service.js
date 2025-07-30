@@ -225,7 +225,8 @@ GROUP BY
 	product_id,
 	variant_id`;
 
-  const openOrders = await prismaClient.$queryRaw`SELECT
+  const openOrders = await prismaClient.$queryRaw`select * from (
+    SELECT
 	product_id,
 	product_name,
 	variant_id,
@@ -239,6 +240,28 @@ WHERE
 GROUP BY
 	product_id,
 	variant_id
+
+union all
+
+SELECT
+	products.product_id,
+	products.product_name,
+	variants.variant_id,
+	variants.variant_name,
+	0 AS quantity
+FROM
+	products
+	JOIN productvariants ON products.product_id = productvariants.product_id
+	JOIN variants ON productvariants.variant_id = variants.variant_id
+WHERE
+	products.product_id NOT IN (
+		SELECT
+			product_id
+		FROM
+			orders
+	)
+  AND products.product_name LIKE ${search} OR variants.variant_name LIKE ${search}
+  ) as t1
 ORDER BY
   product_name,
   variant_name
@@ -296,7 +319,8 @@ GROUP BY
   // Count total matching rows without re-running the full query
   const countResult = await prismaClient.$queryRaw`
     SELECT COUNT(*) as total FROM (
-      SELECT 1
+      SELECT
+	1
 FROM
 	orders
 WHERE
@@ -305,6 +329,23 @@ WHERE
 GROUP BY
 	product_id,
 	variant_id
+
+union all
+
+SELECT
+	1
+FROM
+	products
+	JOIN productvariants ON products.product_id = productvariants.product_id
+	JOIN variants ON productvariants.variant_id = variants.variant_id
+WHERE
+	products.product_id NOT IN (
+		SELECT
+			product_id
+		FROM
+			orders
+	)
+  AND products.product_name LIKE ${search} OR variants.variant_name LIKE ${search}
     ) AS grouped`;
 
   const total = Number(countResult[0]?.total ?? 0);

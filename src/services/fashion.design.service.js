@@ -7,6 +7,7 @@ import {
   updateFashionDesignValidation,
 } from "../validations/fashion.design.validation.js";
 import { buildS3Url } from "../utils/generate.js";
+import { ResponseError } from "../errors/response.error.js";
 
 const create = async (user, req) => {
   const createRequest = validate(createFashionDesignValidation, req);
