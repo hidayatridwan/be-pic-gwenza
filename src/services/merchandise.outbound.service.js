@@ -68,6 +68,7 @@ const create = async (user, req) => {
       merchandiseOutbounds.push({
         ...item,
         color_id: merchandiseInbound.color_id,
+        supplier_id: merchandiseInbound.supplier_id,
         fashiondesign_id: type === "New Product" ? item.fashiondesign_id : null,
         product_id: type === "Repeat Product" ? item.product_id : null,
         created_by: user.user_id,
@@ -93,6 +94,7 @@ const search = async (req) => {
 	merchandiseoutbounds.outbound_code,
 	merchandises.product_name AS material_name,
   colors.color_name,
+  suppliers.supplier_name,
 	tailors.tailor_name,
 	COALESCE(fashiondesigns.sample_code, products.product_name) AS product_name,
 	merchandiseoutbounds.quantity,
@@ -104,8 +106,8 @@ FROM
 	merchandiseoutbounds
 	JOIN merchandises ON merchandiseoutbounds.merchandise_id = merchandises.merchandise_id
 	JOIN tailors ON merchandiseoutbounds.tailor_id = tailors.tailor_id
-	JOIN merchandiseinbounds ON merchandiseoutbounds.outbound_code = merchandiseinbounds.inbound_code
-	JOIN colors ON merchandiseinbounds.color_id = colors.color_id
+	JOIN colors ON merchandiseoutbounds.color_id = colors.color_id
+  JOIN suppliers ON merchandiseoutbounds.supplier_id = suppliers.supplier_id
 	JOIN users ON merchandiseoutbounds.created_by = users.user_id
 	LEFT JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
 	LEFT JOIN products ON merchandiseoutbounds.product_id = products.product_id
@@ -114,7 +116,9 @@ WHERE
   merchandises.product_name LIKE ${search} OR
   tailors.tailor_name LIKE ${search} OR
   fashiondesigns.sample_code LIKE ${search} OR
-  products.product_name LIKE ${search}
+  products.product_name LIKE ${search} OR
+  colors.color_name LIKE ${search} OR
+  suppliers.supplier_name LIKE ${search}
 ORDER BY merchandiseoutbounds.outbound_date DESC
 LIMIT ${searchRequest.size}
 OFFSET ${skip}`;
@@ -126,6 +130,7 @@ OFFSET ${skip}`;
       outbound_code: item.outbound_code,
       material_name: item.material_name,
       color_name: item.color_name,
+      supplier_name: item.supplier_name,
       tailor_name: item.tailor_name,
       product_name: item.product_name,
       quantity: item.quantity,
@@ -143,6 +148,8 @@ OFFSET ${skip}`;
       merchandiseoutbounds
       JOIN merchandises ON merchandiseoutbounds.merchandise_id = merchandises.merchandise_id
       JOIN tailors ON merchandiseoutbounds.tailor_id = tailors.tailor_id
+      JOIN colors ON merchandiseoutbounds.color_id = colors.color_id
+      JOIN suppliers ON merchandiseoutbounds.supplier_id = suppliers.supplier_id
       LEFT JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
       LEFT JOIN products ON merchandiseoutbounds.product_id = products.product_id
     WHERE
@@ -150,7 +157,9 @@ OFFSET ${skip}`;
       merchandises.product_name LIKE ${search} OR
       tailors.tailor_name LIKE ${search} OR
       fashiondesigns.sample_code LIKE ${search} OR
-      products.product_name LIKE ${search}
+      products.product_name LIKE ${search} OR
+      colors.color_name LIKE ${search} OR
+      suppliers.supplier_name LIKE ${search}
     ) AS grouped`;
 
   const total = Number(countResult[0]?.total ?? 0);

@@ -407,6 +407,7 @@ model MerchandiseOutbound {
   outbound_date           DateTime                  @db.Date()
   outbound_code           String                    @db.VarChar(100)
   merchandise_id          Int                       @db.Int
+  supplier_id             Int                       @db.Int
   color_id                Int                       @db.Int
   fashiondesign_id        Int?                      @db.Int
   product_id              Int?                      @db.Int

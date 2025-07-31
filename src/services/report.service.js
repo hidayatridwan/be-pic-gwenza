@@ -555,17 +555,22 @@ const byMerchandiseSummary = async (req) => {
 	merchandises.merchandise_id,
 	merchandises.product_name,
 	colors.color_id,
-	colors.color_name
+	colors.color_name,
+  suppliers.supplier_id,
+  suppliers.supplier_name
 FROM
 	merchandises
 	LEFT JOIN merchandiseinbounds ON merchandises.merchandise_id = merchandiseinbounds.merchandise_id
 	LEFT JOIN colors ON merchandiseinbounds.color_id = colors.color_id
+	LEFT JOIN suppliers ON merchandiseinbounds.supplier_id = suppliers.supplier_id
 WHERE
   merchandises.product_name LIKE ${search}
   OR colors.color_name LIKE ${search}
+  OR suppliers.supplier_name LIKE ${search}
 GROUP BY
 	merchandises.merchandise_id,
-	merchandiseinbounds.color_id
+	merchandiseinbounds.color_id,
+  merchandiseinbounds.supplier_id
 ORDER BY
 	product_name
 LIMIT ${searchRequest.size}
@@ -580,7 +585,7 @@ OFFSET ${skip}`;
         not: MerchandiseInboundStatus.CANCEL,
       },
     },
-    by: ['merchandise_id', 'color_id'],
+    by: ['merchandise_id', 'color_id', 'supplier_id'],
     _sum: {
       quantity: true,
     },
@@ -595,17 +600,17 @@ OFFSET ${skip}`;
         not: MerchandiseOutboundStatus.CANCEL,
       },
     },
-    by: ['merchandise_id', 'color_id'],
+    by: ['merchandise_id', 'color_id', 'supplier_id'],
     _sum: {
       quantity: true,
     },
   });
 
   const data = products.map(product => {
-    const inboundData = inbounds.find(item => item.merchandise_id === product.merchandise_id && item.color_id === product.color_id);
+    const inboundData = inbounds.find(item => item.merchandise_id === product.merchandise_id && item.color_id === product.color_id && item.supplier_id === product.supplier_id);
     const inboundQty = inboundData ? inboundData._sum.quantity : 0;
 
-    const outboundData = outbounds.find(item => item.merchandise_id === product.merchandise_id && item.color_id === product.color_id);
+    const outboundData = outbounds.find(item => item.merchandise_id === product.merchandise_id && item.color_id === product.color_id && item.supplier_id === product.supplier_id);
     const outboundQty = outboundData ? outboundData._sum.quantity : 0;
 
     const availableQty = inboundQty - outboundQty;
@@ -614,6 +619,7 @@ OFFSET ${skip}`;
       category: product.category,
       product_name: product.product_name,
       color_name: product.color_name,
+      supplier_name: product.supplier_name,
       inbound: inboundQty,
       outbound: outboundQty,
       available: availableQty
@@ -628,12 +634,15 @@ FROM
 	merchandises
 	LEFT JOIN merchandiseinbounds ON merchandises.merchandise_id = merchandiseinbounds.merchandise_id
 	LEFT JOIN colors ON merchandiseinbounds.color_id = colors.color_id
+	LEFT JOIN suppliers ON merchandiseinbounds.supplier_id = suppliers.supplier_id
 WHERE
   merchandises.product_name LIKE ${search}
   OR colors.color_name LIKE ${search}
+  OR suppliers.supplier_name LIKE ${search}
 GROUP BY
 	merchandises.merchandise_id,
-	merchandiseinbounds.color_id
+	merchandiseinbounds.color_id,
+  merchandiseinbounds.supplier_id
     ) AS grouped`;
 
   const total = Number(countResult[0]?.total ?? 0);
