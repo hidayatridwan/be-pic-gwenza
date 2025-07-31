@@ -3,6 +3,7 @@ import { ResponseError } from "../errors/response.error.js";
 import { MerchandiseInboundStatus } from "../generated/prisma/index.js";
 import { cancelMerchandiseOutboundValidation, createMerchandiseOutboundValidation, searchMerchandiseOutboundValidation } from "../validations/merchandise.outbound.validation.js";
 import { validate } from "../validations/validation.js";
+import constants from "../utils/constants.js";
 
 const create = async (user, req) => {
   const createRequest = validate(createMerchandiseOutboundValidation, req);
