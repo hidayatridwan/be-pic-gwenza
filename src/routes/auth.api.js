@@ -103,10 +103,10 @@ router.delete(
   fashionDesignController.remove
 );
 
-router.post("/merchandises", merchandiseController.create);
+router.post("/merchandises", uploadMiddleware("merchandises").single("image"), merchandiseController.create);
 router.get("/merchandises", merchandiseController.search);
 router.get("/merchandises/{:merchandiseId}", merchandiseController.get);
-router.put("/merchandises/{:merchandiseId}", merchandiseController.update);
+router.put("/merchandises/{:merchandiseId}", uploadMiddleware("merchandises").single("image"), merchandiseController.update);
 
 router.post("/colors", colorController.create);
 router.get("/colors", colorController.search);

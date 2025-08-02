@@ -1,6 +1,7 @@
 import { prismaClient } from "../apps/database.js";
 import { ResponseError } from "../errors/response.error.js";
 import constants from "../utils/constants.js";
+import { buildS3Url } from "../utils/generate.js";
 import {
   createMerchandiseValidation,
   getMerchandiseValidation,
@@ -53,6 +54,7 @@ const search = async (req) => {
       merchandise_id: true,
       category: true,
       product_name: true,
+      image: true,
       created_at: true,
       CreatedBy: {
         select: {
@@ -75,6 +77,7 @@ const search = async (req) => {
       merchandise_id: item.merchandise_id,
       category: item.category,
       product_name: item.product_name,
+      image: buildS3Url(item.image),
       created_at: item.created_at,
       created_by: item.CreatedBy.full_name,
       updated_at: item.updated_at,
@@ -106,6 +109,10 @@ const get = async (merchandiseId) => {
 const update = async (req) => {
   const updateRequest = validate(updateMerchandiseValidation, req);
   const { merchandise_id, ...newRequest } = updateRequest;
+
+  if (newRequest.image === null) {
+    delete newRequest.image;
+  }
 
   return await prismaClient.merchandise.update({
     where: {

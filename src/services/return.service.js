@@ -68,6 +68,9 @@ const search = async (req) => {
     },
     take: searchRequest.size,
     skip: skip,
+    orderBy: {
+      created_at: "desc",
+    }
   });
 
   const data = items.map((item) => {

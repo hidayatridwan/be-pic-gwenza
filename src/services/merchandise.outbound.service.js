@@ -119,7 +119,7 @@ WHERE
   products.product_name LIKE ${search} OR
   colors.color_name LIKE ${search} OR
   suppliers.supplier_name LIKE ${search}
-ORDER BY merchandiseoutbounds.outbound_date DESC
+ORDER BY merchandiseoutbounds.created_at DESC
 LIMIT ${searchRequest.size}
 OFFSET ${skip}`;
 

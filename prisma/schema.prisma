@@ -323,6 +323,7 @@ model Merchandise {
   merchandise_id Int      @id @default(autoincrement()) @db.Int
   product_name   String   @unique @db.VarChar(255)
   category       Category @default(MATERIAL)
+  image          String?  @db.VarChar(255)
   created_at     DateTime @default(now())
   created_by     Int?     @db.Int
   updated_at     DateTime @default(now())

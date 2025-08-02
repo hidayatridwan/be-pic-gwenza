@@ -2,12 +2,12 @@ import Joi from "joi";
 
 const createFashionDesignValidation = Joi.object({
   sample_code: Joi.string().max(10).required(),
-  sample_file: Joi.string().min(0).max(255),
+  sample_file: Joi.string().min(0).max(255).optional().empty("").default(null),
   tailor_id: Joi.number().integer().optional(),
   send_sample_date: Joi.date().optional().empty("").default(null),
   receive_sample_date: Joi.date().optional().empty("").default(null),
   revision_date: Joi.date().optional().empty("").default(null),
-  revision_file: Joi.string().min(0).max(255).optional(),
+  revision_file: Joi.string().min(0).max(255).optional().empty("").default(null),
   on_production_date: Joi.date().optional().empty("").default(null),
   fix_sample_date: Joi.date().optional().empty("").default(null),
   obstacle: Joi.string().min(0).max(255).optional()
@@ -22,12 +22,12 @@ const searchFashionDesignValidation = Joi.object({
 const updateFashionDesignValidation = Joi.object({
   fashiondesign_id: Joi.number().min(1).positive(),
   sample_code: Joi.string().max(10).required(),
-  sample_file: Joi.string().min(0).max(255),
+  sample_file: Joi.string().min(0).max(255).optional().empty("").default(null),
   tailor_id: Joi.number().integer().optional(),
   send_sample_date: Joi.date().min(0).optional().empty("").default(null),
   receive_sample_date: Joi.date().optional().empty("").default(null),
   revision_date: Joi.date().optional().empty("").default(null),
-  revision_file: Joi.string().min(0).max(255).optional(),
+  revision_file: Joi.string().min(0).max(255).optional().empty("").default(null),
   on_production_date: Joi.date().optional().empty("").default(null),
   fix_sample_date: Joi.date().optional().empty("").default(null),
   obstacle: Joi.string().min(0).max(255).optional()
