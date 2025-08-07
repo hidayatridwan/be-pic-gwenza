@@ -29,6 +29,29 @@ const orderWorker = async () => {
       logger.error(err.message);
     }
   });
+
+  await subscribe(process.env.PROCESS_DELIVERY_QUEUE, async (batch) => {
+    try {
+      for (const order of batch) {
+        await prismaClient.order.updateMany({
+          where: {
+            order_number: order[0], // order_number
+          },
+          data: {
+            delivery_date: order[1] == null ? null : new Date(order[1]), // delivery_date
+            waybill_number: order[2], // waybill_number
+          },
+        })
+      }
+
+      console.log("Date delivery updated:", batch.length);
+    } catch (err) {
+      console.log(err.message);
+      logger.error(err.message);
+    }
+  });
+
+  console.log("Order worker ended");
 };
 
 export { orderWorker };

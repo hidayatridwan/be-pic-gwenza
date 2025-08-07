@@ -132,12 +132,18 @@ model ProductVariant {
   @@map("productvariants")
 }
 
+enum ImportType {
+  ORDER
+  DELIVERY
+}
+
 model Import {
-  import_id    Int      @id @default(autoincrement()) @db.Int
-  file_name    String   @db.VarChar(100)
-  is_processed Boolean  @default(false)
-  created_at   DateTime @default(now())
-  created_by   Int?     @db.Int
+  import_id    Int         @id @default(autoincrement()) @db.Int
+  import_type  ImportType? @default(ORDER)
+  file_name    String      @unique @db.VarChar(100)
+  is_processed Boolean     @default(false)
+  created_at   DateTime    @default(now())
+  created_by   Int?        @db.Int
 
   User User? @relation(fields: [created_by], references: [user_id])
 
@@ -145,19 +151,21 @@ model Import {
 }
 
 model Order {
-  order_id     Int       @id @default(autoincrement()) @db.Int
-  channel      String    @db.VarChar(100)
-  order_number String    @db.VarChar(100)
-  product_id   Int?      @db.Int
-  product_name String    @db.VarChar(255)
-  variant_id   Int?      @db.Int
-  variant_name String    @db.VarChar(100)
-  quantity     Int       @db.Int
-  start_date   DateTime?
-  end_date     DateTime?
-  project_id   Int?      @db.Int
-  created_at   DateTime  @default(now())
-  created_by   Int?      @db.Int
+  order_id       Int       @id @default(autoincrement()) @db.Int
+  channel        String    @db.VarChar(100)
+  order_number   String    @db.VarChar(100)
+  product_id     Int?      @db.Int
+  product_name   String    @db.VarChar(255)
+  variant_id     Int?      @db.Int
+  variant_name   String    @db.VarChar(100)
+  quantity       Int       @db.Int
+  start_date     DateTime?
+  end_date       DateTime?
+  delivery_date  DateTime?
+  waybill_number String?   @db.VarChar(100)
+  project_id     Int?      @db.Int
+  created_at     DateTime  @default(now())
+  created_by     Int?      @db.Int
 
   Product Product? @relation(fields: [product_id], references: [product_id])
   Variant Variant? @relation(fields: [variant_id], references: [variant_id])
@@ -165,7 +173,7 @@ model Order {
   User    User?    @relation(fields: [created_by], references: [user_id])
 
   @@unique([channel, order_number, product_name, variant_name])
-  @@index([start_date, end_date])
+  @@index([start_date, end_date, delivery_date])
   @@map("orders")
 }
 

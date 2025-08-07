@@ -16,15 +16,15 @@ const byExpiredDate = async (req) => {
   const reportEndDate = new Date(reportStartDate);
   reportEndDate.setDate(reportEndDate.getDate() + 7);
 
-  // Get expired orders (orders completed before report period)
-  const expiredOrders = await prismaClient.$queryRaw`SELECT
+  // Get delivered orders (orders completed before report period)
+  const deliveredOrders = await prismaClient.$queryRaw`SELECT
     product_id,
     variant_id,
     SUM(quantity) AS quantity
   FROM
     orders
   WHERE
-    DATE(end_date) < DATE(${reportStartDate})
+    delivery_date IS NOT NULL
   GROUP BY
     product_id,
     variant_id`;
@@ -40,7 +40,8 @@ const byExpiredDate = async (req) => {
   FROM
     orders
   WHERE
-    DATE(end_date) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
+    delivery_date IS NULL
+    AND DATE(end_date) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
   GROUP BY
     product_id,
     variant_id,
@@ -107,7 +108,7 @@ const byExpiredDate = async (req) => {
   const returnMap = {};
   const outboundMap = {};
   const projectItemMap = {};
-  const expiredOrderMap = {};
+  const deliveredOrderMap = {};
 
   inbounds.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
@@ -129,9 +130,9 @@ const byExpiredDate = async (req) => {
     projectItemMap[key] = Number(item.quantity) || 0;
   });
 
-  expiredOrders.forEach((item) => {
+  deliveredOrders.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
-    expiredOrderMap[key] = Number(item.quantity) || 0;
+    deliveredOrderMap[key] = Number(item.quantity) || 0;
   });
 
   // Generate date columns for report period
@@ -160,7 +161,7 @@ const byExpiredDate = async (req) => {
         returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
         project_items: projectItemMap[compositeKey] || 0,
-        expired_order: expiredOrderMap[compositeKey] || 0,
+        delivered_order: deliveredOrderMap[compositeKey] || 0,
       };
 
       // Initialize daily order quantities
@@ -188,11 +189,11 @@ const byExpiredDate = async (req) => {
     project_items: item.project_items, // di ambil dari keseluruhan project items
     inbounds: item.inbounds, // di ambil dari keseluruhan inbounds
     returns: item.returns, // di ambil dari keseluruhan returns
-    expired_order: item.expired_order, // di ambil dari periode tgl awal order yg dipilih
-    current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan
+    delivered_order: item.delivered_order, // di ambil dari order yang sudah ada delivery date
+    current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan belum ada delivery date
     outbounds: item.outbounds, // di ambil dari keseluruhan outbounds
-    available_stock: (item.inbounds + item.inbounds) - item.expired_order - item.outbounds, // di ambil dari inbounds di kurangi expired stock
-    fulfillment_gap: (item.inbounds + item.inbounds) - item.expired_order - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
+    available_stock: (item.inbounds + item.returns) - item.delivered_order - item.outbounds, // di ambil dari inbounds di kurangi delivered stock
+    fulfillment_gap: (item.inbounds + item.returns) - item.delivered_order - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
     work_in_progress: item.project_items - item.inbounds, // di ambil dari keseluruhan project items di kurangi inbounds
   }));
 
@@ -208,19 +209,14 @@ const byProducts = async (req) => {
   const skip = (searchRequest.page - 1) * searchRequest.size;
   const search = `%${searchRequest.search ?? ""}%`;
 
-  const [row] = await prismaClient.$queryRaw`SELECT
-	date (max(end_date)) AS max_due_date
-FROM
-	orders`;
-
-  const pastOrders = await prismaClient.$queryRaw`SELECT
+  const deliveredOrders = await prismaClient.$queryRaw`SELECT
 	product_id,
 	variant_id,
 	sum(quantity) AS quantity
 FROM
 	orders
 WHERE
-	date (end_date) < date (${searchRequest.start_date})
+	delivery_date IS NOT NULL
 GROUP BY
 	product_id,
 	variant_id`;
@@ -235,8 +231,8 @@ GROUP BY
 FROM
 	orders
 WHERE
-	date (end_date) BETWEEN date (${searchRequest.start_date}) AND date (${row.max_due_date})
-    AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
+  delivery_date IS NULL
+	AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
 GROUP BY
 	product_id,
 	variant_id
@@ -324,8 +320,7 @@ GROUP BY
 FROM
 	orders
 WHERE
-	date (end_date) BETWEEN date (${searchRequest.start_date}) AND date (${row.max_due_date})
-    AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
+	orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
 GROUP BY
 	product_id,
 	variant_id
@@ -359,7 +354,7 @@ WHERE
     }, {});
   }
 
-  const expiredOrderMap = toMap(pastOrders);
+  const deliveredOrderMap = toMap(deliveredOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
   const returnMap = toMap(returns);
@@ -370,7 +365,7 @@ WHERE
     return {
       product_name: order.product_name,
       variant_name: order.variant_name,
-      expired_orders: expiredOrderMap[key] || 0,
+      delivered_orders: deliveredOrderMap[key] || 0,
       open_orders: Number(order.quantity, 10),
       project_items: projectMap[key] || 0,
       inbounds: inboundMap[key] || 0,
@@ -381,7 +376,7 @@ WHERE
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      (item.inbounds + item.returns) - item.outbounds - (item.expired_orders + item.open_orders);
+      (item.inbounds + item.returns) - item.outbounds - (item.delivered_orders + item.open_orders);
 
     const work_in_progress = item.project_items - item.inbounds;
 

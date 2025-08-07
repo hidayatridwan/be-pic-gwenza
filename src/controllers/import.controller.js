@@ -6,6 +6,7 @@ const create = async (req, res, next) => {
       req.file = {};
     }
     req.file.channel = req.body.channel;
+    req.file.import_type = req.body.import_type;
 
     const result = await importService.create(req.user, req.file);
     res.status(201).json({ data: result });
