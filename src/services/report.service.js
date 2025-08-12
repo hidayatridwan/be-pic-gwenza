@@ -16,7 +16,7 @@ const byExpiredDate = async (req) => {
   const reportEndDate = new Date(reportStartDate);
   reportEndDate.setDate(reportEndDate.getDate() + 7);
 
-  // Get delivered orders (orders completed before report period)
+  // Get delivered orders
   const deliveredOrders = await prismaClient.$queryRaw`SELECT
     product_id,
     variant_id,
@@ -25,6 +25,20 @@ const byExpiredDate = async (req) => {
     orders
   WHERE
     delivery_date IS NOT NULL
+    AND status = 'OK'
+  GROUP BY
+    product_id,
+    variant_id`;
+
+  // Get canceled orders
+  const canceledOrders = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    orders
+  WHERE
+    status LIKE '%batal%'
   GROUP BY
     product_id,
     variant_id`;
@@ -41,6 +55,7 @@ const byExpiredDate = async (req) => {
     orders
   WHERE
     delivery_date IS NULL
+    AND status = 'OK'
     AND DATE(end_date) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
   GROUP BY
     product_id,
@@ -109,6 +124,7 @@ const byExpiredDate = async (req) => {
   const outboundMap = {};
   const projectItemMap = {};
   const deliveredOrderMap = {};
+  const canceledOrderMap = {};
 
   inbounds.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
@@ -133,6 +149,11 @@ const byExpiredDate = async (req) => {
   deliveredOrders.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
     deliveredOrderMap[key] = Number(item.quantity) || 0;
+  });
+
+  canceledOrders.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    canceledOrderMap[key] = Number(item.quantity) || 0;
   });
 
   // Generate date columns for report period
@@ -161,7 +182,8 @@ const byExpiredDate = async (req) => {
         returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
         project_items: projectItemMap[compositeKey] || 0,
-        delivered_order: deliveredOrderMap[compositeKey] || 0,
+        delivered: deliveredOrderMap[compositeKey] || 0,
+        canceled: canceledOrderMap[compositeKey] || 0,
       };
 
       // Initialize daily order quantities
@@ -189,7 +211,8 @@ const byExpiredDate = async (req) => {
     project_items: item.project_items, // di ambil dari keseluruhan project items
     inbounds: item.inbounds, // di ambil dari keseluruhan inbounds
     returns: item.returns, // di ambil dari keseluruhan returns
-    delivered_order: item.delivered_order, // di ambil dari order yang sudah ada delivery date
+    delivered: item.delivered, // di ambil dari order yang sudah ada delivery date
+    canceled: item.canceled, // di ambil dari order status batal
     current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan belum ada delivery date
     outbounds: item.outbounds, // di ambil dari keseluruhan outbounds
     available_stock: (item.inbounds + item.returns) - item.delivered_order - item.outbounds, // di ambil dari inbounds di kurangi delivered stock
@@ -217,6 +240,19 @@ FROM
 	orders
 WHERE
 	delivery_date IS NOT NULL
+  AND status = 'OK'
+GROUP BY
+	product_id,
+	variant_id`;
+
+  const canceledOrders = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	orders
+WHERE
+	status LIKE '%batal%'
 GROUP BY
 	product_id,
 	variant_id`;
@@ -232,6 +268,7 @@ FROM
 	orders
 WHERE
   delivery_date IS NULL
+  AND status = 'OK'
 	AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
 GROUP BY
 	product_id,
@@ -355,6 +392,7 @@ WHERE
   }
 
   const deliveredOrderMap = toMap(deliveredOrders);
+  const canceledOrderMap = toMap(canceledOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
   const returnMap = toMap(returns);
@@ -365,7 +403,8 @@ WHERE
     return {
       product_name: order.product_name,
       variant_name: order.variant_name,
-      delivered_orders: deliveredOrderMap[key] || 0,
+      delivered: deliveredOrderMap[key] || 0,
+      canceled: canceledOrderMap[key] || 0,
       open_orders: Number(order.quantity, 10),
       project_items: projectMap[key] || 0,
       inbounds: inboundMap[key] || 0,
@@ -376,7 +415,7 @@ WHERE
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      (item.inbounds + item.returns) - item.outbounds - (item.delivered_orders + item.open_orders);
+      (item.inbounds + item.returns) - item.outbounds - (item.delivered + item.canceled + item.open_orders);
 
     const work_in_progress = item.project_items - item.inbounds;
 
