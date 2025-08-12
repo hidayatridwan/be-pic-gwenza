@@ -215,8 +215,8 @@ const byExpiredDate = async (req) => {
     canceled: item.canceled, // di ambil dari order status batal
     current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan belum ada delivery date
     outbounds: item.outbounds, // di ambil dari keseluruhan outbounds
-    available_stock: (item.inbounds + item.returns) - item.delivered_order - item.outbounds, // di ambil dari inbounds di kurangi delivered stock
-    fulfillment_gap: (item.inbounds + item.returns) - item.delivered_order - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
+    available_stock: (item.inbounds + item.returns) - item.delivered - item.canceled - item.outbounds, // di ambil dari inbounds di kurangi delivered stock
+    fulfillment_gap: (item.inbounds + item.returns) - item.delivered - item.canceled - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
     work_in_progress: item.project_items - item.inbounds, // di ambil dari keseluruhan project items di kurangi inbounds
   }));
 
