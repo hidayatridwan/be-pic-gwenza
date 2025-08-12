@@ -1,25 +1,31 @@
 import { prismaClient } from "../apps/database.js";
 import { ResponseError } from "../errors/response.error.js";
 import { validate } from "../validations/validation.js";
-import constants from "../utils/constants.js";
 import {
   importValidation,
   searchImportValidation,
 } from "../validations/import.validation.js";
-import { publish } from "../utils/rabbitmq.js";
 import { ImportType } from "../generated/prisma/index.js";
+import { publish } from "../utils/pubsub.js";
 
 const create = async (user, req) => {
   const importRequest = validate(importValidation, req);
   importRequest.created_by = user.user_id;
 
-  const isPublished = await publish(
-    importRequest.import_type === ImportType.ORDER ? process.env.UPLOAD_ORDER_QUEUE : process.env.UPLOAD_DELIVERY_QUEUE,
-    importRequest
-  );
-
-  if (!isPublished) {
-    throw new ResponseError(500, constants.RABBITMQ_ERROR);
+  try {
+    if (importRequest.import_type === ImportType.ORDER) {
+      await publish(process.env.UPLOAD_ORDER_QUEUE, importRequest);
+    } else if (importRequest.import_type === ImportType.DELIVERY) {
+      await publish(process.env.UPLOAD_DELIVERY_QUEUE, importRequest);
+    } else if (ImportType.CANCEL) {
+      await publish(process.env.UPLOAD_CANCEL_QUEUE, importRequest);
+    } else {
+      throw new ResponseError(400, "Invalid import type");
+    }
+  } catch (err) {
+    // Handle error appropriately
+    throw new ResponseError(500, `Failed to publish message: ${err.message}`);
+    // Potentially implement retry logic here
   }
 
   return await prismaClient.import.create({

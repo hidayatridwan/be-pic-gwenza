@@ -4,7 +4,7 @@ import { ImportType } from "../generated/prisma/index.js";
 
 const importValidation = Joi.object({
   channel: Joi.string().valid(constants.TIKTOK, constants.SHOPEE).required(),
-  import_type: Joi.string().valid(ImportType.ORDER, ImportType.DELIVERY).required(),
+  import_type: Joi.string().valid(ImportType.ORDER, ImportType.DELIVERY, ImportType.CANCEL).required(),
   originalname: Joi.string()
     .pattern(/\.(xlsx|xls)$/)
     .required()
