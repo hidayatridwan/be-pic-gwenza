@@ -1,6 +1,7 @@
 import { subscribe, sendToDlq } from "../utils/pubsub.js";
 import { prismaClient } from "../apps/database.js";
 import { logger } from "../apps/logging.js";
+import { OrderStatus } from "../generated/prisma/index.js";
 
 const orderWorker = async () => {
   logger.info("Order worker started");
@@ -24,6 +25,17 @@ const orderWorker = async () => {
           channel: order[6], // channel
           created_by: order[7], // created_by
         }));
+
+        await Promise.all(
+          ordersData.map(async (order) => {
+            await prismaClient.order.updateMany({
+              data: { status: OrderStatus.OPEN },
+              where: {
+                order_number: order.order_number
+              }
+            });
+          })
+        );
 
         await prismaClient.order.createMany({
           data: ordersData,
@@ -54,102 +66,102 @@ const orderWorker = async () => {
     }
   );
 
-  const { consumerTagDelivery, cancelDelivery } = await subscribe(
-    process.env.PROCESS_DELIVERY_QUEUE,
-    async (payload) => {
-      if (!Array.isArray(payload)) {
-        throw new Error("Invalid payload format: expected an array of orders");
-      }
+  // const { consumerTagDelivery, cancelDelivery } = await subscribe(
+  //   process.env.PROCESS_DELIVERY_QUEUE,
+  //   async (payload) => {
+  //     if (!Array.isArray(payload)) {
+  //       throw new Error("Invalid payload format: expected an array of orders");
+  //     }
 
-      try {
-        await Promise.all(
-          payload.map(async (order) => {
-            if (!Array.isArray(order) || order.length < 3) {
-              logger.warn("Skipping invalid order format:", order);
-              return;
-            }
+  //     try {
+  //       await Promise.all(
+  //         payload.map(async (order) => {
+  //           if (!Array.isArray(order) || order.length < 3) {
+  //             logger.warn("Skipping invalid order format:", order);
+  //             return;
+  //           }
 
-            const [orderNumber, deliveryDate, waybillNumber] = order;
+  //           const [orderNumber, deliveryDate, waybillNumber] = order;
 
-            await prismaClient.order.updateMany({
-              where: { order_number: orderNumber },
-              data: {
-                delivery_date: deliveryDate ? new Date(deliveryDate) : null,
-                waybill_number: waybillNumber,
-              },
-            });
-          })
-        );
-      } catch (err) {
-        logger.error("Error updating orders in DB:", err);
-        throw err; // rethrow so onError in subscribe will handle DLQ
-      }
-    },
-    {
-      prefetch: 5, // Process up to 5 messages concurrently
-      requeueOnError: false, // Don't requeue failed messages
-      queueOptions: {
-        // Additional queue options
-      },
-      onError: async (err, msg) => {
-        // Custom error handling
-        console.error('Message processing failed:', err);
-        // Maybe send to dead letter queue
-        await sendToDlq(msg);
-      },
-      onCancel: () => {
-        console.log('Consumer was cancelled');
-      }
-    }
-  );
+  //           await prismaClient.order.updateMany({
+  //             where: { order_number: orderNumber },
+  //             data: {
+  //               delivery_date: deliveryDate ? new Date(deliveryDate) : null,
+  //               waybill_number: waybillNumber,
+  //             },
+  //           });
+  //         })
+  //       );
+  //     } catch (err) {
+  //       logger.error("Error updating orders in DB:", err);
+  //       throw err; // rethrow so onError in subscribe will handle DLQ
+  //     }
+  //   },
+  //   {
+  //     prefetch: 5, // Process up to 5 messages concurrently
+  //     requeueOnError: false, // Don't requeue failed messages
+  //     queueOptions: {
+  //       // Additional queue options
+  //     },
+  //     onError: async (err, msg) => {
+  //       // Custom error handling
+  //       console.error('Message processing failed:', err);
+  //       // Maybe send to dead letter queue
+  //       await sendToDlq(msg);
+  //     },
+  //     onCancel: () => {
+  //       console.log('Consumer was cancelled');
+  //     }
+  //   }
+  // );
 
-  const { consumerTagCancel, cancelCancel } = await subscribe(
-    process.env.PROCESS_CANCEL_QUEUE,
-    async (payload) => {
-      if (!Array.isArray(payload)) {
-        throw new Error("Invalid payload format: expected an array of orders");
-      }
+  // const { consumerTagCancel, cancelCancel } = await subscribe(
+  //   process.env.PROCESS_CANCEL_QUEUE,
+  //   async (payload) => {
+  //     if (!Array.isArray(payload)) {
+  //       throw new Error("Invalid payload format: expected an array of orders");
+  //     }
 
-      try {
-        await Promise.all(
-          payload.map(async (order) => {
-            if (!Array.isArray(order) || order.length < 3) {
-              logger.warn("Skipping invalid order format:", order);
-              return;
-            }
+  //     try {
+  //       await Promise.all(
+  //         payload.map(async (order) => {
+  //           if (!Array.isArray(order) || order.length < 3) {
+  //             logger.warn("Skipping invalid order format:", order);
+  //             return;
+  //           }
 
-            const [orderNumber, status] = order;
+  //           const [orderNumber, status] = order;
 
-            await prismaClient.order.updateMany({
-              where: { order_number: orderNumber },
-              data: {
-                status
-              },
-            });
-          })
-        );
-      } catch (err) {
-        logger.error("Error updating orders in DB:", err);
-        throw err; // rethrow so onError in subscribe will handle DLQ
-      }
-    },
-    {
-      prefetch: 5, // Process up to 5 messages concurrently
-      requeueOnError: false, // Don't requeue failed messages
-      queueOptions: {
-        // Additional queue options
-      },
-      onError: async (err, msg) => {
-        // Custom error handling
-        console.error('Message processing failed:', err);
-        // Maybe send to dead letter queue
-        await sendToDlq(msg);
-      },
-      onCancel: () => {
-        console.log('Consumer was cancelled');
-      }
-    }
-  );
+  //           await prismaClient.order.updateMany({
+  //             where: { order_number: orderNumber },
+  //             data: {
+  //               status
+  //             },
+  //           });
+  //         })
+  //       );
+  //     } catch (err) {
+  //       logger.error("Error updating orders in DB:", err);
+  //       throw err; // rethrow so onError in subscribe will handle DLQ
+  //     }
+  //   },
+  //   {
+  //     prefetch: 5, // Process up to 5 messages concurrently
+  //     requeueOnError: false, // Don't requeue failed messages
+  //     queueOptions: {
+  //       // Additional queue options
+  //     },
+  //     onError: async (err, msg) => {
+  //       // Custom error handling
+  //       console.error('Message processing failed:', err);
+  //       // Maybe send to dead letter queue
+  //       await sendToDlq(msg);
+  //     },
+  //     onCancel: () => {
+  //       console.log('Consumer was cancelled');
+  //     }
+  //   }
+  // );
 
   logger.info("Order worker ended");
 };

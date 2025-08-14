@@ -151,23 +151,28 @@ model Import {
   @@map("imports")
 }
 
+enum OrderStatus {
+  OPEN
+  CLOSED
+}
+
 model Order {
-  order_id       Int       @id @default(autoincrement()) @db.Int
-  channel        String    @db.VarChar(100)
-  order_number   String    @db.VarChar(100)
-  status         String?   @default("OK") @db.VarChar(20)
-  product_id     Int?      @db.Int
-  product_name   String    @db.VarChar(255)
-  variant_id     Int?      @db.Int
-  variant_name   String    @db.VarChar(100)
-  quantity       Int       @db.Int
+  order_id       Int         @id @default(autoincrement()) @db.Int
+  channel        String      @db.VarChar(100)
+  order_number   String      @db.VarChar(100)
+  status         OrderStatus @default(OPEN)
+  product_id     Int?        @db.Int
+  product_name   String      @db.VarChar(255)
+  variant_id     Int?        @db.Int
+  variant_name   String      @db.VarChar(100)
+  quantity       Int         @db.Int
   start_date     DateTime?
   end_date       DateTime?
   delivery_date  DateTime?
-  waybill_number String?   @db.VarChar(100)
-  project_id     Int?      @db.Int
-  created_at     DateTime  @default(now())
-  created_by     Int?      @db.Int
+  waybill_number String?     @db.VarChar(100)
+  project_id     Int?        @db.Int
+  created_at     DateTime    @default(now())
+  created_by     Int?        @db.Int
 
   Product Product? @relation(fields: [product_id], references: [product_id])
   Variant Variant? @relation(fields: [variant_id], references: [variant_id])

@@ -5,7 +5,7 @@ import {
   importValidation,
   searchImportValidation,
 } from "../validations/import.validation.js";
-import { ImportType } from "../generated/prisma/index.js";
+import { ImportType, OrderStatus } from "../generated/prisma/index.js";
 import { publish } from "../utils/pubsub.js";
 
 const create = async (user, req) => {
@@ -27,6 +27,15 @@ const create = async (user, req) => {
     throw new ResponseError(500, `Failed to publish message: ${err.message}`);
     // Potentially implement retry logic here
   }
+
+  await prismaClient.order.updateMany({
+    data: {
+      status: OrderStatus.CLOSED
+    },
+    where: {
+      channel: importRequest.channel
+    }
+  });
 
   return await prismaClient.import.create({
     data: {
