@@ -40,7 +40,7 @@ const search = async (req) => {
       quantity: true,
       start_date: true,
       end_date: true,
-      project_id: true,
+      status: true,
       created_at: true,
       User: {
         select: {
@@ -66,7 +66,7 @@ const search = async (req) => {
     quantity: item.quantity,
     start_date: item.start_date,
     end_date: item.end_date,
-    project_id: item.project_id,
+    status: item.status,
     created_at: item.created_at,
     created_by: item.User.full_name,
   }));
