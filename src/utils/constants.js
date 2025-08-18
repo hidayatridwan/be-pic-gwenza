@@ -7,7 +7,7 @@ const constants = Object.freeze({
   UNAUTHORIZED: "Unauthorized",
   INVALID_TOKEN: "Invalid token",
   SERVER_ERROR: "Something went wrong",
-  BATCH_LIMIT: 100
+  BATCH_LIMIT: 500
 });
 
 export default constants;
