@@ -10,7 +10,6 @@ const orderWorker = async () => {
     process.env.PROCESS_ORDER_QUEUE,
     async (payload) => {
       if (!Array.isArray(payload)) {
-        console.error(payload);
         throw new Error("Invalid payload format: expected an array of orders");
       }
 
@@ -26,16 +25,14 @@ const orderWorker = async () => {
           created_by: order[7], // created_by
         }));
 
-        await Promise.all(
-          ordersData.map(async (order) => {
-            await prismaClient.order.updateMany({
-              data: { status: OrderStatus.OPEN },
-              where: {
-                order_number: order.order_number
-              }
-            });
-          })
-        );
+        await prismaClient.order.updateMany({
+          data: { status: OrderStatus.OPEN },
+          where: {
+            order_number: {
+              in: ordersData.map((order) => order.order_number)
+            }
+          }
+        });
 
         await prismaClient.order.createMany({
           data: ordersData,
