@@ -16,33 +16,6 @@ const byExpiredDate = async (req) => {
   const reportEndDate = new Date(reportStartDate);
   reportEndDate.setDate(reportEndDate.getDate() + 7);
 
-  // Get delivered orders
-  const deliveredOrders = await prismaClient.$queryRaw`SELECT
-    product_id,
-    variant_id,
-    SUM(quantity) AS quantity
-  FROM
-    orders
-  WHERE
-    delivery_date IS NOT NULL
-    AND status = 'OK'
-  GROUP BY
-    product_id,
-    variant_id`;
-
-  // Get canceled orders
-  const canceledOrders = await prismaClient.$queryRaw`SELECT
-    product_id,
-    variant_id,
-    SUM(quantity) AS quantity
-  FROM
-    orders
-  WHERE
-    status LIKE '%batal%'
-  GROUP BY
-    product_id,
-    variant_id`;
-
   // Get current period orders
   const currentOrders = await prismaClient.$queryRaw`SELECT
     product_id,
@@ -55,7 +28,7 @@ const byExpiredDate = async (req) => {
     orders
   WHERE
     delivery_date IS NULL
-    AND status = 'OK'
+    AND status = 'OPEN'
     AND DATE(end_date) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
   GROUP BY
     product_id,
@@ -65,6 +38,19 @@ const byExpiredDate = async (req) => {
     product_name,
     variant_name,
     end_date`;
+
+  // Get closed orders data
+  const closedOrders = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    orders
+  WHERE
+    status = 'CLOSED'
+  GROUP BY
+    product_id,
+    variant_id`;
 
   // Get inbounds data
   const inbounds = await prismaClient.$queryRaw`SELECT
@@ -123,8 +109,7 @@ const byExpiredDate = async (req) => {
   const returnMap = {};
   const outboundMap = {};
   const projectItemMap = {};
-  const deliveredOrderMap = {};
-  const canceledOrderMap = {};
+  const closedOrderMap = {};
 
   inbounds.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
@@ -146,14 +131,9 @@ const byExpiredDate = async (req) => {
     projectItemMap[key] = Number(item.quantity) || 0;
   });
 
-  deliveredOrders.forEach((item) => {
+  closedOrders.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
-    deliveredOrderMap[key] = Number(item.quantity) || 0;
-  });
-
-  canceledOrders.forEach((item) => {
-    const key = `${item.product_id}|${item.variant_id}`;
-    canceledOrderMap[key] = Number(item.quantity) || 0;
+    closedOrderMap[key] = Number(item.quantity) || 0;
   });
 
   // Generate date columns for report period
@@ -182,8 +162,7 @@ const byExpiredDate = async (req) => {
         returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
         project_items: projectItemMap[compositeKey] || 0,
-        delivered: deliveredOrderMap[compositeKey] || 0,
-        canceled: canceledOrderMap[compositeKey] || 0,
+        closed_orders: closedOrderMap[compositeKey] || 0,
       };
 
       // Initialize daily order quantities
@@ -211,12 +190,11 @@ const byExpiredDate = async (req) => {
     project_items: item.project_items, // di ambil dari keseluruhan project items
     inbounds: item.inbounds, // di ambil dari keseluruhan inbounds
     returns: item.returns, // di ambil dari keseluruhan returns
-    delivered: item.delivered, // di ambil dari order yang sudah ada delivery date
-    canceled: item.canceled, // di ambil dari order status batal
-    current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan belum ada delivery date
+    closed_orders: item.closed_orders, // di ambil dari keseluruhan orders with status closed
+    current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan
     outbounds: item.outbounds, // di ambil dari keseluruhan outbounds
-    available_stock: (item.inbounds + item.returns) - item.delivered - item.canceled - item.outbounds, // di ambil dari inbounds di kurangi delivered stock
-    fulfillment_gap: (item.inbounds + item.returns) - item.delivered - item.canceled - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
+    available_stock: (item.inbounds + item.returns) - item.outbounds, // di ambil dari inbounds di kurangi ...
+    fulfillment_gap: (item.inbounds + item.returns) - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
     work_in_progress: item.project_items - item.inbounds, // di ambil dari keseluruhan project items di kurangi inbounds
   }));
 
@@ -232,31 +210,6 @@ const byProducts = async (req) => {
   const skip = (searchRequest.page - 1) * searchRequest.size;
   const search = `%${searchRequest.search ?? ""}%`;
 
-  const deliveredOrders = await prismaClient.$queryRaw`SELECT
-	product_id,
-	variant_id,
-	sum(quantity) AS quantity
-FROM
-	orders
-WHERE
-	delivery_date IS NOT NULL
-  AND status = 'OK'
-GROUP BY
-	product_id,
-	variant_id`;
-
-  const canceledOrders = await prismaClient.$queryRaw`SELECT
-	product_id,
-	variant_id,
-	sum(quantity) AS quantity
-FROM
-	orders
-WHERE
-	status LIKE '%batal%'
-GROUP BY
-	product_id,
-	variant_id`;
-
   const openOrders = await prismaClient.$queryRaw`select * from (
     SELECT
 	product_id,
@@ -268,7 +221,7 @@ FROM
 	orders
 WHERE
   delivery_date IS NULL
-  AND status = 'OK'
+  AND status = 'OPEN'
 	AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
 GROUP BY
 	product_id,
@@ -300,6 +253,18 @@ ORDER BY
   variant_name
 LIMIT ${searchRequest.size}
 OFFSET ${skip}`;
+
+  const closedOrders = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	orders
+WHERE
+  status = 'CLOSED'
+GROUP BY
+	product_id,
+	variant_id`;
 
   const projects = await prismaClient.$queryRaw`SELECT
 	product_id,
@@ -391,8 +356,7 @@ WHERE
     }, {});
   }
 
-  const deliveredOrderMap = toMap(deliveredOrders);
-  const canceledOrderMap = toMap(canceledOrders);
+  const closedOrderMap = toMap(closedOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
   const returnMap = toMap(returns);
@@ -403,8 +367,7 @@ WHERE
     return {
       product_name: order.product_name,
       variant_name: order.variant_name,
-      delivered: deliveredOrderMap[key] || 0,
-      canceled: canceledOrderMap[key] || 0,
+      closed_orders: closedOrderMap[key] || 0,
       open_orders: Number(order.quantity, 10),
       project_items: projectMap[key] || 0,
       inbounds: inboundMap[key] || 0,
@@ -415,7 +378,7 @@ WHERE
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      (item.inbounds + item.returns) - item.outbounds - (item.delivered + item.canceled + item.open_orders);
+      (item.inbounds + item.returns) - item.outbounds - item.closed_orders + item.open_orders;
 
     const work_in_progress = item.project_items - item.inbounds;
 

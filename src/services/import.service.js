@@ -15,8 +15,15 @@ const create = async (user, req) => {
   try {
     if (importRequest.import_type === ImportType.ORDER) {
       await publish(process.env.UPLOAD_ORDER_QUEUE, importRequest);
-    } else if (importRequest.import_type === ImportType.DELIVERY) {
-      await publish(process.env.UPLOAD_DELIVERY_QUEUE, importRequest);
+      await prismaClient.order.updateMany({
+        data: {
+          status: OrderStatus.CLOSED
+        },
+        where: {
+          channel: importRequest.channel,
+          status: OrderStatus.OPEN
+        }
+      });
     } else if (ImportType.CANCEL) {
       await publish(process.env.UPLOAD_CANCEL_QUEUE, importRequest);
     } else {
@@ -27,15 +34,6 @@ const create = async (user, req) => {
     throw new ResponseError(500, `Failed to publish message: ${err.message}`);
     // Potentially implement retry logic here
   }
-
-  await prismaClient.order.updateMany({
-    data: {
-      status: OrderStatus.CLOSED
-    },
-    where: {
-      channel: importRequest.channel
-    }
-  });
 
   return await prismaClient.import.create({
     data: {

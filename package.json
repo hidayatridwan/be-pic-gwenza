@@ -9,7 +9,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon ./src/main.js",
-    "worker": "node ./src/workers/worker.js",
+    "worker-process": "node ./src/workers/process.cmd.js",
+    "worker-upload": "node ./src/workers/upload.cmd.js",
+    "worker-retry": "node ./src/workers/retry.cmd.js",
     "scheduler": "node ./src/workers/scheduler.js"
   },
   "dependencies": {
