@@ -77,16 +77,16 @@ const cancelWorker = async () => {
       }
 
       try {
-        await Promise.all(
-          payload.map(async (order) => {
-            await prismaClient.order.updateMany({
-              where: { order_number: order[0] },
-              data: {
-                status: OrderStatus.CANCEL
-              },
-            });
-          })
-        );
+        await prismaClient.order.updateMany({
+          where: {
+            order_number: {
+              in: payload.map((order) => order[0])
+            }
+          },
+          data: {
+            status: OrderStatus.CANCEL
+          },
+        });
       } catch (err) {
         logger.error("Error updating orders in DB:", err);
         throw err; // rethrow so onError in subscribe will handle DLQ

@@ -134,7 +134,6 @@ model ProductVariant {
 
 enum ImportType {
   ORDER
-  DELIVERY
   CANCEL
 }
 
