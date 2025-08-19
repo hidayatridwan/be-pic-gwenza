@@ -22,18 +22,18 @@ const byExpiredDate = async (req) => {
     product_name,
     variant_id,
     variant_name,
-    DATE(CONVERT_TZ(end_date, 'UTC', 'Asia/Jakarta')) AS end_date,
+    DATE(CONVERT_TZ(end_date, '+00:00', '+07:00')) AS end_date,
     SUM(quantity) AS quantity
   FROM
     orders
   WHERE
     delivery_date IS NULL
     AND status = 'OPEN'
-    AND DATE(CONVERT_TZ(end_date, 'UTC', 'Asia/Jakarta')) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
+    AND DATE(CONVERT_TZ(end_date, '+00:00', '+07:00')) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
   GROUP BY
     product_id,
     variant_id,
-    DATE(CONVERT_TZ(end_date, 'UTC', 'Asia/Jakarta'))
+    DATE(CONVERT_TZ(end_date, '+00:00', '+07:00'))
   ORDER BY
     product_name,
     variant_name,
