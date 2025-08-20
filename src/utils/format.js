@@ -22,7 +22,7 @@ const standardizeDate = (input) => {
     timePart = timePart + ":00"; // add seconds if missing
   }
 
-  const dateTime = `${datePart} ${timePart}`;
+  const dateTime = `${datePart} ${timePart}+07:00`;
   if (!isValidDate(dateTime)) {
     return null;
   }
