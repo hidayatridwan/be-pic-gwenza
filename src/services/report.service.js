@@ -27,8 +27,7 @@ const byExpiredDate = async (req) => {
   FROM
     orders
   WHERE
-    delivery_date IS NULL
-    AND status = 'OPEN'
+    status = 'OPEN'
     AND DATE(CONVERT_TZ(end_date, '+00:00', '+07:00')) BETWEEN DATE(${reportStartDate}) AND DATE(${reportEndDate})
   GROUP BY
     product_id,
@@ -220,8 +219,7 @@ const byProducts = async (req) => {
 FROM
 	orders
 WHERE
-  delivery_date IS NULL
-  AND status = 'OPEN'
+  status = 'OPEN'
 	AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
 GROUP BY
 	product_id,
