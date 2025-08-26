@@ -207,50 +207,78 @@ const byExpiredDate = async (req) => {
 const byProducts = async (req) => {
   const searchRequest = validate(getOrderProductsValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
-  const search = `%${searchRequest.search ?? ""}%`;
+  let where = {};
+  if (searchRequest.search) {
+    where = {
+      OR: [
+        {
+          Product: {
+            product_name: {
+              contains: searchRequest.search
+            },
+          },
+        },
+        {
+          Variant: {
+            variant_name: {
+              contains: searchRequest.search
+            },
+          },
+        },
+      ],
+    };
+  }
 
-  const openOrders = await prismaClient.$queryRaw`select * from (
-    SELECT
+  const result = await prismaClient.productVariant.findMany({
+    where,
+    include: {
+      Product: {
+        select: {
+          product_name: true,
+        },
+      },
+      Variant: {
+        select: {
+          variant_name: true,
+        }
+      }
+    },
+    take: searchRequest.size,
+    skip: skip,
+    orderBy: [
+      {
+        Product: {
+          product_name: "asc",
+        },
+      },
+      {
+        Variant: {
+          variant_name: "asc",
+        },
+      },
+    ],
+  });
+
+  const resultMap = result.map((item) => {
+    return {
+      product_id: item.product_id,
+      product_name: item.Product.product_name,
+      variant_id: item.variant_id,
+      variant_name: item.Variant.variant_name
+    }
+  })
+
+  const openOrders = await prismaClient.$queryRaw`SELECT
 	product_id,
-	product_name,
 	variant_id,
-	variant_name,
 	sum(quantity) AS quantity
 FROM
 	orders
 WHERE
   status = 'OPEN'
-	AND orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
 GROUP BY
 	product_id,
-	variant_id
-
-union all
-
-SELECT
-	products.product_id,
-	products.product_name,
-	variants.variant_id,
-	variants.variant_name,
-	0 AS quantity
-FROM
-	products
-	JOIN productvariants ON products.product_id = productvariants.product_id
-	JOIN variants ON productvariants.variant_id = variants.variant_id
-WHERE
-	products.product_id NOT IN (
-		SELECT
-			product_id
-		FROM
-			orders
-	)
-  AND products.product_name LIKE ${search} OR variants.variant_name LIKE ${search}
-  ) as t1
-ORDER BY
-  product_name,
-  variant_name
-LIMIT ${searchRequest.size}
-OFFSET ${skip}`;
+	variant_id`;
 
   const closedOrders = await prismaClient.$queryRaw`SELECT
 	product_id,
@@ -313,37 +341,7 @@ GROUP BY
 	variant_id`;
 
   // Count total matching rows without re-running the full query
-  const countResult = await prismaClient.$queryRaw`
-    SELECT COUNT(*) as total FROM (
-      SELECT
-	1
-FROM
-	orders
-WHERE
-	orders.product_name LIKE ${search} OR orders.variant_name LIKE ${search}
-GROUP BY
-	product_id,
-	variant_id
-
-union all
-
-SELECT
-	1
-FROM
-	products
-	JOIN productvariants ON products.product_id = productvariants.product_id
-	JOIN variants ON productvariants.variant_id = variants.variant_id
-WHERE
-	products.product_id NOT IN (
-		SELECT
-			product_id
-		FROM
-			orders
-	)
-  AND products.product_name LIKE ${search} OR variants.variant_name LIKE ${search}
-    ) AS grouped`;
-
-  const total = Number(countResult[0]?.total ?? 0);
+  const total = await prismaClient.productVariant.count({ where });
 
   // Helper: map (product_id, variant_id) => quantity
   function toMap(data) {
@@ -354,19 +352,20 @@ WHERE
     }, {});
   }
 
+  const openOrderMap = toMap(openOrders);
   const closedOrderMap = toMap(closedOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
   const returnMap = toMap(returns);
   const outboundMap = toMap(outbounds);
 
-  const items = openOrders.map((order) => {
+  const items = resultMap.map((order) => {
     const key = `${order.product_id}-${order.variant_id}`;
     return {
       product_name: order.product_name,
       variant_name: order.variant_name,
       closed_orders: closedOrderMap[key] || 0,
-      open_orders: Number(order.quantity, 10),
+      open_orders: openOrderMap[key] || 0,
       project_items: projectMap[key] || 0,
       inbounds: inboundMap[key] || 0,
       returns: returnMap[key] || 0,
