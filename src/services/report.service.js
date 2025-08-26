@@ -375,7 +375,7 @@ GROUP BY
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      (item.inbounds + item.returns) - item.outbounds - item.closed_orders + item.open_orders;
+      (item.inbounds + item.returns) - item.outbounds - item.closed_orders - item.open_orders;
 
     const work_in_progress = item.project_items - item.inbounds;
 
