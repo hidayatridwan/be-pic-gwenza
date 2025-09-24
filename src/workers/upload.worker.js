@@ -78,6 +78,8 @@ const publishDataOrder = async (channel, created_by, key, sheetData) => {
       if (item[4] === "Pre-order") {
         if (standardizeDate(item[27]) === null) {
           continue;
+        } else if (item[7] == '') {
+          continue;
         }
 
         newItem.push(item[0]);
@@ -93,6 +95,8 @@ const publishDataOrder = async (channel, created_by, key, sheetData) => {
     } else {
       // SHOPEE 0(order id),12(name),14(variant),17(qty),8(date created),6(expired)
       if (standardizeDate(item[8]) === null) {
+        continue;
+      } else if (item[12] == '') {
         continue;
       }
 

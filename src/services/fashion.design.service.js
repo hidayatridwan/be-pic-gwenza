@@ -34,6 +34,9 @@ const search = async (req) => {
           sample_code: { contains: searchRequest.search },
         },
         {
+          sample_file: { contains: searchRequest.search },
+        },
+        {
           Tailor: {
             tailor_name: { contains: searchRequest.search },
           },
@@ -85,7 +88,8 @@ const search = async (req) => {
     return {
       fashiondesign_id: item.fashiondesign_id,
       sample_code: item.sample_code,
-      sample_file: buildS3Url(item.sample_file),
+      sample_file_link: buildS3Url(item.sample_file),
+      sample_file: item.sample_file,
       tailor_id: item.tailor_id,
       tailor_name: item.Tailor.tailor_name,
       tailor_name: item.Tailor.tailor_name,
