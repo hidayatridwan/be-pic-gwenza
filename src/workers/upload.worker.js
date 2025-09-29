@@ -17,7 +17,7 @@ const uploadOrderWorker = async () => {
       await getFileFromS3(payload, ImportType.ORDER)
     },
     {
-      prefetch: 5, // Process up to 5 messages concurrently
+      prefetch: 1, // Process up to 1 messages concurrently
       requeueOnError: false, // Don't requeue failed messages
       queueOptions: {
         // Additional queue options
@@ -143,7 +143,7 @@ const uploadCancelWorker = async () => {
       await getFileFromS3(payload, ImportType.CANCEL)
     },
     {
-      prefetch: 5, // Process up to 5 messages concurrently
+      prefetch: 1, // Process up to 1 messages concurrently
       requeueOnError: false, // Don't requeue failed messages
       queueOptions: {
         // Additional queue options
