@@ -82,9 +82,9 @@ const syncWorker = async () => {
         FROM
           orders`;
       console.log(`product variants synced: ${uniqueVariants.length}`);
-
-      console.log("Sync product variant finished");
     }
+
+    console.log("Sync product variant finished");
   } catch (err) {
     logger.error("Sync error: " + err.message);
   }
