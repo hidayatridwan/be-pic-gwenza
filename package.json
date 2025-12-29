@@ -12,7 +12,7 @@
     "worker-process": "node ./src/workers/process.cmd.js",
     "worker-upload": "node ./src/workers/upload.cmd.js",
     "worker-retry": "node ./src/workers/retry.cmd.js",
-    "scheduler": "node ./src/workers/scheduler.js"
+    "worker-sync": "node ./src/workers/sync.worker.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.797.0",

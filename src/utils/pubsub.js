@@ -44,7 +44,7 @@ const subscribe = async (queue, handler, options = {}) => {
     });
 
     // Set prefetch to control how many messages are processed concurrently
-    const prefetchCount = options.prefetch || 1;
+    const prefetchCount = options.prefetch || 5;
     await channel.prefetch(prefetchCount);
 
     const consumer = await channel.consume(

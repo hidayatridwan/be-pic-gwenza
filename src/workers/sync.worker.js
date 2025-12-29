@@ -1,93 +1,90 @@
 import { prismaClient } from "../apps/database.js";
 import { logger } from "../apps/logging.js";
 
+const LOCK_NAME = "sync_product_variant_lock";
+
 const syncWorker = async () => {
   try {
     console.log("Sync product variant started");
 
-    const countSync = await prismaClient.order.count({
-      where: {
-        OR: [
-          {
-            product_id: null,
-          },
-          {
-            variant_id: null,
-          },
-        ],
-      },
-    });
+    // 🔒 Acquire MySQL advisory lock
+    const [lock] = await prismaClient.$queryRaw`
+      SELECT GET_LOCK(${LOCK_NAME}, 0) AS acquired
+    `;
 
-    if (countSync > 0) {
-      const products = await prismaClient.order.findMany({
-        distinct: ["product_name"],
-        orderBy: {
-          product_name: "asc",
-        },
-        select: {
-          product_name: true,
-        },
-      });
-
-      const uniqueProducts = [
-        ...new Map(
-          products.map((p) => [p.product_name.trim().toLowerCase(), p])
-        ).values(),
-      ];
-
-      await prismaClient.product.createMany({
-        data: uniqueProducts,
-        skipDuplicates: true,
-      });
-      console.log(`products synced: ${uniqueProducts.length}`);
-
-      const variants = await prismaClient.order.findMany({
-        distinct: ["variant_name"],
-        orderBy: {
-          variant_name: "asc",
-        },
-        select: {
-          variant_name: true,
-        },
-      });
-
-      const uniqueVariants = [
-        ...new Map(
-          variants.map((v) => [v.variant_name.trim().toLowerCase(), v])
-        ).values(),
-      ];
-
-      await prismaClient.variant.createMany({
-        data: uniqueVariants,
-        skipDuplicates: true,
-      });
-      console.log(`variants synced: ${uniqueVariants.length}`);
-
-      await prismaClient.$executeRaw`UPDATE orders
-        JOIN products ON products.product_name = orders.product_name
-        SET orders.product_id = products.product_id
-        WHERE orders.product_id IS NULL`;
-
-      await prismaClient.$executeRaw`UPDATE orders
-        JOIN variants ON variants.variant_name = orders.variant_name
-        SET orders.variant_id = variants.variant_id
-        WHERE orders.variant_id IS NULL`;
-      console.log(`update orders synced: ${uniqueVariants.length}`);
-
-      await prismaClient.$executeRaw`INSERT IGNORE INTO
-          productvariants (product_id, variant_id)
-        SELECT DISTINCT
-          product_id,
-          variant_id
-        FROM
-          orders`;
-      console.log(`product variants synced: ${uniqueVariants.length}`);
+    if (!lock.acquired) {
+      console.log("Another scheduler is running, exiting...");
+      return;
     }
+
+    await prismaClient.$transaction([
+      // 1️⃣ Update orders → product_id (kalau product sudah ada)
+      prismaClient.$executeRaw`
+    UPDATE orders
+    JOIN products ON products.product_name = orders.product_name
+    SET orders.product_id = products.product_id
+    WHERE orders.product_id IS NULL
+  `,
+
+      // 2️⃣ Update orders → variant_id (kalau variant sudah ada)
+      prismaClient.$executeRaw`
+    UPDATE orders
+    JOIN variants ON variants.variant_name = orders.variant_name
+    SET orders.variant_id = variants.variant_id
+    WHERE orders.variant_id IS NULL
+  `,
+
+      // 3️⃣ Insert product baru
+      prismaClient.$executeRaw`
+    INSERT IGNORE INTO products (product_name)
+    SELECT DISTINCT product_name
+    FROM orders
+    WHERE product_id IS NULL
+  `,
+
+      // 4️⃣ Insert variant baru
+      prismaClient.$executeRaw`
+    INSERT IGNORE INTO variants (variant_name)
+    SELECT DISTINCT variant_name
+    FROM orders
+    WHERE variant_id IS NULL
+  `,
+
+      // 5️⃣ Update ulang orders → product_id
+      prismaClient.$executeRaw`
+    UPDATE orders
+    JOIN products ON products.product_name = orders.product_name
+    SET orders.product_id = products.product_id
+    WHERE orders.product_id IS NULL
+  `,
+
+      // 6️⃣ Update ulang orders → variant_id
+      prismaClient.$executeRaw`
+    UPDATE orders
+    JOIN variants ON variants.variant_name = orders.variant_name
+    SET orders.variant_id = variants.variant_id
+    WHERE orders.variant_id IS NULL
+  `,
+
+      // 7️⃣ Insert productvariants (many-to-many)
+      prismaClient.$executeRaw`
+    INSERT IGNORE INTO productvariants (product_id, variant_id)
+    SELECT DISTINCT product_id, variant_id
+    FROM orders
+    WHERE product_id IS NOT NULL
+      AND variant_id IS NOT NULL
+  `
+    ]);
 
     console.log("Sync product variant finished");
   } catch (err) {
-    logger.error("Sync error: " + err.message);
+    logger.error("Sync error: " + err);
+  } finally {
+    // 🔓 Release lock
+    await prismaClient.$queryRaw`
+      SELECT RELEASE_LOCK(${LOCK_NAME})
+    `;
   }
 };
 
-export { syncWorker };
+syncWorker().catch((err) => logger.error(err));
