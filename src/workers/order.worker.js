@@ -46,7 +46,7 @@ const orderWorker = async () => {
       }
     },
     {
-      prefetch: 5, // Process up to 1 messages concurrently
+      prefetch: 1, // Process up to 1 messages concurrently
       requeueOnError: false, // Don't requeue failed messages
       queueOptions: {
         // Additional queue options
@@ -90,7 +90,7 @@ const cancelWorker = async () => {
       }
     },
     {
-      prefetch: 5, // Process up to 1 messages concurrently
+      prefetch: 1, // Process up to 1 messages concurrently
       requeueOnError: false, // Don't requeue failed messages
       queueOptions: {
         // Additional queue options
