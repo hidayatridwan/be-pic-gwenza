@@ -26,4 +26,6 @@ jobs:
             cd /var/www/be-pic-gwenza
             git pull origin main
             npm install
-            pm2 restart be-pic-gwenza,worker-process,worker-upload
+            pm2 restart be-pic-gwenza
+            pm2 restart worker-process
+            pm2 restart worker-upload
