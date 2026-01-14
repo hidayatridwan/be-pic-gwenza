@@ -27,5 +27,3 @@ jobs:
             git pull origin main
             npm install
             pm2 restart be-pic-gwenza
-            pm2 restart worker-process
-            pm2 restart worker-upload
