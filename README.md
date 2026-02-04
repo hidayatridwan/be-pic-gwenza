@@ -1,5 +1,5 @@
 # BE-PIC-GWENZA (Internal)
-dono
+
 Backend service untuk **PIC & Production Monitoring System – Gwenza**.  
 Project ini menggunakan **API + Worker architecture** dengan message queue (RabbitMQ) dan object storage (MinIO).
 
