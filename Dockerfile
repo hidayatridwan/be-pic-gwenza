@@ -21,7 +21,7 @@ EXPOSE 3000
 CMD sh -c "\
 until mariadb -h mariadb -u mariadb -p $DATABASE_PASSWORD -e 'select 1' >/dev/null 2>&1; do \
   echo '⏳ waiting for database...'; \
-  sleep 5; \
+  sleep 3; \
 done && \
 npm run prisma:migrate && \
 npm start"
