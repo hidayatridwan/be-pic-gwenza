@@ -74,9 +74,9 @@ const publishDataOrder = async (channel, created_by, key, sheetData) => {
   for (const item of sheetData) {
     const newItem = [];
     if (channel === constants.TIKTOK) {
-      // TIKTOK 0(order id),7(name),8(variant),9(qty),27(date created) || 4(tipe order)
+      // TIKTOK 0(order id),7(name),8(variant),9(qty),29(date created) || 4(tipe order)
       if (item[4] === "Pre-order") {
-        if (standardizeDate(item[27]) === null) {
+        if (standardizeDate(item[29]) === null) {
           continue;
         } else if (item[7] == '') {
           continue;
@@ -86,8 +86,8 @@ const publishDataOrder = async (channel, created_by, key, sheetData) => {
         newItem.push(item[7]);
         newItem.push(item[8]);
         newItem.push(item[9]);
-        newItem.push(standardizeDate(item[27]));
-        newItem.push(addTwentySevenDays(standardizeDate(item[27])));
+        newItem.push(standardizeDate(item[29]));
+        newItem.push(addTwentySevenDays(standardizeDate(item[29])));
         newItem.push(channel);
         newItem.push(created_by);
         rowsBatch.push(newItem);
@@ -166,9 +166,9 @@ const publishDataCancel = async (channel, created_by, key, sheetData) => {
   for (const item of sheetData) {
     const newItem = [];
     if (channel === constants.TIKTOK) {
-      // TIKTOK 0(order id), 1(status), 27(date created) || 4(tipe order)
+      // TIKTOK 0(order id), 1(status), 29(date created) || 4(tipe order)
       if (item[4] === "Pre-order") {
-        if (standardizeDate(item[27]) === null) {
+        if (standardizeDate(item[29]) === null) {
           continue;
         } else if (!item[1].toLowerCase().includes("batal")) {
           continue;

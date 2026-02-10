@@ -48,30 +48,30 @@ services:
           cpus: "0.25"
           memory: 256M
 
-  worker-process:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    working_dir: /app
-    command: npm run worker-process
-    env_file:
-      - .env
-    volumes:
-      - .:/app
-      - /app/node_modules
-    depends_on:
-      mariadb:
-        condition: service_started
-      minio:
-        condition: service_started
-      rabbitmq:
-        condition: service_healthy
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
+  # worker-process:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   working_dir: /app
+  #   command: npm run worker-process
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     mariadb:
+  #       condition: service_started
+  #     minio:
+  #       condition: service_started
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: "0.25"
+  #         memory: 256M
 
   # worker-sync:
   #   build:
