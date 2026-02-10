@@ -1,33 +1,41 @@
 const standardizeDate = (input) => {
+  if (input == null) return null;
+
+  // 1️⃣ Excel date serial number
+  if (typeof input === "number") {
+    // Excel epoch: 1899-12-30
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+    const date = new Date(excelEpoch.getTime() + input * 86400000);
+    return date.toISOString().slice(0, 10) + " 00:00:00";
+  }
+
+  // 2️⃣ Date object
+  if (input instanceof Date) {
+    return input.toISOString().slice(0, 10) + " 00:00:00";
+  }
+
+  // 3️⃣ String (baru masuk logic lama)
+  if (typeof input !== "string") return null;
+
   let datePart, timePart;
 
   if (input.includes(" ")) {
     [datePart, timePart] = input.split(" ");
   } else {
-    // Only date, no time
     datePart = input;
     timePart = "00:00:00";
   }
 
   if (datePart.includes("/")) {
-    // Format: dd/mm/yyyy
     const [day, month, year] = datePart.split("/");
     datePart = `${year}-${month}-${day}`;
-  } // else assume already yyyy-mm-dd
-
-  // Handle missing or incomplete time
-  if (!timePart) {
-    timePart = "00:00:00";
-  } else if (timePart.split(":").length === 2) {
-    timePart = timePart + ":00"; // add seconds if missing
   }
 
-  const dateTime = `${datePart} ${timePart}`;
-  if (!isValidDate(dateTime)) {
-    return null;
+  if (timePart.split(":").length === 2) {
+    timePart += ":00";
   }
 
-  return dateTime;
+  return `${datePart} ${timePart}`;
 };
 
 const addTwentySevenDays = (input) => {
