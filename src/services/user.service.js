@@ -8,7 +8,7 @@ import {
   searchUserValidation,
 } from "../validations/user.validation.js";
 import constants from "../utils/constants.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import Jwt from "jsonwebtoken";
 import { hashToken } from "../utils/security.js";
 
