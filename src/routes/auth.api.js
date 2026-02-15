@@ -18,6 +18,7 @@ import supplierController from "../controllers/supplier.controller.js";
 import colorController from "../controllers/color.controller.js";
 import outboundController from "../controllers/outbound.controller.js";
 import returnController from "../controllers/return.controller.js";
+import aiController from "../controllers/ai.controller.js";
 
 const router = express.Router();
 
@@ -126,5 +127,7 @@ router.delete("/merchandise-inbounds/{:merchandiseInboundId}", merchandiseInboun
 router.post("/merchandise-outbounds", merchandiseOutboundController.create);
 router.get("/merchandise-outbounds", merchandiseOutboundController.search);
 router.delete("/merchandise-outbounds/{:merchandiseOutboundId}", merchandiseOutboundController.cancel);
+
+router.post("/ai", aiController.ai);
 
 export { router };

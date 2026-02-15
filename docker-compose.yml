@@ -11,7 +11,6 @@ services:
       - .env
     volumes:
       - .:/app
-      - /app/node_modules
     depends_on:
       - mariadb
       - minio
@@ -23,42 +22,16 @@ services:
           cpus: "0.50"
           memory: 512M
 
-  worker-upload:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    working_dir: /app
-    command: npm run worker-upload
-    env_file:
-      - .env
-    volumes:
-      - .:/app
-      - /app/node_modules
-    depends_on:
-      mariadb:
-        condition: service_started
-      minio:
-        condition: service_started
-      rabbitmq:
-        condition: service_healthy
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
-
-  # worker-process:
+  # worker-upload:
   #   build:
   #     context: .
   #     dockerfile: Dockerfile.dev
   #   working_dir: /app
-  #   command: npm run worker-process
+  #   command: npm run worker-upload
   #   env_file:
   #     - .env
   #   volumes:
   #     - .:/app
-  #     - /app/node_modules
   #   depends_on:
   #     mariadb:
   #       condition: service_started
@@ -66,48 +39,6 @@ services:
   #       condition: service_started
   #     rabbitmq:
   #       condition: service_healthy
-  #   restart: unless-stopped
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: "0.25"
-  #         memory: 256M
-
-  # worker-sync:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   working_dir: /app
-  #   command: npm run worker-sync
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - .:/app
-  #     - /app/node_modules
-  #   depends_on:
-  #     - mariadb
-  #     - rabbitmq
-  #   restart: unless-stopped
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: "0.25"
-  #         memory: 256M
-
-  # worker-retry:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   working_dir: /app
-  #   command: npm run worker-retry
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - .:/app
-  #     - /app/node_modules
-  #   depends_on:
-  #     - mariadb
-  #     - rabbitmq
   #   restart: unless-stopped
   #   deploy:
   #     resources:
