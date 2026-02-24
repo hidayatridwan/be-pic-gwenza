@@ -70,7 +70,7 @@ export const generateQueryPlan = async (question) => {
         const resultQuery = await executeQuery(resultAI.query);
         console.log(resultQuery);
 
-        const resultFormat = await resultFormatted(resultQuery.data, resultQuery.rowCount, question, resultAI.explanation);
+        const resultFormat = await resultFormatted(resultQuery.data, resultQuery.rowCount, question);
         console.log(resultFormat);
 
         return {

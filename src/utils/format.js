@@ -65,4 +65,7 @@ const isValidDate = (dateString) => {
   return regex.test(dateString);
 };
 
-export { standardizeDate, addTwentySevenDays };
+const truncate = (str, max = 512) =>
+  str.length > max ? str.slice(0, max) + " ...[TRUNCATED]" : str;
+
+export { standardizeDate, addTwentySevenDays, truncate };

@@ -9,9 +9,10 @@
   "scripts": {
     "dev": "nodemon ./src/main.js",
     "start": "node ./src/main.js",
-    "worker:upload": "node ./src/workers/upload.cmd.js",
-    "worker:process": "node ./src/workers/process.cmd.js",
-    "worker:sync": "node ./src/workers/sync.worker.js"
+    "worker:upload-order": "node ./src/workers/upload-order/consumer.js",
+    "worker:upload-cancel": "node ./src/workers/upload-cancel/consumer.js",
+    "worker:process-order": "node ./src/workers/process-order/consumer.js",
+    "worker:process-cancel": "node ./src/workers/process-cancel/consumer.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.797.0",
