@@ -1,6 +1,11 @@
 import OpenAI from "openai";
 import { prismaClient } from "../apps/database.js";
 
+// Custom JSON serializer to handle BigInt values
+const bigIntSerializer = (key, value) => {
+    return typeof value === 'bigint' ? value.toString() : value;
+};
+
 const client = new OpenAI({
     apiKey: process.env.OPENROUTER_API_KEY,
     baseURL: "https://openrouter.ai/api/v1"
@@ -65,17 +70,14 @@ export const generateQueryPlan = async (question) => {
         });
 
         const resultAI = JSON.parse(response.choices[0].message.content);
-        console.log(resultAI);
 
         const resultQuery = await executeQuery(resultAI.query);
-        console.log(resultQuery);
 
         const resultFormat = await resultFormatted(resultQuery.data, resultQuery.rowCount, question);
-        console.log(resultFormat);
 
         return {
             success: true,
-            data: resultAI,
+            data: resultFormat,
         };
     } catch (error) {
         console.error('AI Query Generation Error:', error);
@@ -136,7 +138,7 @@ function buildFormattingPrompt(data, rowCount, userQuestion) {
 
 USER QUESTION: "${userQuestion}"
 TOTAL DATA: ${rowCount} rows
-DATA: ${JSON.stringify(sampleData, null, 2)}
+DATA: ${JSON.stringify(sampleData, bigIntSerializer, 2)}
 
 TASK:
 ${rowCount === 1
