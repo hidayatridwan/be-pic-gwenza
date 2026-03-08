@@ -5,7 +5,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 export const s3Client = new S3Client({
-  region: "us-east-1",
+  region: "auto",
   endpoint: process.env.S3_URL,
   forcePathStyle: true,
   credentials: {
