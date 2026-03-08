@@ -72,4 +72,9 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 // ==========================
 // 🏁 Start App
 // ==========================
-bootstrap();
+try {
+  await bootstrap();
+} catch (error) {
+  console.error('❌ Failed to start application:', error.message);
+  process.exit(1);
+}
