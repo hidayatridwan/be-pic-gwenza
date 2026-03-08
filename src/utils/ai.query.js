@@ -88,7 +88,6 @@ export const generateQueryPlan = async (question) => {
 async function executeQuery(sqlQuery) {
     try {
         const results = await prismaClient.$queryRawUnsafe(sqlQuery);
-
         return {
             success: true,
             data: results,
@@ -104,7 +103,7 @@ async function resultFormatted(data, rowCount, userQuestion) {
     if (rowCount === 0) {
         return {
             formatted: "Tidak ada data yang ditemukan untuk pertanyaan tersebut.",
-            format: 'text',
+            format: 'markdown',
             metadata: { rowCount: 0 }
         };
     }
@@ -123,11 +122,17 @@ async function resultFormatted(data, rowCount, userQuestion) {
         const result = response.choices[0].message.content.trim();
 
         return {
-            result,
-            format: rowCount === 1 ? 'text' : 'markdown'
+            formatted: result,
+            format: 'markdown',
+            metadata: { rowCount }
         };
     } catch (error) {
         console.error('Formatting error:', error);
+        return {
+            formatted: "Terjadi kesalahan saat memformat hasil data.",
+            format: 'markdown',
+            metadata: { rowCount, error: true }
+        };
     }
 }
 
@@ -158,11 +163,15 @@ RULES:
 - Maximum 2 sentences`
             : `Example for multiple rows:
 Found **${rowCount} products** with the highest sales this month:
-
-| Product | Variant | Total Sold |
-|----------|----------|-------------|
-| Plain T-Shirt | Black M | 523 |
-| Flannel Shirt | Blue Checkered L | 445 |
++------------------------------------------------------+-----------------------+------------+
+| Product                                              | Variant               | Quantity   |
++------------------------------------------------------+-----------------------+------------+
+| Gwenza - Rayanda Sarimbit Series - Muslim Wanita     | Koko Anak M (3-6th)   | 3          |
+| Gwenza - Rayanda Sarimbit Series - Muslim Wanita     | Rayanda Gamis         | 3          |
+| Gwenza - Rayanda Sarimbit Series - Muslim Wanita     | Rayanda Outer         | 3          |
+| Gwenza - Belinda Setelan Rok Katun - Muslim Wanita   | Hitam                 | 2          |
+| Gwenza - Rayanda Sarimbit Series - Muslim Wanita     | Rayanda Koko Pendek   | 2          |
++------------------------------------------------------+-----------------------+------------+
 
 RULES:
 - Start with 1 summary sentence
@@ -172,5 +181,6 @@ RULES:
 - If there are more than 10 rows, show only the top 10 and write "...and ${rowCount - 10} others" at the end`
         }
 
-Now format the data above:`;
+Now format the data above:
+`;
 }
