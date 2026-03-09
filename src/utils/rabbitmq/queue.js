@@ -10,44 +10,44 @@ class QueueSetup {
     }
 
     /**
-     * Setup complete queue system dengan retry mechanism
-     * @param {string} queueName - Nama queue utama
-     * @param {string} routingKey - Routing key untuk queue
+     * Set up a complete queue system with retry mechanism
+     * @param {string} queueName - Main queue name
+     * @param {string} routingKey - Queue routing key
      */
     async setupQueueWithRetry(queueName, routingKey) {
         try {
             const channel = await rabbitmqConnection.getChannel();
 
-            // 1. Declare exchange utama
+            // 1. Declare the main exchange
             await channel.assertExchange(this.exchange, this.exchangeType, {
                 durable: true,
             });
 
-            // 2. Setup DLQ untuk retry pertama (TTL 5 menit)
+            // 2. Set up DLQ for first retry (TTL 5 minutes)
             const dlq1Name = `${queueName}.dlq.retry1`;
             await channel.assertQueue(dlq1Name, {
                 durable: true,
                 arguments: {
                     'x-queue-type': 'quorum',
-                    'x-message-ttl': 5 * 60 * 1000, // 5 menit
+                    'x-message-ttl': 5 * 60 * 1000, // 5 minutes
                     'x-dead-letter-exchange': this.exchange,
-                    'x-dead-letter-routing-key': routingKey, // Kembali ke queue utama
+                    'x-dead-letter-routing-key': routingKey, // Route back to the main queue
                 },
             });
 
-            // 3. Setup DLQ untuk retry kedua (TTL 10 menit)
+            // 3. Set up DLQ for second retry (TTL 10 minutes)
             const dlq2Name = `${queueName}.dlq.retry2`;
             await channel.assertQueue(dlq2Name, {
                 durable: true,
                 arguments: {
                     'x-queue-type': 'quorum',
-                    'x-message-ttl': 10 * 60 * 1000, // 10 menit
+                    'x-message-ttl': 10 * 60 * 1000, // 10 minutes
                     'x-dead-letter-exchange': this.exchange,
-                    'x-dead-letter-routing-key': routingKey, // Kembali ke queue utama
+                    'x-dead-letter-routing-key': routingKey, // Route back to the main queue
                 },
             });
 
-            // 4. Setup queue untuk permanent failure
+            // 4. Set up queue for permanent failures
             const permanentFailQueue = `${queueName}.failed.permanent`;
             await channel.assertQueue(permanentFailQueue, {
                 durable: true,
@@ -56,7 +56,7 @@ class QueueSetup {
                 }
             });
 
-            // 5. Setup queue utama dengan DLX ke retry pertama
+            // 5. Set up main queue with DLX to first retry
             await channel.assertQueue(queueName, {
                 durable: true,
                 arguments: {
@@ -66,13 +66,13 @@ class QueueSetup {
                 },
             });
 
-            // 6. Bind queue utama ke exchange
+            // 6. Bind main queue to exchange
             await channel.bindQueue(queueName, this.exchange, routingKey);
 
-            // 7. Bind DLQ retry1 ke exchange
+            // 7. Bind retry1 DLQ to exchange
             await channel.bindQueue(dlq1Name, this.exchange, `${routingKey}.dlq.retry1`);
 
-            // 8. Bind DLQ retry2 ke exchange
+            // 8. Bind retry2 DLQ to exchange
             await channel.bindQueue(dlq2Name, this.exchange, `${routingKey}.dlq.retry2`);
 
             console.log(`✅ Queue system berhasil di-setup:`);
@@ -94,7 +94,7 @@ class QueueSetup {
     }
 
     /**
-     * Setup semua queue dari .env
+     * Set up all queues from .env
      */
     async setupAllQueues() {
         try {

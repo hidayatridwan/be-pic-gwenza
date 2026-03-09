@@ -14,7 +14,7 @@ const standardizeDate = (input) => {
     return input.toISOString().slice(0, 10) + " 00:00:00";
   }
 
-  // 3️⃣ String (baru masuk logic lama)
+  // 3️⃣ String (falls back to legacy logic)
   if (typeof input !== "string") return null;
 
   let datePart, timePart;

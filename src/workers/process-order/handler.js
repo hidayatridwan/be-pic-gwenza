@@ -50,7 +50,7 @@ export async function handleProcessOrder(payload) {
 
 
             // =============================
-            // 4️⃣ Ambil mapping
+            // 4️⃣ Fetch mapping
             // =============================
             const products = await tx.product.findMany({
                 where: { product_name: { in: productNames } }
@@ -69,7 +69,7 @@ export async function handleProcessOrder(payload) {
             );
 
             // =============================
-            // 5️⃣ Insert orders langsung dengan FK
+            // 5️⃣ Insert orders directly with FK
             // =============================
             const ordersData = ordersRaw.map(order => {
                 const variantName = order[2]?.trim() ? order[2] : "Default";

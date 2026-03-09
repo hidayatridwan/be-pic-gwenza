@@ -31,7 +31,7 @@ class RabbitMQConnection {
             this.connection.on('close', () => {
                 console.log('RabbitMQ connection closed');
                 this.isConnected = false;
-                // Auto reconnect setelah 5 detik
+                // Auto reconnect after 5 seconds
                 setTimeout(() => this.connect(), 5000);
             });
 
@@ -40,7 +40,7 @@ class RabbitMQConnection {
         } catch (error) {
             console.error('❌ Gagal connect ke RabbitMQ:', error.message);
             this.isConnected = false;
-            // Retry connection setelah 5 detik
+            // Retry connection after 5 seconds
             setTimeout(() => this.connect(), 5000);
             throw error;
         }

@@ -11,16 +11,16 @@ class RabbitMQConsumer {
     }
 
     /**
-     * Get retry count dari message headers
+     * Get retry count from message headers
      * @param {object} msg - RabbitMQ message
      */
     getRetryCount(msg) {
-        // Cek custom header dulu
+        // Check custom header first
         if (msg.properties.headers && msg.properties.headers['x-retry-count']) {
             return msg.properties.headers['x-retry-count'];
         }
 
-        // Cek x-death headers (otomatis dari RabbitMQ)
+        // Check x-death headers (automatically added by RabbitMQ)
         if (msg.properties.headers && msg.properties.headers['x-death']) {
             const deaths = msg.properties.headers['x-death'];
             return deaths[0]?.count || 0;
@@ -30,9 +30,9 @@ class RabbitMQConsumer {
     }
 
     /**
-     * Determine DLQ routing key berdasarkan retry count
-     * @param {string} originalRoutingKey - Routing key asli
-     * @param {number} retryCount - Jumlah retry
+     * Determine DLQ routing key based on retry count
+     * @param {string} originalRoutingKey - Original routing key
+     * @param {number} retryCount - Retry count
      */
     getDLQRoutingKey(originalRoutingKey, retryCount) {
         if (retryCount === 0) {
@@ -45,12 +45,12 @@ class RabbitMQConsumer {
     }
 
     /**
-     * Handle message failure dengan retry logic
+     * Handle message failure with retry logic
      * @param {object} channel - RabbitMQ channel
-     * @param {object} msg - Message yang gagal
-     * @param {string} queueName - Nama queue asli
-     * @param {string} routingKey - Routing key asli
-     * @param {Error} error - Error yang terjadi
+     * @param {object} msg - Failed message
+     * @param {string} queueName - Original queue name
+     * @param {string} routingKey - Original routing key
+     * @param {Error} error - Occurred error
      */
     async handleFailure(channel, msg, queueName, routingKey, error) {
         try {
@@ -58,14 +58,14 @@ class RabbitMQConsumer {
             console.log(`❌ Message gagal diproses (Retry ke-${retryCount})`);
             console.log(`   Error: ${error.message}`);
 
-            // Tentukan kemana message akan di-route
+            // Determine where the message should be routed
             const dlqRoutingKey = this.getDLQRoutingKey(routingKey, retryCount);
 
             if (dlqRoutingKey) {
-                // Masih ada kesempatan retry
+                // Retry is still available
                 console.log(`♻️  Routing message ke DLQ: ${dlqRoutingKey}`);
 
-                // Republish ke DLQ dengan retry count di-update
+                // Republish to DLQ with updated retry count
                 const messageData = JSON.parse(msg.content.toString());
                 const republishOptions = {
                     persistent: true,
@@ -86,10 +86,10 @@ class RabbitMQConsumer {
                     republishOptions
                 );
 
-                // ACK message asli (sudah di-handle)
+                // ACK original message (already handled)
                 channel.ack(msg);
             } else {
-                // Sudah retry 2x, masukkan ke permanent fail queue
+                // Already retried twice, send to permanent fail queue
                 const permanentFailQueue = `${queueName}.failed.permanent`;
                 console.log(`💀 Permanent failure - routing ke: ${permanentFailQueue}`);
 
@@ -114,28 +114,28 @@ class RabbitMQConsumer {
                     }
                 );
 
-                // ACK message asli
+                // ACK original message
                 channel.ack(msg);
             }
         } catch (err) {
             console.error('❌ Error saat handle failure:', err);
-            // NACK dengan requeue false untuk hindari infinite loop
+            // NACK with requeue false to avoid infinite loop
             channel.nack(msg, false, false);
         }
     }
 
     /**
-     * Consume message dari queue dengan retry handling
-     * @param {string} queueName - Nama queue
-     * @param {string} routingKey - Routing key untuk retry
-     * @param {Function} handler - Function untuk process message
+     * Consume messages from a queue with retry handling
+     * @param {string} queueName - Queue name
+     * @param {string} routingKey - Routing key for retries
+     * @param {Function} handler - Function to process messages
      * @param {object} options - Consumer options
      */
     async consume(queueName, routingKey, handler, options = {}) {
         try {
             const channel = await rabbitmqConnection.getChannel();
 
-            // Set prefetch untuk load balancing
+            // Set prefetch for load balancing
             await channel.prefetch(options.prefetch || 1);
 
             console.log(`🎧 Listening pada queue: ${queueName}`);
@@ -155,14 +155,14 @@ class RabbitMQConsumer {
                         console.log(`\n📥 Menerima message dari ${queueName} (Retry: ${retryCount})`);
                         console.log('   Data:', truncate(JSON.stringify(messageData, null, 2)));
 
-                        // Process message menggunakan handler yang diberikan
+                        // Process message using the provided handler
                         await handler(messageData, msg);
 
-                        // Jika berhasil, ACK message
+                        // ACK message on success
                         channel.ack(msg);
                         console.log('✅ Message berhasil diproses');
                     } catch (error) {
-                        // Jika gagal, handle dengan retry logic
+                        // Handle failure using retry logic
                         await this.handleFailure(channel, msg, queueName, routingKey, error);
                     }
                 },
@@ -183,8 +183,8 @@ class RabbitMQConsumer {
     }
 
     /**
-     * Stop consumer tertentu
-     * @param {string} queueName - Nama queue
+     * Stop a specific consumer
+     * @param {string} queueName - Queue name
      */
     async stopConsumer(queueName) {
         try {
@@ -201,7 +201,7 @@ class RabbitMQConsumer {
     }
 
     /**
-     * Stop semua consumer
+     * Stop all consumers
      */
     async stopAllConsumers() {
         for (const queueName of this.consumers.keys()) {

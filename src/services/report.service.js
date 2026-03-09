@@ -186,15 +186,15 @@ const byExpiredDate = async (req) => {
       acc[date] = item[date];
       return acc;
     }, {}),
-    project_items: item.project_items, // di ambil dari keseluruhan project items
-    inbounds: item.inbounds, // di ambil dari keseluruhan inbounds
-    returns: item.returns, // di ambil dari keseluruhan returns
-    closed_orders: item.closed_orders, // di ambil dari keseluruhan orders with status closed
-    current_period_orders: item.current_period_orders, // di ambil dari periode order yg berjalan
-    outbounds: item.outbounds, // di ambil dari keseluruhan outbounds
-    available_stock: (item.inbounds + item.returns) - item.outbounds, // di ambil dari inbounds di kurangi ...
-    fulfillment_gap: (item.inbounds + item.returns) - item.outbounds - item.current_period_orders, // di ambil dari available stock di kurangi current period orders
-    work_in_progress: item.project_items - item.inbounds, // di ambil dari keseluruhan project items di kurangi inbounds
+    project_items: item.project_items, // taken from all project items
+    inbounds: item.inbounds, // taken from all inbounds
+    returns: item.returns, // taken from all returns
+    closed_orders: item.closed_orders, // taken from all orders with closed status
+    current_period_orders: item.current_period_orders, // taken from the current order period
+    outbounds: item.outbounds, // taken from all outbounds
+    available_stock: (item.inbounds + item.returns) - item.outbounds, // calculated from inbounds + returns - outbounds
+    fulfillment_gap: (item.inbounds + item.returns) - item.outbounds - item.current_period_orders, // calculated from available stock minus current period orders
+    work_in_progress: item.project_items - item.inbounds, // calculated from total project items minus inbounds
   }));
 
   return {

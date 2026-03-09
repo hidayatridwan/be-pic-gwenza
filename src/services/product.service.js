@@ -166,7 +166,7 @@ const update = async (user, req) => {
       data: newRequest,
     });
 
-    // Ambil data ProductVariant saat ini dari DB
+    // Fetch current ProductVariant data from the DB
     const existingProductVariants = await tx.productVariant.findMany({
       where: { product_id },
       select: { variant_id: true },
@@ -175,17 +175,17 @@ const update = async (user, req) => {
     const existingVariantIds = existingProductVariants.map((pv) => pv.variant_id);
     const incomingVariantIds = variants.map((v) => v.variant_id);
 
-    // Cari variant_id yang baru (belum ada di DB)
+    // Find new variant_id values (not yet in DB)
     const variantsToAdd = incomingVariantIds.filter(
       (id) => !existingVariantIds.includes(id)
     );
 
-    // Cari variant_id yang harus dihapus
+    // Find variant_id values that should be removed
     const variantsToRemove = existingVariantIds.filter(
       (id) => !incomingVariantIds.includes(id)
     );
 
-    // Tambahkan yang baru
+    // Add new variants
     if (variantsToAdd.length > 0) {
       await tx.productVariant.createMany({
         data: variantsToAdd.map((variant_id) => ({
@@ -196,7 +196,7 @@ const update = async (user, req) => {
       });
     }
 
-    // Hapus yang tidak ada lagi
+    // Remove variants that no longer exist
     if (variantsToRemove.length > 0) {
       await tx.productVariant.deleteMany({
         where: {
@@ -206,7 +206,7 @@ const update = async (user, req) => {
       });
     }
 
-    // Return product setelah update (optional)
+    // Return product after update (optional)
     return tx.product.findUnique({
       where: { product_id },
       include: {

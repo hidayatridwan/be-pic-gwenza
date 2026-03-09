@@ -10,10 +10,10 @@ class RabbitMQPublisher {
     }
 
     /**
-     * Publish message ke RabbitMQ
-     * @param {string} routingKey - Routing key untuk message
-     * @param {object} message - Data yang akan dikirim
-     * @param {object} options - Optional settings (priority, expiration, dll)
+     * Publish a message to RabbitMQ
+     * @param {string} routingKey - Routing key for the message
+     * @param {object} message - Data to be sent
+     * @param {object} options - Optional settings (priority, expiration, etc.)
      */
     async publish(routingKey, message, options = {}) {
         try {
@@ -22,7 +22,7 @@ class RabbitMQPublisher {
             const messageBuffer = Buffer.from(JSON.stringify(message));
 
             const publishOptions = {
-                persistent: true, // Message akan di-persist ke disk
+                persistent: true, // Message will be persisted to disk
                 contentType: 'application/json',
                 timestamp: Date.now(),
                 ...options,
@@ -50,10 +50,10 @@ class RabbitMQPublisher {
     }
 
     /**
-     * Publish message ke DLQ tertentu
-     * @param {string} routingKey - Routing key DLQ
-     * @param {object} message - Message yang akan dikirim
-     * @param {number} retryCount - Jumlah retry yang sudah dilakukan
+     * Publish a message to a specific DLQ
+     * @param {string} routingKey - DLQ routing key
+     * @param {object} message - Message to be sent
+     * @param {number} retryCount - Number of retries already performed
      */
     async publishToDLQ(routingKey, message, retryCount) {
         return this.publish(routingKey, message, {

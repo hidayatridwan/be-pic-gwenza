@@ -2,11 +2,16 @@ import aiService from "../services/ai.service.js";
 
 const ai = async (req, res, next) => {
   try {
-    const result = await aiService.ai(req.body);
+    // Set SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders(); // Important! Send headers immediately
 
-    res.status(200).json(result);
+    await aiService.streamAiResponse(req.body, res);
   } catch (err) {
-    next(err);
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.end();
   }
 };
 
