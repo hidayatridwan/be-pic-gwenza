@@ -56,9 +56,18 @@ STRICT RULES — YOU MUST FOLLOW:
 5. Never use stored procedures or dynamic SQL.
 6. Always use NOW() for current datetime comparisons.
 7. Always include ORDER BY for readability when returning lists.
-8. ALWAYS append LIMIT 10 at the end of every SELECT query, no exceptions.
-   If the user specifies their own LIMIT, cap it at 10 (e.g. user asks LIMIT 50 → use LIMIT 10).
-   Never allow queries without LIMIT.
+8. LIMIT rules:
+    - Default LIMIT is 10 if user does not specify.
+    - If user requests a specific LIMIT less than 10 (e.g. "tampilkan 3 order") → use their requested LIMIT.
+    - If user requests a LIMIT greater than 10 (e.g. "tampilkan 50 order") → cap it to LIMIT 10.
+    - Never allow queries without LIMIT.
+9. For quantity/stock questions, always use SUM(quantity) and GROUP BY product_name, variant_name.
+    - start_date = tanggal order MASUK/DIBUAT, bukan deadline
+    - end_date   = tanggal DEADLINE PENGIRIMAN (start_date + 27 hari)
+    - "harus dikirim hari ini" or "deadline hari ini" = DATE(end_date) <= CURDATE()
+    - "belum dikirim" or "harus dikirim" = status = 'OPEN'
+    - ALWAYS use SUM(quantity) + GROUP BY product_name, variant_name when asking about product quantity or stock to ship
+    - NEVER filter by start_date when user asks about shipping deadline
 
 OUTPUT FORMAT (strict JSON, no markdown, no explanation outside JSON):
 {
@@ -96,6 +105,34 @@ User: "hapus order yang sudah cancel"
   "explanation": "Permintaan ini memerlukan operasi DELETE yang tidak diizinkan. Sistem ini hanya mendukung operasi READ (SELECT).",
   "isValid": false
 }
+
+User: "tampilkan 3 order yang paling baru"
+{
+  "query": "SELECT * FROM orders ORDER BY start_date DESC LIMIT 3",
+  "explanation": "Menampilkan 3 order terbaru sesuai permintaan user",
+  "isValid": true
+}
+
+User: "tampilkan 50 order yang paling baru"
+{
+  "query": "SELECT * FROM orders ORDER BY start_date DESC LIMIT 10",
+  "explanation": "Menampilkan order terbaru, limit maksimal sistem adalah 10 data",
+  "isValid": true
+}
+
+User: "hari ini ada yang order Asya Dress Motif yang harus dikirim?"
+{
+  "query": "SELECT product_name, variant_name, SUM(quantity) AS total_qty, COUNT(*) AS total_order FROM orders WHERE status = 'OPEN' AND product_name LIKE '%Asya Dress Motif%' AND DATE(end_date) <= CURDATE() GROUP BY product_name, variant_name ORDER BY product_name LIMIT 10",
+  "explanation": "Menampilkan total quantity dan jumlah order OPEN produk Asya Dress Motif yang deadline pengirimannya hari ini atau sudah lewat",
+  "isValid": true
+}
+
+User: "produk apa saja yang harus dikirim hari ini?"
+{
+  "query": "SELECT product_name, variant_name, SUM(quantity) AS total_qty, COUNT(*) AS total_order FROM orders WHERE status = 'OPEN' AND DATE(end_date) <= CURDATE() GROUP BY product_name, variant_name ORDER BY product_name LIMIT 10",
+  "explanation": "Menampilkan semua produk OPEN yang deadline pengirimannya hari ini atau sudah terlewat, digroup per produk dan varian",
+  "isValid": true
+}
 `;
 
 const streamTextChunk = (res, text) => {
@@ -114,6 +151,7 @@ export const generateAndStreamQueryAnswer = async (question, res) => {
         });
 
         const queryPlan = JSON.parse(response.choices[0].message.content);
+        console.log(queryPlan);
 
         if (!queryPlan?.isValid || !queryPlan?.query) {
             streamTextChunk(res, queryPlan?.explanation || "Pertanyaan tidak bisa diproses.");

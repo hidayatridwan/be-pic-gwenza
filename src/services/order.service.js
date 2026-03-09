@@ -42,11 +42,7 @@ const search = async (req) => {
       end_date: true,
       status: true,
       created_at: true,
-      User: {
-        select: {
-          full_name: true,
-        },
-      },
+      created_by: true,
     },
     take: searchRequest.size,
     skip: skip,
@@ -68,7 +64,7 @@ const search = async (req) => {
     end_date: item.end_date,
     status: item.status,
     created_at: item.created_at,
-    created_by: item.User.full_name,
+    created_by: item.created_by,
   }));
 
   const total = await prismaClient.order.count({ where });
