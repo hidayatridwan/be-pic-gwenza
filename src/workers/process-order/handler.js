@@ -84,6 +84,7 @@ export async function handleProcessOrder(payload) {
                     start_date: order[4] ? new Date(order[4]) : null,
                     end_date: order[5] ? new Date(order[5]) : null,
                     channel: order[6],
+                    status: "OPEN",
                     created_by: order[7]
                 };
             });
