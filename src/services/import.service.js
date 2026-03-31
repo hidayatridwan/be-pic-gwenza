@@ -15,12 +15,6 @@ const create = async (user, req) => {
   try {
     if (importRequest.import_type === ImportType.ORDER) {
 
-      await publisher.publish(process.env.UPLOAD_ORDER_CREATED, {
-        event: process.env.UPLOAD_ORDER_CREATED,
-        data: importRequest,
-        timestamp: new Date().toISOString(),
-      });
-
       await prismaClient.order.updateMany({
         data: {
           status: OrderStatus.CLOSED
@@ -29,6 +23,12 @@ const create = async (user, req) => {
           channel: importRequest.channel,
           status: OrderStatus.OPEN
         }
+      });
+
+      await publisher.publish(process.env.UPLOAD_ORDER_CREATED, {
+        event: process.env.UPLOAD_ORDER_CREATED,
+        data: importRequest,
+        timestamp: new Date().toISOString(),
       });
     } else if (ImportType.CANCEL) {
 
