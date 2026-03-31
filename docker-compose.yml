@@ -20,36 +20,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     init: true
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: 512M
-
-  # worker-upload:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   working_dir: /app
-  #   command: npm run worker-upload
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - .:/app
-  #   depends_on:
-  #     mariadb:
-  #       condition: service_started
-  #     minio:
-  #       condition: service_started
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   restart: unless-stopped
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: "0.25"
-  #         memory: 256M
-
+    
   mariadb:
     image: mariadb:10.11
     environment:
