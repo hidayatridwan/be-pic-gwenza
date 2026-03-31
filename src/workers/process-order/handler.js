@@ -84,7 +84,6 @@ export async function handleProcessOrder(payload) {
                     start_date: order[4] ? new Date(order[4]) : null,
                     end_date: order[5] ? new Date(order[5]) : null,
                     channel: order[6],
-                    status: "OPEN",
                     created_by: order[7]
                 };
             });
@@ -92,6 +91,15 @@ export async function handleProcessOrder(payload) {
             await tx.order.createMany({
                 data: ordersData,
                 skipDuplicates: true
+            });
+
+            await tx.order.updateMany({
+                where: {
+                    order_number: { in: ordersData.map(o => o.order_number) },
+                },
+                data: {
+                    status: 'OPEN',
+                },
             });
 
             const productVariantPairs = [
