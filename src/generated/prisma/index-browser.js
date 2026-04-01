@@ -228,18 +228,7 @@ exports.Prisma.InboundScalarFieldEnum = {
   variant_id: 'variant_id',
   quantity: 'quantity',
   notes: 'notes',
-  status: 'status',
-  created_at: 'created_at',
-  created_by: 'created_by'
-};
-
-exports.Prisma.ReturnScalarFieldEnum = {
-  return_id: 'return_id',
-  return_date: 'return_date',
-  product_id: 'product_id',
-  variant_id: 'variant_id',
-  quantity: 'quantity',
-  notes: 'notes',
+  source_type: 'source_type',
   status: 'status',
   created_at: 'created_at',
   created_by: 'created_by'
@@ -389,10 +378,6 @@ exports.Prisma.InboundOrderByRelevanceFieldEnum = {
   notes: 'notes'
 };
 
-exports.Prisma.ReturnOrderByRelevanceFieldEnum = {
-  notes: 'notes'
-};
-
 exports.Prisma.OutboundOrderByRelevanceFieldEnum = {
   notes: 'notes'
 };
@@ -455,12 +440,13 @@ exports.ProjectStatus = exports.$Enums.ProjectStatus = {
   CANCEL: 'CANCEL'
 };
 
-exports.InboundStatus = exports.$Enums.InboundStatus = {
-  OK: 'OK',
-  CANCEL: 'CANCEL'
+exports.InboundSourceType = exports.$Enums.InboundSourceType = {
+  PROJECT: 'PROJECT',
+  OPENING_STOCK: 'OPENING_STOCK',
+  RETURN: 'RETURN'
 };
 
-exports.ReturnStatus = exports.$Enums.ReturnStatus = {
+exports.InboundStatus = exports.$Enums.InboundStatus = {
   OK: 'OK',
   CANCEL: 'CANCEL'
 };
@@ -497,7 +483,6 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   ProjectItem: 'ProjectItem',
   Inbound: 'Inbound',
-  Return: 'Return',
   Outbound: 'Outbound',
   FashionDesign: 'FashionDesign',
   Merchandise: 'Merchandise',

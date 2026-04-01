@@ -64,11 +64,6 @@ export type ProjectItem = $Result.DefaultSelection<Prisma.$ProjectItemPayload>
  */
 export type Inbound = $Result.DefaultSelection<Prisma.$InboundPayload>
 /**
- * Model Return
- * 
- */
-export type Return = $Result.DefaultSelection<Prisma.$ReturnPayload>
-/**
  * Model Outbound
  * 
  */
@@ -157,12 +152,13 @@ export const InboundStatus: {
 export type InboundStatus = (typeof InboundStatus)[keyof typeof InboundStatus]
 
 
-export const ReturnStatus: {
-  OK: 'OK',
-  CANCEL: 'CANCEL'
+export const InboundSourceType: {
+  PROJECT: 'PROJECT',
+  OPENING_STOCK: 'OPENING_STOCK',
+  RETURN: 'RETURN'
 };
 
-export type ReturnStatus = (typeof ReturnStatus)[keyof typeof ReturnStatus]
+export type InboundSourceType = (typeof InboundSourceType)[keyof typeof InboundSourceType]
 
 
 export const OutboundStatus: {
@@ -219,9 +215,9 @@ export type InboundStatus = $Enums.InboundStatus
 
 export const InboundStatus: typeof $Enums.InboundStatus
 
-export type ReturnStatus = $Enums.ReturnStatus
+export type InboundSourceType = $Enums.InboundSourceType
 
-export const ReturnStatus: typeof $Enums.ReturnStatus
+export const InboundSourceType: typeof $Enums.InboundSourceType
 
 export type OutboundStatus = $Enums.OutboundStatus
 
@@ -456,16 +452,6 @@ export class PrismaClient<
     * ```
     */
   get inbound(): Prisma.InboundDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.return`: Exposes CRUD operations for the **Return** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Returns
-    * const returns = await prisma.return.findMany()
-    * ```
-    */
-  get return(): Prisma.ReturnDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.outbound`: Exposes CRUD operations for the **Outbound** model.
@@ -987,7 +973,6 @@ export namespace Prisma {
     Project: 'Project',
     ProjectItem: 'ProjectItem',
     Inbound: 'Inbound',
-    Return: 'Return',
     Outbound: 'Outbound',
     FashionDesign: 'FashionDesign',
     Merchandise: 'Merchandise',
@@ -1013,7 +998,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "tailor" | "variant" | "product" | "productVariant" | "import" | "order" | "project" | "projectItem" | "inbound" | "return" | "outbound" | "fashionDesign" | "merchandise" | "supplier" | "color" | "merchandiseInbound" | "merchandiseOutbound"
+      modelProps: "user" | "tailor" | "variant" | "product" | "productVariant" | "import" | "order" | "project" | "projectItem" | "inbound" | "outbound" | "fashionDesign" | "merchandise" | "supplier" | "color" | "merchandiseInbound" | "merchandiseOutbound"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1677,72 +1662,6 @@ export namespace Prisma {
           }
         }
       }
-      Return: {
-        payload: Prisma.$ReturnPayload<ExtArgs>
-        fields: Prisma.ReturnFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ReturnFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ReturnFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload>
-          }
-          findFirst: {
-            args: Prisma.ReturnFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ReturnFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload>
-          }
-          findMany: {
-            args: Prisma.ReturnFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload>[]
-          }
-          create: {
-            args: Prisma.ReturnCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload>
-          }
-          createMany: {
-            args: Prisma.ReturnCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          delete: {
-            args: Prisma.ReturnDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload>
-          }
-          update: {
-            args: Prisma.ReturnUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload>
-          }
-          deleteMany: {
-            args: Prisma.ReturnDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ReturnUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.ReturnUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReturnPayload>
-          }
-          aggregate: {
-            args: Prisma.ReturnAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateReturn>
-          }
-          groupBy: {
-            args: Prisma.ReturnGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ReturnGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ReturnCountArgs<ExtArgs>
-            result: $Utils.Optional<ReturnCountAggregateOutputType> | number
-          }
-        }
-      }
       Outbound: {
         payload: Prisma.$OutboundPayload<ExtArgs>
         fields: Prisma.OutboundFieldRefs
@@ -2311,7 +2230,6 @@ export namespace Prisma {
     project?: ProjectOmit
     projectItem?: ProjectItemOmit
     inbound?: InboundOmit
-    return?: ReturnOmit
     outbound?: OutboundOmit
     fashionDesign?: FashionDesignOmit
     merchandise?: MerchandiseOmit
@@ -2399,7 +2317,6 @@ export namespace Prisma {
    */
 
   export type UserCountOutputType = {
-    Inbound: number
     ProjectItem: number
     Project: number
     TailorCreated: number
@@ -2418,12 +2335,12 @@ export namespace Prisma {
     Outbound: number
     MerchandiseInbound: number
     MerchandiseOutbound: number
-    Return: number
     Import: number
+    InboundsAsPic: number
+    InboundsAsCreatedBy: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    Inbound?: boolean | UserCountOutputTypeCountInboundArgs
     ProjectItem?: boolean | UserCountOutputTypeCountProjectItemArgs
     Project?: boolean | UserCountOutputTypeCountProjectArgs
     TailorCreated?: boolean | UserCountOutputTypeCountTailorCreatedArgs
@@ -2442,8 +2359,9 @@ export namespace Prisma {
     Outbound?: boolean | UserCountOutputTypeCountOutboundArgs
     MerchandiseInbound?: boolean | UserCountOutputTypeCountMerchandiseInboundArgs
     MerchandiseOutbound?: boolean | UserCountOutputTypeCountMerchandiseOutboundArgs
-    Return?: boolean | UserCountOutputTypeCountReturnArgs
     Import?: boolean | UserCountOutputTypeCountImportArgs
+    InboundsAsPic?: boolean | UserCountOutputTypeCountInboundsAsPicArgs
+    InboundsAsCreatedBy?: boolean | UserCountOutputTypeCountInboundsAsCreatedByArgs
   }
 
   // Custom InputTypes
@@ -2455,13 +2373,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the UserCountOutputType
      */
     select?: UserCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountInboundArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: InboundWhereInput
   }
 
   /**
@@ -2593,15 +2504,22 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ReturnWhereInput
+  export type UserCountOutputTypeCountImportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ImportWhereInput
   }
 
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountImportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ImportWhereInput
+  export type UserCountOutputTypeCountInboundsAsPicArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InboundWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountInboundsAsCreatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InboundWhereInput
   }
 
 
@@ -2673,7 +2591,6 @@ export namespace Prisma {
     Order: number
     Outbound: number
     ProductVariant: number
-    Return: number
   }
 
   export type VariantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2682,7 +2599,6 @@ export namespace Prisma {
     Order?: boolean | VariantCountOutputTypeCountOrderArgs
     Outbound?: boolean | VariantCountOutputTypeCountOutboundArgs
     ProductVariant?: boolean | VariantCountOutputTypeCountProductVariantArgs
-    Return?: boolean | VariantCountOutputTypeCountReturnArgs
   }
 
   // Custom InputTypes
@@ -2731,13 +2647,6 @@ export namespace Prisma {
     where?: ProductVariantWhereInput
   }
 
-  /**
-   * VariantCountOutputType without action
-   */
-  export type VariantCountOutputTypeCountReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ReturnWhereInput
-  }
-
 
   /**
    * Count Type ProductCountOutputType
@@ -2750,7 +2659,6 @@ export namespace Prisma {
     MerchandiseOutbound: number
     Outbound: number
     ProductVariant: number
-    Return: number
   }
 
   export type ProductCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2760,7 +2668,6 @@ export namespace Prisma {
     MerchandiseOutbound?: boolean | ProductCountOutputTypeCountMerchandiseOutboundArgs
     Outbound?: boolean | ProductCountOutputTypeCountOutboundArgs
     ProductVariant?: boolean | ProductCountOutputTypeCountProductVariantArgs
-    Return?: boolean | ProductCountOutputTypeCountReturnArgs
   }
 
   // Custom InputTypes
@@ -2814,13 +2721,6 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountProductVariantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductVariantWhereInput
-  }
-
-  /**
-   * ProductCountOutputType without action
-   */
-  export type ProductCountOutputTypeCountReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ReturnWhereInput
   }
 
 
@@ -3262,7 +3162,6 @@ export namespace Prisma {
     full_name?: boolean
     role?: boolean
     created_at?: boolean
-    Inbound?: boolean | User$InboundArgs<ExtArgs>
     ProjectItem?: boolean | User$ProjectItemArgs<ExtArgs>
     Project?: boolean | User$ProjectArgs<ExtArgs>
     TailorCreated?: boolean | User$TailorCreatedArgs<ExtArgs>
@@ -3281,8 +3180,9 @@ export namespace Prisma {
     Outbound?: boolean | User$OutboundArgs<ExtArgs>
     MerchandiseInbound?: boolean | User$MerchandiseInboundArgs<ExtArgs>
     MerchandiseOutbound?: boolean | User$MerchandiseOutboundArgs<ExtArgs>
-    Return?: boolean | User$ReturnArgs<ExtArgs>
     Import?: boolean | User$ImportArgs<ExtArgs>
+    InboundsAsPic?: boolean | User$InboundsAsPicArgs<ExtArgs>
+    InboundsAsCreatedBy?: boolean | User$InboundsAsCreatedByArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3302,7 +3202,6 @@ export namespace Prisma {
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"user_id" | "username" | "password" | "token" | "user_agent" | "ip_address" | "full_name" | "role" | "created_at", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    Inbound?: boolean | User$InboundArgs<ExtArgs>
     ProjectItem?: boolean | User$ProjectItemArgs<ExtArgs>
     Project?: boolean | User$ProjectArgs<ExtArgs>
     TailorCreated?: boolean | User$TailorCreatedArgs<ExtArgs>
@@ -3321,15 +3220,15 @@ export namespace Prisma {
     Outbound?: boolean | User$OutboundArgs<ExtArgs>
     MerchandiseInbound?: boolean | User$MerchandiseInboundArgs<ExtArgs>
     MerchandiseOutbound?: boolean | User$MerchandiseOutboundArgs<ExtArgs>
-    Return?: boolean | User$ReturnArgs<ExtArgs>
     Import?: boolean | User$ImportArgs<ExtArgs>
+    InboundsAsPic?: boolean | User$InboundsAsPicArgs<ExtArgs>
+    InboundsAsCreatedBy?: boolean | User$InboundsAsCreatedByArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
-      Inbound: Prisma.$InboundPayload<ExtArgs>[]
       ProjectItem: Prisma.$ProjectItemPayload<ExtArgs>[]
       Project: Prisma.$ProjectPayload<ExtArgs>[]
       TailorCreated: Prisma.$TailorPayload<ExtArgs>[]
@@ -3348,8 +3247,9 @@ export namespace Prisma {
       Outbound: Prisma.$OutboundPayload<ExtArgs>[]
       MerchandiseInbound: Prisma.$MerchandiseInboundPayload<ExtArgs>[]
       MerchandiseOutbound: Prisma.$MerchandiseOutboundPayload<ExtArgs>[]
-      Return: Prisma.$ReturnPayload<ExtArgs>[]
       Import: Prisma.$ImportPayload<ExtArgs>[]
+      InboundsAsPic: Prisma.$InboundPayload<ExtArgs>[]
+      InboundsAsCreatedBy: Prisma.$InboundPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       user_id: number
@@ -3701,7 +3601,6 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    Inbound<T extends User$InboundArgs<ExtArgs> = {}>(args?: Subset<T, User$InboundArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProjectItem<T extends User$ProjectItemArgs<ExtArgs> = {}>(args?: Subset<T, User$ProjectItemArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Project<T extends User$ProjectArgs<ExtArgs> = {}>(args?: Subset<T, User$ProjectArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     TailorCreated<T extends User$TailorCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$TailorCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TailorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3720,8 +3619,9 @@ export namespace Prisma {
     Outbound<T extends User$OutboundArgs<ExtArgs> = {}>(args?: Subset<T, User$OutboundArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     MerchandiseInbound<T extends User$MerchandiseInboundArgs<ExtArgs> = {}>(args?: Subset<T, User$MerchandiseInboundArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MerchandiseInboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     MerchandiseOutbound<T extends User$MerchandiseOutboundArgs<ExtArgs> = {}>(args?: Subset<T, User$MerchandiseOutboundArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MerchandiseOutboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    Return<T extends User$ReturnArgs<ExtArgs> = {}>(args?: Subset<T, User$ReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Import<T extends User$ImportArgs<ExtArgs> = {}>(args?: Subset<T, User$ImportArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    InboundsAsPic<T extends User$InboundsAsPicArgs<ExtArgs> = {}>(args?: Subset<T, User$InboundsAsPicArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    InboundsAsCreatedBy<T extends User$InboundsAsCreatedByArgs<ExtArgs> = {}>(args?: Subset<T, User$InboundsAsCreatedByArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4100,30 +4000,6 @@ export namespace Prisma {
      * Limit how many Users to delete.
      */
     limit?: number
-  }
-
-  /**
-   * User.Inbound
-   */
-  export type User$InboundArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Inbound
-     */
-    select?: InboundSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Inbound
-     */
-    omit?: InboundOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: InboundInclude<ExtArgs> | null
-    where?: InboundWhereInput
-    orderBy?: InboundOrderByWithRelationInput | InboundOrderByWithRelationInput[]
-    cursor?: InboundWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: InboundScalarFieldEnum | InboundScalarFieldEnum[]
   }
 
   /**
@@ -4559,30 +4435,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.Return
-   */
-  export type User$ReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    where?: ReturnWhereInput
-    orderBy?: ReturnOrderByWithRelationInput | ReturnOrderByWithRelationInput[]
-    cursor?: ReturnWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
-  }
-
-  /**
    * User.Import
    */
   export type User$ImportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4604,6 +4456,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ImportScalarFieldEnum | ImportScalarFieldEnum[]
+  }
+
+  /**
+   * User.InboundsAsPic
+   */
+  export type User$InboundsAsPicArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inbound
+     */
+    select?: InboundSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inbound
+     */
+    omit?: InboundOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InboundInclude<ExtArgs> | null
+    where?: InboundWhereInput
+    orderBy?: InboundOrderByWithRelationInput | InboundOrderByWithRelationInput[]
+    cursor?: InboundWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InboundScalarFieldEnum | InboundScalarFieldEnum[]
+  }
+
+  /**
+   * User.InboundsAsCreatedBy
+   */
+  export type User$InboundsAsCreatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inbound
+     */
+    select?: InboundSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inbound
+     */
+    omit?: InboundOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InboundInclude<ExtArgs> | null
+    where?: InboundWhereInput
+    orderBy?: InboundOrderByWithRelationInput | InboundOrderByWithRelationInput[]
+    cursor?: InboundWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InboundScalarFieldEnum | InboundScalarFieldEnum[]
   }
 
   /**
@@ -5950,7 +5850,6 @@ export namespace Prisma {
     Order?: boolean | Variant$OrderArgs<ExtArgs>
     Outbound?: boolean | Variant$OutboundArgs<ExtArgs>
     ProductVariant?: boolean | Variant$ProductVariantArgs<ExtArgs>
-    Return?: boolean | Variant$ReturnArgs<ExtArgs>
     _count?: boolean | VariantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["variant"]>
 
@@ -5969,7 +5868,6 @@ export namespace Prisma {
     Order?: boolean | Variant$OrderArgs<ExtArgs>
     Outbound?: boolean | Variant$OutboundArgs<ExtArgs>
     ProductVariant?: boolean | Variant$ProductVariantArgs<ExtArgs>
-    Return?: boolean | Variant$ReturnArgs<ExtArgs>
     _count?: boolean | VariantCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -5981,7 +5879,6 @@ export namespace Prisma {
       Order: Prisma.$OrderPayload<ExtArgs>[]
       Outbound: Prisma.$OutboundPayload<ExtArgs>[]
       ProductVariant: Prisma.$ProductVariantPayload<ExtArgs>[]
-      Return: Prisma.$ReturnPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       variant_id: number
@@ -6332,7 +6229,6 @@ export namespace Prisma {
     Order<T extends Variant$OrderArgs<ExtArgs> = {}>(args?: Subset<T, Variant$OrderArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Outbound<T extends Variant$OutboundArgs<ExtArgs> = {}>(args?: Subset<T, Variant$OutboundArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductVariant<T extends Variant$ProductVariantArgs<ExtArgs> = {}>(args?: Subset<T, Variant$ProductVariantArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    Return<T extends Variant$ReturnArgs<ExtArgs> = {}>(args?: Subset<T, Variant$ReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6828,30 +6724,6 @@ export namespace Prisma {
   }
 
   /**
-   * Variant.Return
-   */
-  export type Variant$ReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    where?: ReturnWhereInput
-    orderBy?: ReturnOrderByWithRelationInput | ReturnOrderByWithRelationInput[]
-    cursor?: ReturnWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
-  }
-
-  /**
    * Variant without action
    */
   export type VariantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7124,7 +6996,6 @@ export namespace Prisma {
     MerchandiseOutbound?: boolean | Product$MerchandiseOutboundArgs<ExtArgs>
     Outbound?: boolean | Product$OutboundArgs<ExtArgs>
     ProductVariant?: boolean | Product$ProductVariantArgs<ExtArgs>
-    Return?: boolean | Product$ReturnArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
 
@@ -7152,7 +7023,6 @@ export namespace Prisma {
     MerchandiseOutbound?: boolean | Product$MerchandiseOutboundArgs<ExtArgs>
     Outbound?: boolean | Product$OutboundArgs<ExtArgs>
     ProductVariant?: boolean | Product$ProductVariantArgs<ExtArgs>
-    Return?: boolean | Product$ReturnArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -7167,7 +7037,6 @@ export namespace Prisma {
       MerchandiseOutbound: Prisma.$MerchandiseOutboundPayload<ExtArgs>[]
       Outbound: Prisma.$OutboundPayload<ExtArgs>[]
       ProductVariant: Prisma.$ProductVariantPayload<ExtArgs>[]
-      Return: Prisma.$ReturnPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       product_id: number
@@ -7527,7 +7396,6 @@ export namespace Prisma {
     MerchandiseOutbound<T extends Product$MerchandiseOutboundArgs<ExtArgs> = {}>(args?: Subset<T, Product$MerchandiseOutboundArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MerchandiseOutboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Outbound<T extends Product$OutboundArgs<ExtArgs> = {}>(args?: Subset<T, Product$OutboundArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutboundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductVariant<T extends Product$ProductVariantArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductVariantArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    Return<T extends Product$ReturnArgs<ExtArgs> = {}>(args?: Subset<T, Product$ReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8088,30 +7956,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductVariantScalarFieldEnum | ProductVariantScalarFieldEnum[]
-  }
-
-  /**
-   * Product.Return
-   */
-  export type Product$ReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    where?: ReturnWhereInput
-    orderBy?: ReturnOrderByWithRelationInput | ReturnOrderByWithRelationInput[]
-    cursor?: ReturnWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
   }
 
   /**
@@ -13625,6 +13469,7 @@ export namespace Prisma {
     variant_id: number | null
     quantity: number | null
     notes: string | null
+    source_type: $Enums.InboundSourceType | null
     status: $Enums.InboundStatus | null
     created_at: Date | null
     created_by: number | null
@@ -13640,6 +13485,7 @@ export namespace Prisma {
     variant_id: number | null
     quantity: number | null
     notes: string | null
+    source_type: $Enums.InboundSourceType | null
     status: $Enums.InboundStatus | null
     created_at: Date | null
     created_by: number | null
@@ -13655,6 +13501,7 @@ export namespace Prisma {
     variant_id: number
     quantity: number
     notes: number
+    source_type: number
     status: number
     created_at: number
     created_by: number
@@ -13694,6 +13541,7 @@ export namespace Prisma {
     variant_id?: true
     quantity?: true
     notes?: true
+    source_type?: true
     status?: true
     created_at?: true
     created_by?: true
@@ -13709,6 +13557,7 @@ export namespace Prisma {
     variant_id?: true
     quantity?: true
     notes?: true
+    source_type?: true
     status?: true
     created_at?: true
     created_by?: true
@@ -13724,6 +13573,7 @@ export namespace Prisma {
     variant_id?: true
     quantity?: true
     notes?: true
+    source_type?: true
     status?: true
     created_at?: true
     created_by?: true
@@ -13819,13 +13669,14 @@ export namespace Prisma {
   export type InboundGroupByOutputType = {
     inbound_id: number
     inbound_date: Date
-    projectitem_id: number
-    pic_id: number
-    tailor_id: number
+    projectitem_id: number | null
+    pic_id: number | null
+    tailor_id: number | null
     product_id: number
     variant_id: number
     quantity: number
     notes: string | null
+    source_type: $Enums.InboundSourceType
     status: $Enums.InboundStatus
     created_at: Date
     created_by: number | null
@@ -13860,14 +13711,16 @@ export namespace Prisma {
     variant_id?: boolean
     quantity?: boolean
     notes?: boolean
+    source_type?: boolean
     status?: boolean
     created_at?: boolean
     created_by?: boolean
     ProjectItem?: boolean | Inbound$ProjectItemArgs<ExtArgs>
-    User?: boolean | Inbound$UserArgs<ExtArgs>
     Tailor?: boolean | Inbound$TailorArgs<ExtArgs>
     Product?: boolean | Inbound$ProductArgs<ExtArgs>
     Variant?: boolean | Inbound$VariantArgs<ExtArgs>
+    Pic?: boolean | Inbound$PicArgs<ExtArgs>
+    CreatedBy?: boolean | Inbound$CreatedByArgs<ExtArgs>
   }, ExtArgs["result"]["inbound"]>
 
 
@@ -13882,39 +13735,43 @@ export namespace Prisma {
     variant_id?: boolean
     quantity?: boolean
     notes?: boolean
+    source_type?: boolean
     status?: boolean
     created_at?: boolean
     created_by?: boolean
   }
 
-  export type InboundOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"inbound_id" | "inbound_date" | "projectitem_id" | "pic_id" | "tailor_id" | "product_id" | "variant_id" | "quantity" | "notes" | "status" | "created_at" | "created_by", ExtArgs["result"]["inbound"]>
+  export type InboundOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"inbound_id" | "inbound_date" | "projectitem_id" | "pic_id" | "tailor_id" | "product_id" | "variant_id" | "quantity" | "notes" | "source_type" | "status" | "created_at" | "created_by", ExtArgs["result"]["inbound"]>
   export type InboundInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ProjectItem?: boolean | Inbound$ProjectItemArgs<ExtArgs>
-    User?: boolean | Inbound$UserArgs<ExtArgs>
     Tailor?: boolean | Inbound$TailorArgs<ExtArgs>
     Product?: boolean | Inbound$ProductArgs<ExtArgs>
     Variant?: boolean | Inbound$VariantArgs<ExtArgs>
+    Pic?: boolean | Inbound$PicArgs<ExtArgs>
+    CreatedBy?: boolean | Inbound$CreatedByArgs<ExtArgs>
   }
 
   export type $InboundPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Inbound"
     objects: {
       ProjectItem: Prisma.$ProjectItemPayload<ExtArgs> | null
-      User: Prisma.$UserPayload<ExtArgs> | null
       Tailor: Prisma.$TailorPayload<ExtArgs> | null
       Product: Prisma.$ProductPayload<ExtArgs> | null
       Variant: Prisma.$VariantPayload<ExtArgs> | null
+      Pic: Prisma.$UserPayload<ExtArgs> | null
+      CreatedBy: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       inbound_id: number
       inbound_date: Date
-      projectitem_id: number
-      pic_id: number
-      tailor_id: number
+      projectitem_id: number | null
+      pic_id: number | null
+      tailor_id: number | null
       product_id: number
       variant_id: number
       quantity: number
       notes: string | null
+      source_type: $Enums.InboundSourceType
       status: $Enums.InboundStatus
       created_at: Date
       created_by: number | null
@@ -14259,10 +14116,11 @@ export namespace Prisma {
   export interface Prisma__InboundClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     ProjectItem<T extends Inbound$ProjectItemArgs<ExtArgs> = {}>(args?: Subset<T, Inbound$ProjectItemArgs<ExtArgs>>): Prisma__ProjectItemClient<$Result.GetResult<Prisma.$ProjectItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    User<T extends Inbound$UserArgs<ExtArgs> = {}>(args?: Subset<T, Inbound$UserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     Tailor<T extends Inbound$TailorArgs<ExtArgs> = {}>(args?: Subset<T, Inbound$TailorArgs<ExtArgs>>): Prisma__TailorClient<$Result.GetResult<Prisma.$TailorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     Product<T extends Inbound$ProductArgs<ExtArgs> = {}>(args?: Subset<T, Inbound$ProductArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     Variant<T extends Inbound$VariantArgs<ExtArgs> = {}>(args?: Subset<T, Inbound$VariantArgs<ExtArgs>>): Prisma__VariantClient<$Result.GetResult<Prisma.$VariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    Pic<T extends Inbound$PicArgs<ExtArgs> = {}>(args?: Subset<T, Inbound$PicArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    CreatedBy<T extends Inbound$CreatedByArgs<ExtArgs> = {}>(args?: Subset<T, Inbound$CreatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14301,6 +14159,7 @@ export namespace Prisma {
     readonly variant_id: FieldRef<"Inbound", 'Int'>
     readonly quantity: FieldRef<"Inbound", 'Int'>
     readonly notes: FieldRef<"Inbound", 'String'>
+    readonly source_type: FieldRef<"Inbound", 'InboundSourceType'>
     readonly status: FieldRef<"Inbound", 'InboundStatus'>
     readonly created_at: FieldRef<"Inbound", 'DateTime'>
     readonly created_by: FieldRef<"Inbound", 'Int'>
@@ -14666,25 +14525,6 @@ export namespace Prisma {
   }
 
   /**
-   * Inbound.User
-   */
-  export type Inbound$UserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
    * Inbound.Tailor
    */
   export type Inbound$TailorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14742,1078 +14582,9 @@ export namespace Prisma {
   }
 
   /**
-   * Inbound without action
+   * Inbound.Pic
    */
-  export type InboundDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Inbound
-     */
-    select?: InboundSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Inbound
-     */
-    omit?: InboundOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: InboundInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Return
-   */
-
-  export type AggregateReturn = {
-    _count: ReturnCountAggregateOutputType | null
-    _avg: ReturnAvgAggregateOutputType | null
-    _sum: ReturnSumAggregateOutputType | null
-    _min: ReturnMinAggregateOutputType | null
-    _max: ReturnMaxAggregateOutputType | null
-  }
-
-  export type ReturnAvgAggregateOutputType = {
-    return_id: number | null
-    product_id: number | null
-    variant_id: number | null
-    quantity: number | null
-    created_by: number | null
-  }
-
-  export type ReturnSumAggregateOutputType = {
-    return_id: number | null
-    product_id: number | null
-    variant_id: number | null
-    quantity: number | null
-    created_by: number | null
-  }
-
-  export type ReturnMinAggregateOutputType = {
-    return_id: number | null
-    return_date: Date | null
-    product_id: number | null
-    variant_id: number | null
-    quantity: number | null
-    notes: string | null
-    status: $Enums.ReturnStatus | null
-    created_at: Date | null
-    created_by: number | null
-  }
-
-  export type ReturnMaxAggregateOutputType = {
-    return_id: number | null
-    return_date: Date | null
-    product_id: number | null
-    variant_id: number | null
-    quantity: number | null
-    notes: string | null
-    status: $Enums.ReturnStatus | null
-    created_at: Date | null
-    created_by: number | null
-  }
-
-  export type ReturnCountAggregateOutputType = {
-    return_id: number
-    return_date: number
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes: number
-    status: number
-    created_at: number
-    created_by: number
-    _all: number
-  }
-
-
-  export type ReturnAvgAggregateInputType = {
-    return_id?: true
-    product_id?: true
-    variant_id?: true
-    quantity?: true
-    created_by?: true
-  }
-
-  export type ReturnSumAggregateInputType = {
-    return_id?: true
-    product_id?: true
-    variant_id?: true
-    quantity?: true
-    created_by?: true
-  }
-
-  export type ReturnMinAggregateInputType = {
-    return_id?: true
-    return_date?: true
-    product_id?: true
-    variant_id?: true
-    quantity?: true
-    notes?: true
-    status?: true
-    created_at?: true
-    created_by?: true
-  }
-
-  export type ReturnMaxAggregateInputType = {
-    return_id?: true
-    return_date?: true
-    product_id?: true
-    variant_id?: true
-    quantity?: true
-    notes?: true
-    status?: true
-    created_at?: true
-    created_by?: true
-  }
-
-  export type ReturnCountAggregateInputType = {
-    return_id?: true
-    return_date?: true
-    product_id?: true
-    variant_id?: true
-    quantity?: true
-    notes?: true
-    status?: true
-    created_at?: true
-    created_by?: true
-    _all?: true
-  }
-
-  export type ReturnAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Return to aggregate.
-     */
-    where?: ReturnWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Returns to fetch.
-     */
-    orderBy?: ReturnOrderByWithRelationInput | ReturnOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ReturnWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Returns from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Returns.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Returns
-    **/
-    _count?: true | ReturnCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: ReturnAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: ReturnSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ReturnMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ReturnMaxAggregateInputType
-  }
-
-  export type GetReturnAggregateType<T extends ReturnAggregateArgs> = {
-        [P in keyof T & keyof AggregateReturn]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateReturn[P]>
-      : GetScalarType<T[P], AggregateReturn[P]>
-  }
-
-
-
-
-  export type ReturnGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ReturnWhereInput
-    orderBy?: ReturnOrderByWithAggregationInput | ReturnOrderByWithAggregationInput[]
-    by: ReturnScalarFieldEnum[] | ReturnScalarFieldEnum
-    having?: ReturnScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ReturnCountAggregateInputType | true
-    _avg?: ReturnAvgAggregateInputType
-    _sum?: ReturnSumAggregateInputType
-    _min?: ReturnMinAggregateInputType
-    _max?: ReturnMaxAggregateInputType
-  }
-
-  export type ReturnGroupByOutputType = {
-    return_id: number
-    return_date: Date
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes: string | null
-    status: $Enums.ReturnStatus
-    created_at: Date
-    created_by: number | null
-    _count: ReturnCountAggregateOutputType | null
-    _avg: ReturnAvgAggregateOutputType | null
-    _sum: ReturnSumAggregateOutputType | null
-    _min: ReturnMinAggregateOutputType | null
-    _max: ReturnMaxAggregateOutputType | null
-  }
-
-  type GetReturnGroupByPayload<T extends ReturnGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ReturnGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ReturnGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ReturnGroupByOutputType[P]>
-            : GetScalarType<T[P], ReturnGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ReturnSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    return_id?: boolean
-    return_date?: boolean
-    product_id?: boolean
-    variant_id?: boolean
-    quantity?: boolean
-    notes?: boolean
-    status?: boolean
-    created_at?: boolean
-    created_by?: boolean
-    Product?: boolean | Return$ProductArgs<ExtArgs>
-    Variant?: boolean | Return$VariantArgs<ExtArgs>
-    User?: boolean | Return$UserArgs<ExtArgs>
-  }, ExtArgs["result"]["return"]>
-
-
-
-  export type ReturnSelectScalar = {
-    return_id?: boolean
-    return_date?: boolean
-    product_id?: boolean
-    variant_id?: boolean
-    quantity?: boolean
-    notes?: boolean
-    status?: boolean
-    created_at?: boolean
-    created_by?: boolean
-  }
-
-  export type ReturnOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"return_id" | "return_date" | "product_id" | "variant_id" | "quantity" | "notes" | "status" | "created_at" | "created_by", ExtArgs["result"]["return"]>
-  export type ReturnInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    Product?: boolean | Return$ProductArgs<ExtArgs>
-    Variant?: boolean | Return$VariantArgs<ExtArgs>
-    User?: boolean | Return$UserArgs<ExtArgs>
-  }
-
-  export type $ReturnPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Return"
-    objects: {
-      Product: Prisma.$ProductPayload<ExtArgs> | null
-      Variant: Prisma.$VariantPayload<ExtArgs> | null
-      User: Prisma.$UserPayload<ExtArgs> | null
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      return_id: number
-      return_date: Date
-      product_id: number
-      variant_id: number
-      quantity: number
-      notes: string | null
-      status: $Enums.ReturnStatus
-      created_at: Date
-      created_by: number | null
-    }, ExtArgs["result"]["return"]>
-    composites: {}
-  }
-
-  type ReturnGetPayload<S extends boolean | null | undefined | ReturnDefaultArgs> = $Result.GetResult<Prisma.$ReturnPayload, S>
-
-  type ReturnCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ReturnFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ReturnCountAggregateInputType | true
-    }
-
-  export interface ReturnDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Return'], meta: { name: 'Return' } }
-    /**
-     * Find zero or one Return that matches the filter.
-     * @param {ReturnFindUniqueArgs} args - Arguments to find a Return
-     * @example
-     * // Get one Return
-     * const return = await prisma.return.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ReturnFindUniqueArgs>(args: SelectSubset<T, ReturnFindUniqueArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Return that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {ReturnFindUniqueOrThrowArgs} args - Arguments to find a Return
-     * @example
-     * // Get one Return
-     * const return = await prisma.return.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ReturnFindUniqueOrThrowArgs>(args: SelectSubset<T, ReturnFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Return that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReturnFindFirstArgs} args - Arguments to find a Return
-     * @example
-     * // Get one Return
-     * const return = await prisma.return.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ReturnFindFirstArgs>(args?: SelectSubset<T, ReturnFindFirstArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Return that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReturnFindFirstOrThrowArgs} args - Arguments to find a Return
-     * @example
-     * // Get one Return
-     * const return = await prisma.return.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ReturnFindFirstOrThrowArgs>(args?: SelectSubset<T, ReturnFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Returns that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReturnFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Returns
-     * const returns = await prisma.return.findMany()
-     * 
-     * // Get first 10 Returns
-     * const returns = await prisma.return.findMany({ take: 10 })
-     * 
-     * // Only select the `return_id`
-     * const returnWithReturn_idOnly = await prisma.return.findMany({ select: { return_id: true } })
-     * 
-     */
-    findMany<T extends ReturnFindManyArgs>(args?: SelectSubset<T, ReturnFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Return.
-     * @param {ReturnCreateArgs} args - Arguments to create a Return.
-     * @example
-     * // Create one Return
-     * const Return = await prisma.return.create({
-     *   data: {
-     *     // ... data to create a Return
-     *   }
-     * })
-     * 
-     */
-    create<T extends ReturnCreateArgs>(args: SelectSubset<T, ReturnCreateArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Returns.
-     * @param {ReturnCreateManyArgs} args - Arguments to create many Returns.
-     * @example
-     * // Create many Returns
-     * const return = await prisma.return.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ReturnCreateManyArgs>(args?: SelectSubset<T, ReturnCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a Return.
-     * @param {ReturnDeleteArgs} args - Arguments to delete one Return.
-     * @example
-     * // Delete one Return
-     * const Return = await prisma.return.delete({
-     *   where: {
-     *     // ... filter to delete one Return
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ReturnDeleteArgs>(args: SelectSubset<T, ReturnDeleteArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Return.
-     * @param {ReturnUpdateArgs} args - Arguments to update one Return.
-     * @example
-     * // Update one Return
-     * const return = await prisma.return.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ReturnUpdateArgs>(args: SelectSubset<T, ReturnUpdateArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Returns.
-     * @param {ReturnDeleteManyArgs} args - Arguments to filter Returns to delete.
-     * @example
-     * // Delete a few Returns
-     * const { count } = await prisma.return.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ReturnDeleteManyArgs>(args?: SelectSubset<T, ReturnDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Returns.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReturnUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Returns
-     * const return = await prisma.return.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ReturnUpdateManyArgs>(args: SelectSubset<T, ReturnUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Return.
-     * @param {ReturnUpsertArgs} args - Arguments to update or create a Return.
-     * @example
-     * // Update or create a Return
-     * const return = await prisma.return.upsert({
-     *   create: {
-     *     // ... data to create a Return
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Return we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ReturnUpsertArgs>(args: SelectSubset<T, ReturnUpsertArgs<ExtArgs>>): Prisma__ReturnClient<$Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Returns.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReturnCountArgs} args - Arguments to filter Returns to count.
-     * @example
-     * // Count the number of Returns
-     * const count = await prisma.return.count({
-     *   where: {
-     *     // ... the filter for the Returns we want to count
-     *   }
-     * })
-    **/
-    count<T extends ReturnCountArgs>(
-      args?: Subset<T, ReturnCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ReturnCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Return.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReturnAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ReturnAggregateArgs>(args: Subset<T, ReturnAggregateArgs>): Prisma.PrismaPromise<GetReturnAggregateType<T>>
-
-    /**
-     * Group by Return.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReturnGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ReturnGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ReturnGroupByArgs['orderBy'] }
-        : { orderBy?: ReturnGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ReturnGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReturnGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Return model
-   */
-  readonly fields: ReturnFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Return.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ReturnClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    Product<T extends Return$ProductArgs<ExtArgs> = {}>(args?: Subset<T, Return$ProductArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    Variant<T extends Return$VariantArgs<ExtArgs> = {}>(args?: Subset<T, Return$VariantArgs<ExtArgs>>): Prisma__VariantClient<$Result.GetResult<Prisma.$VariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    User<T extends Return$UserArgs<ExtArgs> = {}>(args?: Subset<T, Return$UserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Return model
-   */
-  interface ReturnFieldRefs {
-    readonly return_id: FieldRef<"Return", 'Int'>
-    readonly return_date: FieldRef<"Return", 'DateTime'>
-    readonly product_id: FieldRef<"Return", 'Int'>
-    readonly variant_id: FieldRef<"Return", 'Int'>
-    readonly quantity: FieldRef<"Return", 'Int'>
-    readonly notes: FieldRef<"Return", 'String'>
-    readonly status: FieldRef<"Return", 'ReturnStatus'>
-    readonly created_at: FieldRef<"Return", 'DateTime'>
-    readonly created_by: FieldRef<"Return", 'Int'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Return findUnique
-   */
-  export type ReturnFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * Filter, which Return to fetch.
-     */
-    where: ReturnWhereUniqueInput
-  }
-
-  /**
-   * Return findUniqueOrThrow
-   */
-  export type ReturnFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * Filter, which Return to fetch.
-     */
-    where: ReturnWhereUniqueInput
-  }
-
-  /**
-   * Return findFirst
-   */
-  export type ReturnFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * Filter, which Return to fetch.
-     */
-    where?: ReturnWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Returns to fetch.
-     */
-    orderBy?: ReturnOrderByWithRelationInput | ReturnOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Returns.
-     */
-    cursor?: ReturnWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Returns from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Returns.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Returns.
-     */
-    distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
-  }
-
-  /**
-   * Return findFirstOrThrow
-   */
-  export type ReturnFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * Filter, which Return to fetch.
-     */
-    where?: ReturnWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Returns to fetch.
-     */
-    orderBy?: ReturnOrderByWithRelationInput | ReturnOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Returns.
-     */
-    cursor?: ReturnWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Returns from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Returns.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Returns.
-     */
-    distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
-  }
-
-  /**
-   * Return findMany
-   */
-  export type ReturnFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * Filter, which Returns to fetch.
-     */
-    where?: ReturnWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Returns to fetch.
-     */
-    orderBy?: ReturnOrderByWithRelationInput | ReturnOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Returns.
-     */
-    cursor?: ReturnWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Returns from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Returns.
-     */
-    skip?: number
-    distinct?: ReturnScalarFieldEnum | ReturnScalarFieldEnum[]
-  }
-
-  /**
-   * Return create
-   */
-  export type ReturnCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Return.
-     */
-    data: XOR<ReturnCreateInput, ReturnUncheckedCreateInput>
-  }
-
-  /**
-   * Return createMany
-   */
-  export type ReturnCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Returns.
-     */
-    data: ReturnCreateManyInput | ReturnCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Return update
-   */
-  export type ReturnUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Return.
-     */
-    data: XOR<ReturnUpdateInput, ReturnUncheckedUpdateInput>
-    /**
-     * Choose, which Return to update.
-     */
-    where: ReturnWhereUniqueInput
-  }
-
-  /**
-   * Return updateMany
-   */
-  export type ReturnUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Returns.
-     */
-    data: XOR<ReturnUpdateManyMutationInput, ReturnUncheckedUpdateManyInput>
-    /**
-     * Filter which Returns to update
-     */
-    where?: ReturnWhereInput
-    /**
-     * Limit how many Returns to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Return upsert
-   */
-  export type ReturnUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Return to update in case it exists.
-     */
-    where: ReturnWhereUniqueInput
-    /**
-     * In case the Return found by the `where` argument doesn't exist, create a new Return with this data.
-     */
-    create: XOR<ReturnCreateInput, ReturnUncheckedCreateInput>
-    /**
-     * In case the Return was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ReturnUpdateInput, ReturnUncheckedUpdateInput>
-  }
-
-  /**
-   * Return delete
-   */
-  export type ReturnDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Return
-     */
-    select?: ReturnSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Return
-     */
-    omit?: ReturnOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ReturnInclude<ExtArgs> | null
-    /**
-     * Filter which Return to delete.
-     */
-    where: ReturnWhereUniqueInput
-  }
-
-  /**
-   * Return deleteMany
-   */
-  export type ReturnDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Returns to delete
-     */
-    where?: ReturnWhereInput
-    /**
-     * Limit how many Returns to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Return.Product
-   */
-  export type Return$ProductArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Product
-     */
-    select?: ProductSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Product
-     */
-    omit?: ProductOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ProductInclude<ExtArgs> | null
-    where?: ProductWhereInput
-  }
-
-  /**
-   * Return.Variant
-   */
-  export type Return$VariantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Variant
-     */
-    select?: VariantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Variant
-     */
-    omit?: VariantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VariantInclude<ExtArgs> | null
-    where?: VariantWhereInput
-  }
-
-  /**
-   * Return.User
-   */
-  export type Return$UserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Inbound$PicArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the User
      */
@@ -15830,21 +14601,40 @@ export namespace Prisma {
   }
 
   /**
-   * Return without action
+   * Inbound.CreatedBy
    */
-  export type ReturnDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Inbound$CreatedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Return
+     * Select specific fields to fetch from the User
      */
-    select?: ReturnSelect<ExtArgs> | null
+    select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Return
+     * Omit specific fields from the User
      */
-    omit?: ReturnOmit<ExtArgs> | null
+    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReturnInclude<ExtArgs> | null
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Inbound without action
+   */
+  export type InboundDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inbound
+     */
+    select?: InboundSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inbound
+     */
+    omit?: InboundOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InboundInclude<ExtArgs> | null
   }
 
 
@@ -23833,27 +22623,13 @@ export namespace Prisma {
     variant_id: 'variant_id',
     quantity: 'quantity',
     notes: 'notes',
+    source_type: 'source_type',
     status: 'status',
     created_at: 'created_at',
     created_by: 'created_by'
   };
 
   export type InboundScalarFieldEnum = (typeof InboundScalarFieldEnum)[keyof typeof InboundScalarFieldEnum]
-
-
-  export const ReturnScalarFieldEnum: {
-    return_id: 'return_id',
-    return_date: 'return_date',
-    product_id: 'product_id',
-    variant_id: 'variant_id',
-    quantity: 'quantity',
-    notes: 'notes',
-    status: 'status',
-    created_at: 'created_at',
-    created_by: 'created_by'
-  };
-
-  export type ReturnScalarFieldEnum = (typeof ReturnScalarFieldEnum)[keyof typeof ReturnScalarFieldEnum]
 
 
   export const OutboundScalarFieldEnum: {
@@ -24051,13 +22827,6 @@ export namespace Prisma {
   export type InboundOrderByRelevanceFieldEnum = (typeof InboundOrderByRelevanceFieldEnum)[keyof typeof InboundOrderByRelevanceFieldEnum]
 
 
-  export const ReturnOrderByRelevanceFieldEnum: {
-    notes: 'notes'
-  };
-
-  export type ReturnOrderByRelevanceFieldEnum = (typeof ReturnOrderByRelevanceFieldEnum)[keyof typeof ReturnOrderByRelevanceFieldEnum]
-
-
   export const OutboundOrderByRelevanceFieldEnum: {
     notes: 'notes'
   };
@@ -24175,16 +22944,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'InboundStatus'
+   * Reference to a field of type 'InboundSourceType'
    */
-  export type EnumInboundStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InboundStatus'>
+  export type EnumInboundSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InboundSourceType'>
     
 
 
   /**
-   * Reference to a field of type 'ReturnStatus'
+   * Reference to a field of type 'InboundStatus'
    */
-  export type EnumReturnStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReturnStatus'>
+  export type EnumInboundStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InboundStatus'>
     
 
 
@@ -24239,7 +23008,6 @@ export namespace Prisma {
     full_name?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     created_at?: DateTimeFilter<"User"> | Date | string
-    Inbound?: InboundListRelationFilter
     ProjectItem?: ProjectItemListRelationFilter
     Project?: ProjectListRelationFilter
     TailorCreated?: TailorListRelationFilter
@@ -24258,8 +23026,9 @@ export namespace Prisma {
     Outbound?: OutboundListRelationFilter
     MerchandiseInbound?: MerchandiseInboundListRelationFilter
     MerchandiseOutbound?: MerchandiseOutboundListRelationFilter
-    Return?: ReturnListRelationFilter
     Import?: ImportListRelationFilter
+    InboundsAsPic?: InboundListRelationFilter
+    InboundsAsCreatedBy?: InboundListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -24272,7 +23041,6 @@ export namespace Prisma {
     full_name?: SortOrder
     role?: SortOrder
     created_at?: SortOrder
-    Inbound?: InboundOrderByRelationAggregateInput
     ProjectItem?: ProjectItemOrderByRelationAggregateInput
     Project?: ProjectOrderByRelationAggregateInput
     TailorCreated?: TailorOrderByRelationAggregateInput
@@ -24291,8 +23059,9 @@ export namespace Prisma {
     Outbound?: OutboundOrderByRelationAggregateInput
     MerchandiseInbound?: MerchandiseInboundOrderByRelationAggregateInput
     MerchandiseOutbound?: MerchandiseOutboundOrderByRelationAggregateInput
-    Return?: ReturnOrderByRelationAggregateInput
     Import?: ImportOrderByRelationAggregateInput
+    InboundsAsPic?: InboundOrderByRelationAggregateInput
+    InboundsAsCreatedBy?: InboundOrderByRelationAggregateInput
     _relevance?: UserOrderByRelevanceInput
   }
 
@@ -24309,7 +23078,6 @@ export namespace Prisma {
     full_name?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     created_at?: DateTimeFilter<"User"> | Date | string
-    Inbound?: InboundListRelationFilter
     ProjectItem?: ProjectItemListRelationFilter
     Project?: ProjectListRelationFilter
     TailorCreated?: TailorListRelationFilter
@@ -24328,8 +23096,9 @@ export namespace Prisma {
     Outbound?: OutboundListRelationFilter
     MerchandiseInbound?: MerchandiseInboundListRelationFilter
     MerchandiseOutbound?: MerchandiseOutboundListRelationFilter
-    Return?: ReturnListRelationFilter
     Import?: ImportListRelationFilter
+    InboundsAsPic?: InboundListRelationFilter
+    InboundsAsCreatedBy?: InboundListRelationFilter
   }, "user_id" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -24454,7 +23223,6 @@ export namespace Prisma {
     Order?: OrderListRelationFilter
     Outbound?: OutboundListRelationFilter
     ProductVariant?: ProductVariantListRelationFilter
-    Return?: ReturnListRelationFilter
   }
 
   export type VariantOrderByWithRelationInput = {
@@ -24466,7 +23234,6 @@ export namespace Prisma {
     Order?: OrderOrderByRelationAggregateInput
     Outbound?: OutboundOrderByRelationAggregateInput
     ProductVariant?: ProductVariantOrderByRelationAggregateInput
-    Return?: ReturnOrderByRelationAggregateInput
     _relevance?: VariantOrderByRelevanceInput
   }
 
@@ -24482,7 +23249,6 @@ export namespace Prisma {
     Order?: OrderListRelationFilter
     Outbound?: OutboundListRelationFilter
     ProductVariant?: ProductVariantListRelationFilter
-    Return?: ReturnListRelationFilter
   }, "variant_id" | "variant_name">
 
   export type VariantOrderByWithAggregationInput = {
@@ -24526,7 +23292,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundListRelationFilter
     Outbound?: OutboundListRelationFilter
     ProductVariant?: ProductVariantListRelationFilter
-    Return?: ReturnListRelationFilter
   }
 
   export type ProductOrderByWithRelationInput = {
@@ -24547,7 +23312,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundOrderByRelationAggregateInput
     Outbound?: OutboundOrderByRelationAggregateInput
     ProductVariant?: ProductVariantOrderByRelationAggregateInput
-    Return?: ReturnOrderByRelationAggregateInput
     _relevance?: ProductOrderByRelevanceInput
   }
 
@@ -24572,7 +23336,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundListRelationFilter
     Outbound?: OutboundListRelationFilter
     ProductVariant?: ProductVariantListRelationFilter
-    Return?: ReturnListRelationFilter
   }, "product_id" | "product_name">
 
   export type ProductOrderByWithAggregationInput = {
@@ -25026,41 +23789,45 @@ export namespace Prisma {
     NOT?: InboundWhereInput | InboundWhereInput[]
     inbound_id?: IntFilter<"Inbound"> | number
     inbound_date?: DateTimeFilter<"Inbound"> | Date | string
-    projectitem_id?: IntFilter<"Inbound"> | number
-    pic_id?: IntFilter<"Inbound"> | number
-    tailor_id?: IntFilter<"Inbound"> | number
+    projectitem_id?: IntNullableFilter<"Inbound"> | number | null
+    pic_id?: IntNullableFilter<"Inbound"> | number | null
+    tailor_id?: IntNullableFilter<"Inbound"> | number | null
     product_id?: IntFilter<"Inbound"> | number
     variant_id?: IntFilter<"Inbound"> | number
     quantity?: IntFilter<"Inbound"> | number
     notes?: StringNullableFilter<"Inbound"> | string | null
+    source_type?: EnumInboundSourceTypeFilter<"Inbound"> | $Enums.InboundSourceType
     status?: EnumInboundStatusFilter<"Inbound"> | $Enums.InboundStatus
     created_at?: DateTimeFilter<"Inbound"> | Date | string
     created_by?: IntNullableFilter<"Inbound"> | number | null
     ProjectItem?: XOR<ProjectItemNullableScalarRelationFilter, ProjectItemWhereInput> | null
-    User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     Tailor?: XOR<TailorNullableScalarRelationFilter, TailorWhereInput> | null
     Product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
     Variant?: XOR<VariantNullableScalarRelationFilter, VariantWhereInput> | null
+    Pic?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    CreatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type InboundOrderByWithRelationInput = {
     inbound_id?: SortOrder
     inbound_date?: SortOrder
-    projectitem_id?: SortOrder
-    pic_id?: SortOrder
-    tailor_id?: SortOrder
+    projectitem_id?: SortOrderInput | SortOrder
+    pic_id?: SortOrderInput | SortOrder
+    tailor_id?: SortOrderInput | SortOrder
     product_id?: SortOrder
     variant_id?: SortOrder
     quantity?: SortOrder
     notes?: SortOrderInput | SortOrder
+    source_type?: SortOrder
     status?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrderInput | SortOrder
     ProjectItem?: ProjectItemOrderByWithRelationInput
-    User?: UserOrderByWithRelationInput
     Tailor?: TailorOrderByWithRelationInput
     Product?: ProductOrderByWithRelationInput
     Variant?: VariantOrderByWithRelationInput
+    Pic?: UserOrderByWithRelationInput
+    CreatedBy?: UserOrderByWithRelationInput
     _relevance?: InboundOrderByRelevanceInput
   }
 
@@ -25070,33 +23837,36 @@ export namespace Prisma {
     OR?: InboundWhereInput[]
     NOT?: InboundWhereInput | InboundWhereInput[]
     inbound_date?: DateTimeFilter<"Inbound"> | Date | string
-    projectitem_id?: IntFilter<"Inbound"> | number
-    pic_id?: IntFilter<"Inbound"> | number
-    tailor_id?: IntFilter<"Inbound"> | number
+    projectitem_id?: IntNullableFilter<"Inbound"> | number | null
+    pic_id?: IntNullableFilter<"Inbound"> | number | null
+    tailor_id?: IntNullableFilter<"Inbound"> | number | null
     product_id?: IntFilter<"Inbound"> | number
     variant_id?: IntFilter<"Inbound"> | number
     quantity?: IntFilter<"Inbound"> | number
     notes?: StringNullableFilter<"Inbound"> | string | null
+    source_type?: EnumInboundSourceTypeFilter<"Inbound"> | $Enums.InboundSourceType
     status?: EnumInboundStatusFilter<"Inbound"> | $Enums.InboundStatus
     created_at?: DateTimeFilter<"Inbound"> | Date | string
     created_by?: IntNullableFilter<"Inbound"> | number | null
     ProjectItem?: XOR<ProjectItemNullableScalarRelationFilter, ProjectItemWhereInput> | null
-    User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     Tailor?: XOR<TailorNullableScalarRelationFilter, TailorWhereInput> | null
     Product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
     Variant?: XOR<VariantNullableScalarRelationFilter, VariantWhereInput> | null
+    Pic?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    CreatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "inbound_id">
 
   export type InboundOrderByWithAggregationInput = {
     inbound_id?: SortOrder
     inbound_date?: SortOrder
-    projectitem_id?: SortOrder
-    pic_id?: SortOrder
-    tailor_id?: SortOrder
+    projectitem_id?: SortOrderInput | SortOrder
+    pic_id?: SortOrderInput | SortOrder
+    tailor_id?: SortOrderInput | SortOrder
     product_id?: SortOrder
     variant_id?: SortOrder
     quantity?: SortOrder
     notes?: SortOrderInput | SortOrder
+    source_type?: SortOrder
     status?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrderInput | SortOrder
@@ -25113,100 +23883,17 @@ export namespace Prisma {
     NOT?: InboundScalarWhereWithAggregatesInput | InboundScalarWhereWithAggregatesInput[]
     inbound_id?: IntWithAggregatesFilter<"Inbound"> | number
     inbound_date?: DateTimeWithAggregatesFilter<"Inbound"> | Date | string
-    projectitem_id?: IntWithAggregatesFilter<"Inbound"> | number
-    pic_id?: IntWithAggregatesFilter<"Inbound"> | number
-    tailor_id?: IntWithAggregatesFilter<"Inbound"> | number
+    projectitem_id?: IntNullableWithAggregatesFilter<"Inbound"> | number | null
+    pic_id?: IntNullableWithAggregatesFilter<"Inbound"> | number | null
+    tailor_id?: IntNullableWithAggregatesFilter<"Inbound"> | number | null
     product_id?: IntWithAggregatesFilter<"Inbound"> | number
     variant_id?: IntWithAggregatesFilter<"Inbound"> | number
     quantity?: IntWithAggregatesFilter<"Inbound"> | number
     notes?: StringNullableWithAggregatesFilter<"Inbound"> | string | null
+    source_type?: EnumInboundSourceTypeWithAggregatesFilter<"Inbound"> | $Enums.InboundSourceType
     status?: EnumInboundStatusWithAggregatesFilter<"Inbound"> | $Enums.InboundStatus
     created_at?: DateTimeWithAggregatesFilter<"Inbound"> | Date | string
     created_by?: IntNullableWithAggregatesFilter<"Inbound"> | number | null
-  }
-
-  export type ReturnWhereInput = {
-    AND?: ReturnWhereInput | ReturnWhereInput[]
-    OR?: ReturnWhereInput[]
-    NOT?: ReturnWhereInput | ReturnWhereInput[]
-    return_id?: IntFilter<"Return"> | number
-    return_date?: DateTimeFilter<"Return"> | Date | string
-    product_id?: IntFilter<"Return"> | number
-    variant_id?: IntFilter<"Return"> | number
-    quantity?: IntFilter<"Return"> | number
-    notes?: StringNullableFilter<"Return"> | string | null
-    status?: EnumReturnStatusFilter<"Return"> | $Enums.ReturnStatus
-    created_at?: DateTimeFilter<"Return"> | Date | string
-    created_by?: IntNullableFilter<"Return"> | number | null
-    Product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
-    Variant?: XOR<VariantNullableScalarRelationFilter, VariantWhereInput> | null
-    User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }
-
-  export type ReturnOrderByWithRelationInput = {
-    return_id?: SortOrder
-    return_date?: SortOrder
-    product_id?: SortOrder
-    variant_id?: SortOrder
-    quantity?: SortOrder
-    notes?: SortOrderInput | SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    created_by?: SortOrderInput | SortOrder
-    Product?: ProductOrderByWithRelationInput
-    Variant?: VariantOrderByWithRelationInput
-    User?: UserOrderByWithRelationInput
-    _relevance?: ReturnOrderByRelevanceInput
-  }
-
-  export type ReturnWhereUniqueInput = Prisma.AtLeast<{
-    return_id?: number
-    AND?: ReturnWhereInput | ReturnWhereInput[]
-    OR?: ReturnWhereInput[]
-    NOT?: ReturnWhereInput | ReturnWhereInput[]
-    return_date?: DateTimeFilter<"Return"> | Date | string
-    product_id?: IntFilter<"Return"> | number
-    variant_id?: IntFilter<"Return"> | number
-    quantity?: IntFilter<"Return"> | number
-    notes?: StringNullableFilter<"Return"> | string | null
-    status?: EnumReturnStatusFilter<"Return"> | $Enums.ReturnStatus
-    created_at?: DateTimeFilter<"Return"> | Date | string
-    created_by?: IntNullableFilter<"Return"> | number | null
-    Product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
-    Variant?: XOR<VariantNullableScalarRelationFilter, VariantWhereInput> | null
-    User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }, "return_id">
-
-  export type ReturnOrderByWithAggregationInput = {
-    return_id?: SortOrder
-    return_date?: SortOrder
-    product_id?: SortOrder
-    variant_id?: SortOrder
-    quantity?: SortOrder
-    notes?: SortOrderInput | SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    created_by?: SortOrderInput | SortOrder
-    _count?: ReturnCountOrderByAggregateInput
-    _avg?: ReturnAvgOrderByAggregateInput
-    _max?: ReturnMaxOrderByAggregateInput
-    _min?: ReturnMinOrderByAggregateInput
-    _sum?: ReturnSumOrderByAggregateInput
-  }
-
-  export type ReturnScalarWhereWithAggregatesInput = {
-    AND?: ReturnScalarWhereWithAggregatesInput | ReturnScalarWhereWithAggregatesInput[]
-    OR?: ReturnScalarWhereWithAggregatesInput[]
-    NOT?: ReturnScalarWhereWithAggregatesInput | ReturnScalarWhereWithAggregatesInput[]
-    return_id?: IntWithAggregatesFilter<"Return"> | number
-    return_date?: DateTimeWithAggregatesFilter<"Return"> | Date | string
-    product_id?: IntWithAggregatesFilter<"Return"> | number
-    variant_id?: IntWithAggregatesFilter<"Return"> | number
-    quantity?: IntWithAggregatesFilter<"Return"> | number
-    notes?: StringNullableWithAggregatesFilter<"Return"> | string | null
-    status?: EnumReturnStatusWithAggregatesFilter<"Return"> | $Enums.ReturnStatus
-    created_at?: DateTimeWithAggregatesFilter<"Return"> | Date | string
-    created_by?: IntNullableWithAggregatesFilter<"Return"> | number | null
   }
 
   export type OutboundWhereInput = {
@@ -25856,7 +24543,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -25875,8 +24561,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -25889,7 +24576,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -25908,8 +24594,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUpdateInput = {
@@ -25921,7 +24608,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -25940,8 +24626,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -25954,7 +24641,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -25973,8 +24659,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -26094,7 +24781,6 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutVariantInput
     Outbound?: OutboundCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutVariantInput
-    Return?: ReturnCreateNestedManyWithoutVariantInput
   }
 
   export type VariantUncheckedCreateInput = {
@@ -26106,7 +24792,6 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutVariantInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutVariantInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutVariantInput
   }
 
   export type VariantUpdateInput = {
@@ -26117,7 +24802,6 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUpdateManyWithoutVariantNestedInput
   }
 
   export type VariantUncheckedUpdateInput = {
@@ -26129,7 +24813,6 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutVariantNestedInput
   }
 
   export type VariantCreateManyInput = {
@@ -26164,7 +24847,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateInput = {
@@ -26183,7 +24865,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductUpdateInput = {
@@ -26201,7 +24882,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateInput = {
@@ -26220,7 +24900,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateManyInput = {
@@ -26651,26 +25330,28 @@ export namespace Prisma {
     inbound_date: Date | string
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
-    created_by?: number | null
     ProjectItem?: ProjectItemCreateNestedOneWithoutInboundInput
-    User?: UserCreateNestedOneWithoutInboundInput
     Tailor?: TailorCreateNestedOneWithoutInboundInput
     Product?: ProductCreateNestedOneWithoutInboundInput
     Variant?: VariantCreateNestedOneWithoutInboundInput
+    Pic?: UserCreateNestedOneWithoutInboundsAsPicInput
+    CreatedBy?: UserCreateNestedOneWithoutInboundsAsCreatedByInput
   }
 
   export type InboundUncheckedCreateInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
-    tailor_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
     product_id: number
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -26680,26 +25361,28 @@ export namespace Prisma {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
     ProjectItem?: ProjectItemUpdateOneWithoutInboundNestedInput
-    User?: UserUpdateOneWithoutInboundNestedInput
     Tailor?: TailorUpdateOneWithoutInboundNestedInput
     Product?: ProductUpdateOneWithoutInboundNestedInput
     Variant?: VariantUpdateOneWithoutInboundNestedInput
+    Pic?: UserUpdateOneWithoutInboundsAsPicNestedInput
+    CreatedBy?: UserUpdateOneWithoutInboundsAsCreatedByNestedInput
   }
 
   export type InboundUncheckedUpdateInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26708,13 +25391,14 @@ export namespace Prisma {
   export type InboundCreateManyInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
-    tailor_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
     product_id: number
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -26724,100 +25408,23 @@ export namespace Prisma {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type InboundUncheckedUpdateManyInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type ReturnCreateInput = {
-    return_date: Date | string
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    Product?: ProductCreateNestedOneWithoutReturnInput
-    Variant?: VariantCreateNestedOneWithoutReturnInput
-    User?: UserCreateNestedOneWithoutReturnInput
-  }
-
-  export type ReturnUncheckedCreateInput = {
-    return_id?: number
-    return_date: Date | string
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    created_by?: number | null
-  }
-
-  export type ReturnUpdateInput = {
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Product?: ProductUpdateOneWithoutReturnNestedInput
-    Variant?: VariantUpdateOneWithoutReturnNestedInput
-    User?: UserUpdateOneWithoutReturnNestedInput
-  }
-
-  export type ReturnUncheckedUpdateInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    product_id?: IntFieldUpdateOperationsInput | number
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type ReturnCreateManyInput = {
-    return_id?: number
-    return_date: Date | string
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    created_by?: number | null
-  }
-
-  export type ReturnUpdateManyMutationInput = {
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ReturnUncheckedUpdateManyInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    product_id?: IntFieldUpdateOperationsInput | number
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
   }
@@ -27496,12 +26103,6 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type InboundListRelationFilter = {
-    every?: InboundWhereInput
-    some?: InboundWhereInput
-    none?: InboundWhereInput
-  }
-
   export type ProjectItemListRelationFilter = {
     every?: ProjectItemWhereInput
     some?: ProjectItemWhereInput
@@ -27574,25 +26175,21 @@ export namespace Prisma {
     none?: MerchandiseOutboundWhereInput
   }
 
-  export type ReturnListRelationFilter = {
-    every?: ReturnWhereInput
-    some?: ReturnWhereInput
-    none?: ReturnWhereInput
-  }
-
   export type ImportListRelationFilter = {
     every?: ImportWhereInput
     some?: ImportWhereInput
     none?: ImportWhereInput
   }
 
+  export type InboundListRelationFilter = {
+    every?: InboundWhereInput
+    some?: InboundWhereInput
+    none?: InboundWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
-  }
-
-  export type InboundOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type ProjectItemOrderByRelationAggregateInput = {
@@ -27643,11 +26240,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type ReturnOrderByRelationAggregateInput = {
+  export type ImportOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type ImportOrderByRelationAggregateInput = {
+  export type InboundOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28341,6 +26938,13 @@ export namespace Prisma {
     created_by?: SortOrder
   }
 
+  export type EnumInboundSourceTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.InboundSourceType | EnumInboundSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InboundSourceType[]
+    notIn?: $Enums.InboundSourceType[]
+    not?: NestedEnumInboundSourceTypeFilter<$PrismaModel> | $Enums.InboundSourceType
+  }
+
   export type EnumInboundStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.InboundStatus | EnumInboundStatusFieldRefInput<$PrismaModel>
     in?: $Enums.InboundStatus[]
@@ -28369,6 +26973,7 @@ export namespace Prisma {
     variant_id?: SortOrder
     quantity?: SortOrder
     notes?: SortOrder
+    source_type?: SortOrder
     status?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrder
@@ -28395,6 +27000,7 @@ export namespace Prisma {
     variant_id?: SortOrder
     quantity?: SortOrder
     notes?: SortOrder
+    source_type?: SortOrder
     status?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrder
@@ -28410,6 +27016,7 @@ export namespace Prisma {
     variant_id?: SortOrder
     quantity?: SortOrder
     notes?: SortOrder
+    source_type?: SortOrder
     status?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrder
@@ -28426,6 +27033,16 @@ export namespace Prisma {
     created_by?: SortOrder
   }
 
+  export type EnumInboundSourceTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InboundSourceType | EnumInboundSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InboundSourceType[]
+    notIn?: $Enums.InboundSourceType[]
+    not?: NestedEnumInboundSourceTypeWithAggregatesFilter<$PrismaModel> | $Enums.InboundSourceType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInboundSourceTypeFilter<$PrismaModel>
+    _max?: NestedEnumInboundSourceTypeFilter<$PrismaModel>
+  }
+
   export type EnumInboundStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.InboundStatus | EnumInboundStatusFieldRefInput<$PrismaModel>
     in?: $Enums.InboundStatus[]
@@ -28434,81 +27051,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInboundStatusFilter<$PrismaModel>
     _max?: NestedEnumInboundStatusFilter<$PrismaModel>
-  }
-
-  export type EnumReturnStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.ReturnStatus | EnumReturnStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ReturnStatus[]
-    notIn?: $Enums.ReturnStatus[]
-    not?: NestedEnumReturnStatusFilter<$PrismaModel> | $Enums.ReturnStatus
-  }
-
-  export type ReturnOrderByRelevanceInput = {
-    fields: ReturnOrderByRelevanceFieldEnum | ReturnOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
-  }
-
-  export type ReturnCountOrderByAggregateInput = {
-    return_id?: SortOrder
-    return_date?: SortOrder
-    product_id?: SortOrder
-    variant_id?: SortOrder
-    quantity?: SortOrder
-    notes?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    created_by?: SortOrder
-  }
-
-  export type ReturnAvgOrderByAggregateInput = {
-    return_id?: SortOrder
-    product_id?: SortOrder
-    variant_id?: SortOrder
-    quantity?: SortOrder
-    created_by?: SortOrder
-  }
-
-  export type ReturnMaxOrderByAggregateInput = {
-    return_id?: SortOrder
-    return_date?: SortOrder
-    product_id?: SortOrder
-    variant_id?: SortOrder
-    quantity?: SortOrder
-    notes?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    created_by?: SortOrder
-  }
-
-  export type ReturnMinOrderByAggregateInput = {
-    return_id?: SortOrder
-    return_date?: SortOrder
-    product_id?: SortOrder
-    variant_id?: SortOrder
-    quantity?: SortOrder
-    notes?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    created_by?: SortOrder
-  }
-
-  export type ReturnSumOrderByAggregateInput = {
-    return_id?: SortOrder
-    product_id?: SortOrder
-    variant_id?: SortOrder
-    quantity?: SortOrder
-    created_by?: SortOrder
-  }
-
-  export type EnumReturnStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ReturnStatus | EnumReturnStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ReturnStatus[]
-    notIn?: $Enums.ReturnStatus[]
-    not?: NestedEnumReturnStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReturnStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumReturnStatusFilter<$PrismaModel>
-    _max?: NestedEnumReturnStatusFilter<$PrismaModel>
   }
 
   export type EnumOutboundStatusFilter<$PrismaModel = never> = {
@@ -29024,13 +27566,6 @@ export namespace Prisma {
     _max?: NestedEnumMerchandiseOutboundStatusFilter<$PrismaModel>
   }
 
-  export type InboundCreateNestedManyWithoutUserInput = {
-    create?: XOR<InboundCreateWithoutUserInput, InboundUncheckedCreateWithoutUserInput> | InboundCreateWithoutUserInput[] | InboundUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: InboundCreateOrConnectWithoutUserInput | InboundCreateOrConnectWithoutUserInput[]
-    createMany?: InboundCreateManyUserInputEnvelope
-    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-  }
-
   export type ProjectItemCreateNestedManyWithoutUserInput = {
     create?: XOR<ProjectItemCreateWithoutUserInput, ProjectItemUncheckedCreateWithoutUserInput> | ProjectItemCreateWithoutUserInput[] | ProjectItemUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ProjectItemCreateOrConnectWithoutUserInput | ProjectItemCreateOrConnectWithoutUserInput[]
@@ -29157,13 +27692,6 @@ export namespace Prisma {
     connect?: MerchandiseOutboundWhereUniqueInput | MerchandiseOutboundWhereUniqueInput[]
   }
 
-  export type ReturnCreateNestedManyWithoutUserInput = {
-    create?: XOR<ReturnCreateWithoutUserInput, ReturnUncheckedCreateWithoutUserInput> | ReturnCreateWithoutUserInput[] | ReturnUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutUserInput | ReturnCreateOrConnectWithoutUserInput[]
-    createMany?: ReturnCreateManyUserInputEnvelope
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-  }
-
   export type ImportCreateNestedManyWithoutUserInput = {
     create?: XOR<ImportCreateWithoutUserInput, ImportUncheckedCreateWithoutUserInput> | ImportCreateWithoutUserInput[] | ImportUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ImportCreateOrConnectWithoutUserInput | ImportCreateOrConnectWithoutUserInput[]
@@ -29171,10 +27699,17 @@ export namespace Prisma {
     connect?: ImportWhereUniqueInput | ImportWhereUniqueInput[]
   }
 
-  export type InboundUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<InboundCreateWithoutUserInput, InboundUncheckedCreateWithoutUserInput> | InboundCreateWithoutUserInput[] | InboundUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: InboundCreateOrConnectWithoutUserInput | InboundCreateOrConnectWithoutUserInput[]
-    createMany?: InboundCreateManyUserInputEnvelope
+  export type InboundCreateNestedManyWithoutPicInput = {
+    create?: XOR<InboundCreateWithoutPicInput, InboundUncheckedCreateWithoutPicInput> | InboundCreateWithoutPicInput[] | InboundUncheckedCreateWithoutPicInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutPicInput | InboundCreateOrConnectWithoutPicInput[]
+    createMany?: InboundCreateManyPicInputEnvelope
+    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+  }
+
+  export type InboundCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<InboundCreateWithoutCreatedByInput, InboundUncheckedCreateWithoutCreatedByInput> | InboundCreateWithoutCreatedByInput[] | InboundUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutCreatedByInput | InboundCreateOrConnectWithoutCreatedByInput[]
+    createMany?: InboundCreateManyCreatedByInputEnvelope
     connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
   }
 
@@ -29304,18 +27839,25 @@ export namespace Prisma {
     connect?: MerchandiseOutboundWhereUniqueInput | MerchandiseOutboundWhereUniqueInput[]
   }
 
-  export type ReturnUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<ReturnCreateWithoutUserInput, ReturnUncheckedCreateWithoutUserInput> | ReturnCreateWithoutUserInput[] | ReturnUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutUserInput | ReturnCreateOrConnectWithoutUserInput[]
-    createMany?: ReturnCreateManyUserInputEnvelope
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-  }
-
   export type ImportUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ImportCreateWithoutUserInput, ImportUncheckedCreateWithoutUserInput> | ImportCreateWithoutUserInput[] | ImportUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ImportCreateOrConnectWithoutUserInput | ImportCreateOrConnectWithoutUserInput[]
     createMany?: ImportCreateManyUserInputEnvelope
     connect?: ImportWhereUniqueInput | ImportWhereUniqueInput[]
+  }
+
+  export type InboundUncheckedCreateNestedManyWithoutPicInput = {
+    create?: XOR<InboundCreateWithoutPicInput, InboundUncheckedCreateWithoutPicInput> | InboundCreateWithoutPicInput[] | InboundUncheckedCreateWithoutPicInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutPicInput | InboundCreateOrConnectWithoutPicInput[]
+    createMany?: InboundCreateManyPicInputEnvelope
+    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+  }
+
+  export type InboundUncheckedCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<InboundCreateWithoutCreatedByInput, InboundUncheckedCreateWithoutCreatedByInput> | InboundCreateWithoutCreatedByInput[] | InboundUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutCreatedByInput | InboundCreateOrConnectWithoutCreatedByInput[]
+    createMany?: InboundCreateManyCreatedByInputEnvelope
+    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -29332,20 +27874,6 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
-  }
-
-  export type InboundUpdateManyWithoutUserNestedInput = {
-    create?: XOR<InboundCreateWithoutUserInput, InboundUncheckedCreateWithoutUserInput> | InboundCreateWithoutUserInput[] | InboundUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: InboundCreateOrConnectWithoutUserInput | InboundCreateOrConnectWithoutUserInput[]
-    upsert?: InboundUpsertWithWhereUniqueWithoutUserInput | InboundUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: InboundCreateManyUserInputEnvelope
-    set?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    disconnect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    delete?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    update?: InboundUpdateWithWhereUniqueWithoutUserInput | InboundUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: InboundUpdateManyWithWhereWithoutUserInput | InboundUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: InboundScalarWhereInput | InboundScalarWhereInput[]
   }
 
   export type ProjectItemUpdateManyWithoutUserNestedInput = {
@@ -29600,20 +28128,6 @@ export namespace Prisma {
     deleteMany?: MerchandiseOutboundScalarWhereInput | MerchandiseOutboundScalarWhereInput[]
   }
 
-  export type ReturnUpdateManyWithoutUserNestedInput = {
-    create?: XOR<ReturnCreateWithoutUserInput, ReturnUncheckedCreateWithoutUserInput> | ReturnCreateWithoutUserInput[] | ReturnUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutUserInput | ReturnCreateOrConnectWithoutUserInput[]
-    upsert?: ReturnUpsertWithWhereUniqueWithoutUserInput | ReturnUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: ReturnCreateManyUserInputEnvelope
-    set?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    disconnect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    delete?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    update?: ReturnUpdateWithWhereUniqueWithoutUserInput | ReturnUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: ReturnUpdateManyWithWhereWithoutUserInput | ReturnUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
-  }
-
   export type ImportUpdateManyWithoutUserNestedInput = {
     create?: XOR<ImportCreateWithoutUserInput, ImportUncheckedCreateWithoutUserInput> | ImportCreateWithoutUserInput[] | ImportUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ImportCreateOrConnectWithoutUserInput | ImportCreateOrConnectWithoutUserInput[]
@@ -29628,26 +28142,40 @@ export namespace Prisma {
     deleteMany?: ImportScalarWhereInput | ImportScalarWhereInput[]
   }
 
+  export type InboundUpdateManyWithoutPicNestedInput = {
+    create?: XOR<InboundCreateWithoutPicInput, InboundUncheckedCreateWithoutPicInput> | InboundCreateWithoutPicInput[] | InboundUncheckedCreateWithoutPicInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutPicInput | InboundCreateOrConnectWithoutPicInput[]
+    upsert?: InboundUpsertWithWhereUniqueWithoutPicInput | InboundUpsertWithWhereUniqueWithoutPicInput[]
+    createMany?: InboundCreateManyPicInputEnvelope
+    set?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    disconnect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    delete?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    update?: InboundUpdateWithWhereUniqueWithoutPicInput | InboundUpdateWithWhereUniqueWithoutPicInput[]
+    updateMany?: InboundUpdateManyWithWhereWithoutPicInput | InboundUpdateManyWithWhereWithoutPicInput[]
+    deleteMany?: InboundScalarWhereInput | InboundScalarWhereInput[]
+  }
+
+  export type InboundUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<InboundCreateWithoutCreatedByInput, InboundUncheckedCreateWithoutCreatedByInput> | InboundCreateWithoutCreatedByInput[] | InboundUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutCreatedByInput | InboundCreateOrConnectWithoutCreatedByInput[]
+    upsert?: InboundUpsertWithWhereUniqueWithoutCreatedByInput | InboundUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: InboundCreateManyCreatedByInputEnvelope
+    set?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    disconnect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    delete?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    update?: InboundUpdateWithWhereUniqueWithoutCreatedByInput | InboundUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: InboundUpdateManyWithWhereWithoutCreatedByInput | InboundUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: InboundScalarWhereInput | InboundScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type InboundUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<InboundCreateWithoutUserInput, InboundUncheckedCreateWithoutUserInput> | InboundCreateWithoutUserInput[] | InboundUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: InboundCreateOrConnectWithoutUserInput | InboundCreateOrConnectWithoutUserInput[]
-    upsert?: InboundUpsertWithWhereUniqueWithoutUserInput | InboundUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: InboundCreateManyUserInputEnvelope
-    set?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    disconnect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    delete?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
-    update?: InboundUpdateWithWhereUniqueWithoutUserInput | InboundUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: InboundUpdateManyWithWhereWithoutUserInput | InboundUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: InboundScalarWhereInput | InboundScalarWhereInput[]
   }
 
   export type ProjectItemUncheckedUpdateManyWithoutUserNestedInput = {
@@ -29902,20 +28430,6 @@ export namespace Prisma {
     deleteMany?: MerchandiseOutboundScalarWhereInput | MerchandiseOutboundScalarWhereInput[]
   }
 
-  export type ReturnUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<ReturnCreateWithoutUserInput, ReturnUncheckedCreateWithoutUserInput> | ReturnCreateWithoutUserInput[] | ReturnUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutUserInput | ReturnCreateOrConnectWithoutUserInput[]
-    upsert?: ReturnUpsertWithWhereUniqueWithoutUserInput | ReturnUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: ReturnCreateManyUserInputEnvelope
-    set?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    disconnect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    delete?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    update?: ReturnUpdateWithWhereUniqueWithoutUserInput | ReturnUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: ReturnUpdateManyWithWhereWithoutUserInput | ReturnUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
-  }
-
   export type ImportUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ImportCreateWithoutUserInput, ImportUncheckedCreateWithoutUserInput> | ImportCreateWithoutUserInput[] | ImportUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ImportCreateOrConnectWithoutUserInput | ImportCreateOrConnectWithoutUserInput[]
@@ -29928,6 +28442,34 @@ export namespace Prisma {
     update?: ImportUpdateWithWhereUniqueWithoutUserInput | ImportUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ImportUpdateManyWithWhereWithoutUserInput | ImportUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ImportScalarWhereInput | ImportScalarWhereInput[]
+  }
+
+  export type InboundUncheckedUpdateManyWithoutPicNestedInput = {
+    create?: XOR<InboundCreateWithoutPicInput, InboundUncheckedCreateWithoutPicInput> | InboundCreateWithoutPicInput[] | InboundUncheckedCreateWithoutPicInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutPicInput | InboundCreateOrConnectWithoutPicInput[]
+    upsert?: InboundUpsertWithWhereUniqueWithoutPicInput | InboundUpsertWithWhereUniqueWithoutPicInput[]
+    createMany?: InboundCreateManyPicInputEnvelope
+    set?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    disconnect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    delete?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    update?: InboundUpdateWithWhereUniqueWithoutPicInput | InboundUpdateWithWhereUniqueWithoutPicInput[]
+    updateMany?: InboundUpdateManyWithWhereWithoutPicInput | InboundUpdateManyWithWhereWithoutPicInput[]
+    deleteMany?: InboundScalarWhereInput | InboundScalarWhereInput[]
+  }
+
+  export type InboundUncheckedUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<InboundCreateWithoutCreatedByInput, InboundUncheckedCreateWithoutCreatedByInput> | InboundCreateWithoutCreatedByInput[] | InboundUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: InboundCreateOrConnectWithoutCreatedByInput | InboundCreateOrConnectWithoutCreatedByInput[]
+    upsert?: InboundUpsertWithWhereUniqueWithoutCreatedByInput | InboundUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: InboundCreateManyCreatedByInputEnvelope
+    set?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    disconnect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    delete?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    connect?: InboundWhereUniqueInput | InboundWhereUniqueInput[]
+    update?: InboundUpdateWithWhereUniqueWithoutCreatedByInput | InboundUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: InboundUpdateManyWithWhereWithoutCreatedByInput | InboundUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: InboundScalarWhereInput | InboundScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutTailorCreatedInput = {
@@ -30173,13 +28715,6 @@ export namespace Prisma {
     connect?: ProductVariantWhereUniqueInput | ProductVariantWhereUniqueInput[]
   }
 
-  export type ReturnCreateNestedManyWithoutVariantInput = {
-    create?: XOR<ReturnCreateWithoutVariantInput, ReturnUncheckedCreateWithoutVariantInput> | ReturnCreateWithoutVariantInput[] | ReturnUncheckedCreateWithoutVariantInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutVariantInput | ReturnCreateOrConnectWithoutVariantInput[]
-    createMany?: ReturnCreateManyVariantInputEnvelope
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-  }
-
   export type InboundUncheckedCreateNestedManyWithoutVariantInput = {
     create?: XOR<InboundCreateWithoutVariantInput, InboundUncheckedCreateWithoutVariantInput> | InboundCreateWithoutVariantInput[] | InboundUncheckedCreateWithoutVariantInput[]
     connectOrCreate?: InboundCreateOrConnectWithoutVariantInput | InboundCreateOrConnectWithoutVariantInput[]
@@ -30213,13 +28748,6 @@ export namespace Prisma {
     connectOrCreate?: ProductVariantCreateOrConnectWithoutVariantInput | ProductVariantCreateOrConnectWithoutVariantInput[]
     createMany?: ProductVariantCreateManyVariantInputEnvelope
     connect?: ProductVariantWhereUniqueInput | ProductVariantWhereUniqueInput[]
-  }
-
-  export type ReturnUncheckedCreateNestedManyWithoutVariantInput = {
-    create?: XOR<ReturnCreateWithoutVariantInput, ReturnUncheckedCreateWithoutVariantInput> | ReturnCreateWithoutVariantInput[] | ReturnUncheckedCreateWithoutVariantInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutVariantInput | ReturnCreateOrConnectWithoutVariantInput[]
-    createMany?: ReturnCreateManyVariantInputEnvelope
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
   }
 
   export type InboundUpdateManyWithoutVariantNestedInput = {
@@ -30292,20 +28820,6 @@ export namespace Prisma {
     deleteMany?: ProductVariantScalarWhereInput | ProductVariantScalarWhereInput[]
   }
 
-  export type ReturnUpdateManyWithoutVariantNestedInput = {
-    create?: XOR<ReturnCreateWithoutVariantInput, ReturnUncheckedCreateWithoutVariantInput> | ReturnCreateWithoutVariantInput[] | ReturnUncheckedCreateWithoutVariantInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutVariantInput | ReturnCreateOrConnectWithoutVariantInput[]
-    upsert?: ReturnUpsertWithWhereUniqueWithoutVariantInput | ReturnUpsertWithWhereUniqueWithoutVariantInput[]
-    createMany?: ReturnCreateManyVariantInputEnvelope
-    set?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    disconnect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    delete?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    update?: ReturnUpdateWithWhereUniqueWithoutVariantInput | ReturnUpdateWithWhereUniqueWithoutVariantInput[]
-    updateMany?: ReturnUpdateManyWithWhereWithoutVariantInput | ReturnUpdateManyWithWhereWithoutVariantInput[]
-    deleteMany?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
-  }
-
   export type InboundUncheckedUpdateManyWithoutVariantNestedInput = {
     create?: XOR<InboundCreateWithoutVariantInput, InboundUncheckedCreateWithoutVariantInput> | InboundCreateWithoutVariantInput[] | InboundUncheckedCreateWithoutVariantInput[]
     connectOrCreate?: InboundCreateOrConnectWithoutVariantInput | InboundCreateOrConnectWithoutVariantInput[]
@@ -30376,20 +28890,6 @@ export namespace Prisma {
     deleteMany?: ProductVariantScalarWhereInput | ProductVariantScalarWhereInput[]
   }
 
-  export type ReturnUncheckedUpdateManyWithoutVariantNestedInput = {
-    create?: XOR<ReturnCreateWithoutVariantInput, ReturnUncheckedCreateWithoutVariantInput> | ReturnCreateWithoutVariantInput[] | ReturnUncheckedCreateWithoutVariantInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutVariantInput | ReturnCreateOrConnectWithoutVariantInput[]
-    upsert?: ReturnUpsertWithWhereUniqueWithoutVariantInput | ReturnUpsertWithWhereUniqueWithoutVariantInput[]
-    createMany?: ReturnCreateManyVariantInputEnvelope
-    set?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    disconnect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    delete?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    update?: ReturnUpdateWithWhereUniqueWithoutVariantInput | ReturnUpdateWithWhereUniqueWithoutVariantInput[]
-    updateMany?: ReturnUpdateManyWithWhereWithoutVariantInput | ReturnUpdateManyWithWhereWithoutVariantInput[]
-    deleteMany?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
-  }
-
   export type UserCreateNestedOneWithoutProductCreatedInput = {
     create?: XOR<UserCreateWithoutProductCreatedInput, UserUncheckedCreateWithoutProductCreatedInput>
     connectOrCreate?: UserCreateOrConnectWithoutProductCreatedInput
@@ -30444,13 +28944,6 @@ export namespace Prisma {
     connect?: ProductVariantWhereUniqueInput | ProductVariantWhereUniqueInput[]
   }
 
-  export type ReturnCreateNestedManyWithoutProductInput = {
-    create?: XOR<ReturnCreateWithoutProductInput, ReturnUncheckedCreateWithoutProductInput> | ReturnCreateWithoutProductInput[] | ReturnUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutProductInput | ReturnCreateOrConnectWithoutProductInput[]
-    createMany?: ReturnCreateManyProductInputEnvelope
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-  }
-
   export type InboundUncheckedCreateNestedManyWithoutProductInput = {
     create?: XOR<InboundCreateWithoutProductInput, InboundUncheckedCreateWithoutProductInput> | InboundCreateWithoutProductInput[] | InboundUncheckedCreateWithoutProductInput[]
     connectOrCreate?: InboundCreateOrConnectWithoutProductInput | InboundCreateOrConnectWithoutProductInput[]
@@ -30491,13 +28984,6 @@ export namespace Prisma {
     connectOrCreate?: ProductVariantCreateOrConnectWithoutProductInput | ProductVariantCreateOrConnectWithoutProductInput[]
     createMany?: ProductVariantCreateManyProductInputEnvelope
     connect?: ProductVariantWhereUniqueInput | ProductVariantWhereUniqueInput[]
-  }
-
-  export type ReturnUncheckedCreateNestedManyWithoutProductInput = {
-    create?: XOR<ReturnCreateWithoutProductInput, ReturnUncheckedCreateWithoutProductInput> | ReturnCreateWithoutProductInput[] | ReturnUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutProductInput | ReturnCreateOrConnectWithoutProductInput[]
-    createMany?: ReturnCreateManyProductInputEnvelope
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
   }
 
   export type UserUpdateOneWithoutProductCreatedNestedInput = {
@@ -30604,20 +29090,6 @@ export namespace Prisma {
     deleteMany?: ProductVariantScalarWhereInput | ProductVariantScalarWhereInput[]
   }
 
-  export type ReturnUpdateManyWithoutProductNestedInput = {
-    create?: XOR<ReturnCreateWithoutProductInput, ReturnUncheckedCreateWithoutProductInput> | ReturnCreateWithoutProductInput[] | ReturnUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutProductInput | ReturnCreateOrConnectWithoutProductInput[]
-    upsert?: ReturnUpsertWithWhereUniqueWithoutProductInput | ReturnUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: ReturnCreateManyProductInputEnvelope
-    set?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    disconnect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    delete?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    update?: ReturnUpdateWithWhereUniqueWithoutProductInput | ReturnUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: ReturnUpdateManyWithWhereWithoutProductInput | ReturnUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
-  }
-
   export type InboundUncheckedUpdateManyWithoutProductNestedInput = {
     create?: XOR<InboundCreateWithoutProductInput, InboundUncheckedCreateWithoutProductInput> | InboundCreateWithoutProductInput[] | InboundUncheckedCreateWithoutProductInput[]
     connectOrCreate?: InboundCreateOrConnectWithoutProductInput | InboundCreateOrConnectWithoutProductInput[]
@@ -30700,20 +29172,6 @@ export namespace Prisma {
     update?: ProductVariantUpdateWithWhereUniqueWithoutProductInput | ProductVariantUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: ProductVariantUpdateManyWithWhereWithoutProductInput | ProductVariantUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: ProductVariantScalarWhereInput | ProductVariantScalarWhereInput[]
-  }
-
-  export type ReturnUncheckedUpdateManyWithoutProductNestedInput = {
-    create?: XOR<ReturnCreateWithoutProductInput, ReturnUncheckedCreateWithoutProductInput> | ReturnCreateWithoutProductInput[] | ReturnUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: ReturnCreateOrConnectWithoutProductInput | ReturnCreateOrConnectWithoutProductInput[]
-    upsert?: ReturnUpsertWithWhereUniqueWithoutProductInput | ReturnUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: ReturnCreateManyProductInputEnvelope
-    set?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    disconnect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    delete?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    connect?: ReturnWhereUniqueInput | ReturnWhereUniqueInput[]
-    update?: ReturnUpdateWithWhereUniqueWithoutProductInput | ReturnUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: ReturnUpdateManyWithWhereWithoutProductInput | ReturnUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
   }
 
   export type ProductCreateNestedOneWithoutProductVariantInput = {
@@ -31076,12 +29534,6 @@ export namespace Prisma {
     connect?: ProjectItemWhereUniqueInput
   }
 
-  export type UserCreateNestedOneWithoutInboundInput = {
-    create?: XOR<UserCreateWithoutInboundInput, UserUncheckedCreateWithoutInboundInput>
-    connectOrCreate?: UserCreateOrConnectWithoutInboundInput
-    connect?: UserWhereUniqueInput
-  }
-
   export type TailorCreateNestedOneWithoutInboundInput = {
     create?: XOR<TailorCreateWithoutInboundInput, TailorUncheckedCreateWithoutInboundInput>
     connectOrCreate?: TailorCreateOrConnectWithoutInboundInput
@@ -31100,6 +29552,22 @@ export namespace Prisma {
     connect?: VariantWhereUniqueInput
   }
 
+  export type UserCreateNestedOneWithoutInboundsAsPicInput = {
+    create?: XOR<UserCreateWithoutInboundsAsPicInput, UserUncheckedCreateWithoutInboundsAsPicInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInboundsAsPicInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutInboundsAsCreatedByInput = {
+    create?: XOR<UserCreateWithoutInboundsAsCreatedByInput, UserUncheckedCreateWithoutInboundsAsCreatedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInboundsAsCreatedByInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumInboundSourceTypeFieldUpdateOperationsInput = {
+    set?: $Enums.InboundSourceType
+  }
+
   export type EnumInboundStatusFieldUpdateOperationsInput = {
     set?: $Enums.InboundStatus
   }
@@ -31112,16 +29580,6 @@ export namespace Prisma {
     delete?: ProjectItemWhereInput | boolean
     connect?: ProjectItemWhereUniqueInput
     update?: XOR<XOR<ProjectItemUpdateToOneWithWhereWithoutInboundInput, ProjectItemUpdateWithoutInboundInput>, ProjectItemUncheckedUpdateWithoutInboundInput>
-  }
-
-  export type UserUpdateOneWithoutInboundNestedInput = {
-    create?: XOR<UserCreateWithoutInboundInput, UserUncheckedCreateWithoutInboundInput>
-    connectOrCreate?: UserCreateOrConnectWithoutInboundInput
-    upsert?: UserUpsertWithoutInboundInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInboundInput, UserUpdateWithoutInboundInput>, UserUncheckedUpdateWithoutInboundInput>
   }
 
   export type TailorUpdateOneWithoutInboundNestedInput = {
@@ -31154,56 +29612,24 @@ export namespace Prisma {
     update?: XOR<XOR<VariantUpdateToOneWithWhereWithoutInboundInput, VariantUpdateWithoutInboundInput>, VariantUncheckedUpdateWithoutInboundInput>
   }
 
-  export type ProductCreateNestedOneWithoutReturnInput = {
-    create?: XOR<ProductCreateWithoutReturnInput, ProductUncheckedCreateWithoutReturnInput>
-    connectOrCreate?: ProductCreateOrConnectWithoutReturnInput
-    connect?: ProductWhereUniqueInput
-  }
-
-  export type VariantCreateNestedOneWithoutReturnInput = {
-    create?: XOR<VariantCreateWithoutReturnInput, VariantUncheckedCreateWithoutReturnInput>
-    connectOrCreate?: VariantCreateOrConnectWithoutReturnInput
-    connect?: VariantWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutReturnInput = {
-    create?: XOR<UserCreateWithoutReturnInput, UserUncheckedCreateWithoutReturnInput>
-    connectOrCreate?: UserCreateOrConnectWithoutReturnInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type EnumReturnStatusFieldUpdateOperationsInput = {
-    set?: $Enums.ReturnStatus
-  }
-
-  export type ProductUpdateOneWithoutReturnNestedInput = {
-    create?: XOR<ProductCreateWithoutReturnInput, ProductUncheckedCreateWithoutReturnInput>
-    connectOrCreate?: ProductCreateOrConnectWithoutReturnInput
-    upsert?: ProductUpsertWithoutReturnInput
-    disconnect?: ProductWhereInput | boolean
-    delete?: ProductWhereInput | boolean
-    connect?: ProductWhereUniqueInput
-    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutReturnInput, ProductUpdateWithoutReturnInput>, ProductUncheckedUpdateWithoutReturnInput>
-  }
-
-  export type VariantUpdateOneWithoutReturnNestedInput = {
-    create?: XOR<VariantCreateWithoutReturnInput, VariantUncheckedCreateWithoutReturnInput>
-    connectOrCreate?: VariantCreateOrConnectWithoutReturnInput
-    upsert?: VariantUpsertWithoutReturnInput
-    disconnect?: VariantWhereInput | boolean
-    delete?: VariantWhereInput | boolean
-    connect?: VariantWhereUniqueInput
-    update?: XOR<XOR<VariantUpdateToOneWithWhereWithoutReturnInput, VariantUpdateWithoutReturnInput>, VariantUncheckedUpdateWithoutReturnInput>
-  }
-
-  export type UserUpdateOneWithoutReturnNestedInput = {
-    create?: XOR<UserCreateWithoutReturnInput, UserUncheckedCreateWithoutReturnInput>
-    connectOrCreate?: UserCreateOrConnectWithoutReturnInput
-    upsert?: UserUpsertWithoutReturnInput
+  export type UserUpdateOneWithoutInboundsAsPicNestedInput = {
+    create?: XOR<UserCreateWithoutInboundsAsPicInput, UserUncheckedCreateWithoutInboundsAsPicInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInboundsAsPicInput
+    upsert?: UserUpsertWithoutInboundsAsPicInput
     disconnect?: UserWhereInput | boolean
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutReturnInput, UserUpdateWithoutReturnInput>, UserUncheckedUpdateWithoutReturnInput>
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInboundsAsPicInput, UserUpdateWithoutInboundsAsPicInput>, UserUncheckedUpdateWithoutInboundsAsPicInput>
+  }
+
+  export type UserUpdateOneWithoutInboundsAsCreatedByNestedInput = {
+    create?: XOR<UserCreateWithoutInboundsAsCreatedByInput, UserUncheckedCreateWithoutInboundsAsCreatedByInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInboundsAsCreatedByInput
+    upsert?: UserUpsertWithoutInboundsAsCreatedByInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInboundsAsCreatedByInput, UserUpdateWithoutInboundsAsCreatedByInput>, UserUncheckedUpdateWithoutInboundsAsCreatedByInput>
   }
 
   export type ProductCreateNestedOneWithoutOutboundInput = {
@@ -32041,11 +30467,28 @@ export namespace Prisma {
     _max?: NestedEnumProjectStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumInboundSourceTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.InboundSourceType | EnumInboundSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InboundSourceType[]
+    notIn?: $Enums.InboundSourceType[]
+    not?: NestedEnumInboundSourceTypeFilter<$PrismaModel> | $Enums.InboundSourceType
+  }
+
   export type NestedEnumInboundStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.InboundStatus | EnumInboundStatusFieldRefInput<$PrismaModel>
     in?: $Enums.InboundStatus[]
     notIn?: $Enums.InboundStatus[]
     not?: NestedEnumInboundStatusFilter<$PrismaModel> | $Enums.InboundStatus
+  }
+
+  export type NestedEnumInboundSourceTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InboundSourceType | EnumInboundSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.InboundSourceType[]
+    notIn?: $Enums.InboundSourceType[]
+    not?: NestedEnumInboundSourceTypeWithAggregatesFilter<$PrismaModel> | $Enums.InboundSourceType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInboundSourceTypeFilter<$PrismaModel>
+    _max?: NestedEnumInboundSourceTypeFilter<$PrismaModel>
   }
 
   export type NestedEnumInboundStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -32056,23 +30499,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInboundStatusFilter<$PrismaModel>
     _max?: NestedEnumInboundStatusFilter<$PrismaModel>
-  }
-
-  export type NestedEnumReturnStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.ReturnStatus | EnumReturnStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ReturnStatus[]
-    notIn?: $Enums.ReturnStatus[]
-    not?: NestedEnumReturnStatusFilter<$PrismaModel> | $Enums.ReturnStatus
-  }
-
-  export type NestedEnumReturnStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ReturnStatus | EnumReturnStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ReturnStatus[]
-    notIn?: $Enums.ReturnStatus[]
-    not?: NestedEnumReturnStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReturnStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumReturnStatusFilter<$PrismaModel>
-    _max?: NestedEnumReturnStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumOutboundStatusFilter<$PrismaModel = never> = {
@@ -32141,43 +30567,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMerchandiseOutboundStatusFilter<$PrismaModel>
     _max?: NestedEnumMerchandiseOutboundStatusFilter<$PrismaModel>
-  }
-
-  export type InboundCreateWithoutUserInput = {
-    inbound_date: Date | string
-    quantity: number
-    notes?: string | null
-    status?: $Enums.InboundStatus
-    created_at?: Date | string
-    created_by?: number | null
-    ProjectItem?: ProjectItemCreateNestedOneWithoutInboundInput
-    Tailor?: TailorCreateNestedOneWithoutInboundInput
-    Product?: ProductCreateNestedOneWithoutInboundInput
-    Variant?: VariantCreateNestedOneWithoutInboundInput
-  }
-
-  export type InboundUncheckedCreateWithoutUserInput = {
-    inbound_id?: number
-    inbound_date: Date | string
-    projectitem_id: number
-    tailor_id: number
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.InboundStatus
-    created_at?: Date | string
-    created_by?: number | null
-  }
-
-  export type InboundCreateOrConnectWithoutUserInput = {
-    where: InboundWhereUniqueInput
-    create: XOR<InboundCreateWithoutUserInput, InboundUncheckedCreateWithoutUserInput>
-  }
-
-  export type InboundCreateManyUserInputEnvelope = {
-    data: InboundCreateManyUserInput | InboundCreateManyUserInput[]
-    skipDuplicates?: boolean
   }
 
   export type ProjectItemCreateWithoutUserInput = {
@@ -32326,7 +30715,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutCreatedByInput = {
@@ -32344,7 +30732,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutCreatedByInput = {
@@ -32371,7 +30758,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutUpdatedByInput = {
@@ -32389,7 +30775,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutUpdatedByInput = {
@@ -32820,37 +31205,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ReturnCreateWithoutUserInput = {
-    return_date: Date | string
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    Product?: ProductCreateNestedOneWithoutReturnInput
-    Variant?: VariantCreateNestedOneWithoutReturnInput
-  }
-
-  export type ReturnUncheckedCreateWithoutUserInput = {
-    return_id?: number
-    return_date: Date | string
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-  }
-
-  export type ReturnCreateOrConnectWithoutUserInput = {
-    where: ReturnWhereUniqueInput
-    create: XOR<ReturnCreateWithoutUserInput, ReturnUncheckedCreateWithoutUserInput>
-  }
-
-  export type ReturnCreateManyUserInputEnvelope = {
-    data: ReturnCreateManyUserInput | ReturnCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
   export type ImportCreateWithoutUserInput = {
     channel?: string | null
     import_type?: $Enums.ImportType | null
@@ -32878,38 +31232,82 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type InboundUpsertWithWhereUniqueWithoutUserInput = {
+  export type InboundCreateWithoutPicInput = {
+    inbound_date: Date | string
+    quantity: number
+    notes?: string | null
+    source_type?: $Enums.InboundSourceType
+    status?: $Enums.InboundStatus
+    created_at?: Date | string
+    ProjectItem?: ProjectItemCreateNestedOneWithoutInboundInput
+    Tailor?: TailorCreateNestedOneWithoutInboundInput
+    Product?: ProductCreateNestedOneWithoutInboundInput
+    Variant?: VariantCreateNestedOneWithoutInboundInput
+    CreatedBy?: UserCreateNestedOneWithoutInboundsAsCreatedByInput
+  }
+
+  export type InboundUncheckedCreateWithoutPicInput = {
+    inbound_id?: number
+    inbound_date: Date | string
+    projectitem_id?: number | null
+    tailor_id?: number | null
+    product_id: number
+    variant_id: number
+    quantity: number
+    notes?: string | null
+    source_type?: $Enums.InboundSourceType
+    status?: $Enums.InboundStatus
+    created_at?: Date | string
+    created_by?: number | null
+  }
+
+  export type InboundCreateOrConnectWithoutPicInput = {
     where: InboundWhereUniqueInput
-    update: XOR<InboundUpdateWithoutUserInput, InboundUncheckedUpdateWithoutUserInput>
-    create: XOR<InboundCreateWithoutUserInput, InboundUncheckedCreateWithoutUserInput>
+    create: XOR<InboundCreateWithoutPicInput, InboundUncheckedCreateWithoutPicInput>
   }
 
-  export type InboundUpdateWithWhereUniqueWithoutUserInput = {
+  export type InboundCreateManyPicInputEnvelope = {
+    data: InboundCreateManyPicInput | InboundCreateManyPicInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InboundCreateWithoutCreatedByInput = {
+    inbound_date: Date | string
+    quantity: number
+    notes?: string | null
+    source_type?: $Enums.InboundSourceType
+    status?: $Enums.InboundStatus
+    created_at?: Date | string
+    ProjectItem?: ProjectItemCreateNestedOneWithoutInboundInput
+    Tailor?: TailorCreateNestedOneWithoutInboundInput
+    Product?: ProductCreateNestedOneWithoutInboundInput
+    Variant?: VariantCreateNestedOneWithoutInboundInput
+    Pic?: UserCreateNestedOneWithoutInboundsAsPicInput
+  }
+
+  export type InboundUncheckedCreateWithoutCreatedByInput = {
+    inbound_id?: number
+    inbound_date: Date | string
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
+    product_id: number
+    variant_id: number
+    quantity: number
+    notes?: string | null
+    source_type?: $Enums.InboundSourceType
+    status?: $Enums.InboundStatus
+    created_at?: Date | string
+  }
+
+  export type InboundCreateOrConnectWithoutCreatedByInput = {
     where: InboundWhereUniqueInput
-    data: XOR<InboundUpdateWithoutUserInput, InboundUncheckedUpdateWithoutUserInput>
+    create: XOR<InboundCreateWithoutCreatedByInput, InboundUncheckedCreateWithoutCreatedByInput>
   }
 
-  export type InboundUpdateManyWithWhereWithoutUserInput = {
-    where: InboundScalarWhereInput
-    data: XOR<InboundUpdateManyMutationInput, InboundUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type InboundScalarWhereInput = {
-    AND?: InboundScalarWhereInput | InboundScalarWhereInput[]
-    OR?: InboundScalarWhereInput[]
-    NOT?: InboundScalarWhereInput | InboundScalarWhereInput[]
-    inbound_id?: IntFilter<"Inbound"> | number
-    inbound_date?: DateTimeFilter<"Inbound"> | Date | string
-    projectitem_id?: IntFilter<"Inbound"> | number
-    pic_id?: IntFilter<"Inbound"> | number
-    tailor_id?: IntFilter<"Inbound"> | number
-    product_id?: IntFilter<"Inbound"> | number
-    variant_id?: IntFilter<"Inbound"> | number
-    quantity?: IntFilter<"Inbound"> | number
-    notes?: StringNullableFilter<"Inbound"> | string | null
-    status?: EnumInboundStatusFilter<"Inbound"> | $Enums.InboundStatus
-    created_at?: DateTimeFilter<"Inbound"> | Date | string
-    created_by?: IntNullableFilter<"Inbound"> | number | null
+  export type InboundCreateManyCreatedByInputEnvelope = {
+    data: InboundCreateManyCreatedByInput | InboundCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
   }
 
   export type ProjectItemUpsertWithWhereUniqueWithoutUserInput = {
@@ -33390,37 +31788,6 @@ export namespace Prisma {
     created_by?: IntNullableFilter<"MerchandiseOutbound"> | number | null
   }
 
-  export type ReturnUpsertWithWhereUniqueWithoutUserInput = {
-    where: ReturnWhereUniqueInput
-    update: XOR<ReturnUpdateWithoutUserInput, ReturnUncheckedUpdateWithoutUserInput>
-    create: XOR<ReturnCreateWithoutUserInput, ReturnUncheckedCreateWithoutUserInput>
-  }
-
-  export type ReturnUpdateWithWhereUniqueWithoutUserInput = {
-    where: ReturnWhereUniqueInput
-    data: XOR<ReturnUpdateWithoutUserInput, ReturnUncheckedUpdateWithoutUserInput>
-  }
-
-  export type ReturnUpdateManyWithWhereWithoutUserInput = {
-    where: ReturnScalarWhereInput
-    data: XOR<ReturnUpdateManyMutationInput, ReturnUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type ReturnScalarWhereInput = {
-    AND?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
-    OR?: ReturnScalarWhereInput[]
-    NOT?: ReturnScalarWhereInput | ReturnScalarWhereInput[]
-    return_id?: IntFilter<"Return"> | number
-    return_date?: DateTimeFilter<"Return"> | Date | string
-    product_id?: IntFilter<"Return"> | number
-    variant_id?: IntFilter<"Return"> | number
-    quantity?: IntFilter<"Return"> | number
-    notes?: StringNullableFilter<"Return"> | string | null
-    status?: EnumReturnStatusFilter<"Return"> | $Enums.ReturnStatus
-    created_at?: DateTimeFilter<"Return"> | Date | string
-    created_by?: IntNullableFilter<"Return"> | number | null
-  }
-
   export type ImportUpsertWithWhereUniqueWithoutUserInput = {
     where: ImportWhereUniqueInput
     update: XOR<ImportUpdateWithoutUserInput, ImportUncheckedUpdateWithoutUserInput>
@@ -33450,6 +31817,57 @@ export namespace Prisma {
     created_by?: IntNullableFilter<"Import"> | number | null
   }
 
+  export type InboundUpsertWithWhereUniqueWithoutPicInput = {
+    where: InboundWhereUniqueInput
+    update: XOR<InboundUpdateWithoutPicInput, InboundUncheckedUpdateWithoutPicInput>
+    create: XOR<InboundCreateWithoutPicInput, InboundUncheckedCreateWithoutPicInput>
+  }
+
+  export type InboundUpdateWithWhereUniqueWithoutPicInput = {
+    where: InboundWhereUniqueInput
+    data: XOR<InboundUpdateWithoutPicInput, InboundUncheckedUpdateWithoutPicInput>
+  }
+
+  export type InboundUpdateManyWithWhereWithoutPicInput = {
+    where: InboundScalarWhereInput
+    data: XOR<InboundUpdateManyMutationInput, InboundUncheckedUpdateManyWithoutPicInput>
+  }
+
+  export type InboundScalarWhereInput = {
+    AND?: InboundScalarWhereInput | InboundScalarWhereInput[]
+    OR?: InboundScalarWhereInput[]
+    NOT?: InboundScalarWhereInput | InboundScalarWhereInput[]
+    inbound_id?: IntFilter<"Inbound"> | number
+    inbound_date?: DateTimeFilter<"Inbound"> | Date | string
+    projectitem_id?: IntNullableFilter<"Inbound"> | number | null
+    pic_id?: IntNullableFilter<"Inbound"> | number | null
+    tailor_id?: IntNullableFilter<"Inbound"> | number | null
+    product_id?: IntFilter<"Inbound"> | number
+    variant_id?: IntFilter<"Inbound"> | number
+    quantity?: IntFilter<"Inbound"> | number
+    notes?: StringNullableFilter<"Inbound"> | string | null
+    source_type?: EnumInboundSourceTypeFilter<"Inbound"> | $Enums.InboundSourceType
+    status?: EnumInboundStatusFilter<"Inbound"> | $Enums.InboundStatus
+    created_at?: DateTimeFilter<"Inbound"> | Date | string
+    created_by?: IntNullableFilter<"Inbound"> | number | null
+  }
+
+  export type InboundUpsertWithWhereUniqueWithoutCreatedByInput = {
+    where: InboundWhereUniqueInput
+    update: XOR<InboundUpdateWithoutCreatedByInput, InboundUncheckedUpdateWithoutCreatedByInput>
+    create: XOR<InboundCreateWithoutCreatedByInput, InboundUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type InboundUpdateWithWhereUniqueWithoutCreatedByInput = {
+    where: InboundWhereUniqueInput
+    data: XOR<InboundUpdateWithoutCreatedByInput, InboundUncheckedUpdateWithoutCreatedByInput>
+  }
+
+  export type InboundUpdateManyWithWhereWithoutCreatedByInput = {
+    where: InboundScalarWhereInput
+    data: XOR<InboundUpdateManyMutationInput, InboundUncheckedUpdateManyWithoutCreatedByInput>
+  }
+
   export type UserCreateWithoutTailorCreatedInput = {
     username: string
     password: string
@@ -33459,7 +31877,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorUpdated?: TailorCreateNestedManyWithoutUpdatedByInput
@@ -33477,8 +31894,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutTailorCreatedInput = {
@@ -33491,7 +31909,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorUpdated?: TailorUncheckedCreateNestedManyWithoutUpdatedByInput
@@ -33509,8 +31926,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutTailorCreatedInput = {
@@ -33527,7 +31945,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -33545,8 +31962,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutTailorUpdatedInput = {
@@ -33559,7 +31977,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -33577,8 +31994,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutTailorUpdatedInput = {
@@ -33590,24 +32008,26 @@ export namespace Prisma {
     inbound_date: Date | string
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
-    created_by?: number | null
     ProjectItem?: ProjectItemCreateNestedOneWithoutInboundInput
-    User?: UserCreateNestedOneWithoutInboundInput
     Product?: ProductCreateNestedOneWithoutInboundInput
     Variant?: VariantCreateNestedOneWithoutInboundInput
+    Pic?: UserCreateNestedOneWithoutInboundsAsPicInput
+    CreatedBy?: UserCreateNestedOneWithoutInboundsAsCreatedByInput
   }
 
   export type InboundUncheckedCreateWithoutTailorInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
     product_id: number
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -33766,7 +32186,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorUpdated?: TailorUpdateManyWithoutUpdatedByNestedInput
@@ -33784,8 +32203,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTailorCreatedInput = {
@@ -33798,7 +32218,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorUpdated?: TailorUncheckedUpdateManyWithoutUpdatedByNestedInput
@@ -33816,8 +32235,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUpsertWithoutTailorUpdatedInput = {
@@ -33840,7 +32260,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -33858,8 +32277,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTailorUpdatedInput = {
@@ -33872,7 +32292,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -33890,8 +32309,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type InboundUpsertWithWhereUniqueWithoutTailorInput = {
@@ -33962,24 +32382,26 @@ export namespace Prisma {
     inbound_date: Date | string
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
-    created_by?: number | null
     ProjectItem?: ProjectItemCreateNestedOneWithoutInboundInput
-    User?: UserCreateNestedOneWithoutInboundInput
     Tailor?: TailorCreateNestedOneWithoutInboundInput
     Product?: ProductCreateNestedOneWithoutInboundInput
+    Pic?: UserCreateNestedOneWithoutInboundsAsPicInput
+    CreatedBy?: UserCreateNestedOneWithoutInboundsAsCreatedByInput
   }
 
   export type InboundUncheckedCreateWithoutVariantInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
-    tailor_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
     product_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -34127,37 +32549,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ReturnCreateWithoutVariantInput = {
-    return_date: Date | string
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    Product?: ProductCreateNestedOneWithoutReturnInput
-    User?: UserCreateNestedOneWithoutReturnInput
-  }
-
-  export type ReturnUncheckedCreateWithoutVariantInput = {
-    return_id?: number
-    return_date: Date | string
-    product_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    created_by?: number | null
-  }
-
-  export type ReturnCreateOrConnectWithoutVariantInput = {
-    where: ReturnWhereUniqueInput
-    create: XOR<ReturnCreateWithoutVariantInput, ReturnUncheckedCreateWithoutVariantInput>
-  }
-
-  export type ReturnCreateManyVariantInputEnvelope = {
-    data: ReturnCreateManyVariantInput | ReturnCreateManyVariantInput[]
-    skipDuplicates?: boolean
-  }
-
   export type InboundUpsertWithWhereUniqueWithoutVariantInput = {
     where: InboundWhereUniqueInput
     update: XOR<InboundUpdateWithoutVariantInput, InboundUncheckedUpdateWithoutVariantInput>
@@ -34247,22 +32638,6 @@ export namespace Prisma {
     variant_id?: IntFilter<"ProductVariant"> | number
   }
 
-  export type ReturnUpsertWithWhereUniqueWithoutVariantInput = {
-    where: ReturnWhereUniqueInput
-    update: XOR<ReturnUpdateWithoutVariantInput, ReturnUncheckedUpdateWithoutVariantInput>
-    create: XOR<ReturnCreateWithoutVariantInput, ReturnUncheckedCreateWithoutVariantInput>
-  }
-
-  export type ReturnUpdateWithWhereUniqueWithoutVariantInput = {
-    where: ReturnWhereUniqueInput
-    data: XOR<ReturnUpdateWithoutVariantInput, ReturnUncheckedUpdateWithoutVariantInput>
-  }
-
-  export type ReturnUpdateManyWithWhereWithoutVariantInput = {
-    where: ReturnScalarWhereInput
-    data: XOR<ReturnUpdateManyMutationInput, ReturnUncheckedUpdateManyWithoutVariantInput>
-  }
-
   export type UserCreateWithoutProductCreatedInput = {
     username: string
     password: string
@@ -34272,7 +32647,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -34290,8 +32664,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutProductCreatedInput = {
@@ -34304,7 +32679,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -34322,8 +32696,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutProductCreatedInput = {
@@ -34340,7 +32715,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -34358,8 +32732,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutProductUpdatedInput = {
@@ -34372,7 +32747,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -34390,8 +32764,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutProductUpdatedInput = {
@@ -34403,24 +32778,26 @@ export namespace Prisma {
     inbound_date: Date | string
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
-    created_by?: number | null
     ProjectItem?: ProjectItemCreateNestedOneWithoutInboundInput
-    User?: UserCreateNestedOneWithoutInboundInput
     Tailor?: TailorCreateNestedOneWithoutInboundInput
     Variant?: VariantCreateNestedOneWithoutInboundInput
+    Pic?: UserCreateNestedOneWithoutInboundsAsPicInput
+    CreatedBy?: UserCreateNestedOneWithoutInboundsAsCreatedByInput
   }
 
   export type InboundUncheckedCreateWithoutProductInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
-    tailor_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -34609,37 +32986,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ReturnCreateWithoutProductInput = {
-    return_date: Date | string
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    Variant?: VariantCreateNestedOneWithoutReturnInput
-    User?: UserCreateNestedOneWithoutReturnInput
-  }
-
-  export type ReturnUncheckedCreateWithoutProductInput = {
-    return_id?: number
-    return_date: Date | string
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    created_by?: number | null
-  }
-
-  export type ReturnCreateOrConnectWithoutProductInput = {
-    where: ReturnWhereUniqueInput
-    create: XOR<ReturnCreateWithoutProductInput, ReturnUncheckedCreateWithoutProductInput>
-  }
-
-  export type ReturnCreateManyProductInputEnvelope = {
-    data: ReturnCreateManyProductInput | ReturnCreateManyProductInput[]
-    skipDuplicates?: boolean
-  }
-
   export type UserUpsertWithoutProductCreatedInput = {
     update: XOR<UserUpdateWithoutProductCreatedInput, UserUncheckedUpdateWithoutProductCreatedInput>
     create: XOR<UserCreateWithoutProductCreatedInput, UserUncheckedCreateWithoutProductCreatedInput>
@@ -34660,7 +33006,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -34678,8 +33023,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProductCreatedInput = {
@@ -34692,7 +33038,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -34710,8 +33055,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUpsertWithoutProductUpdatedInput = {
@@ -34734,7 +33080,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -34752,8 +33097,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProductUpdatedInput = {
@@ -34766,7 +33112,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -34784,8 +33129,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type InboundUpsertWithWhereUniqueWithoutProductInput = {
@@ -34884,22 +33230,6 @@ export namespace Prisma {
     data: XOR<ProductVariantUpdateManyMutationInput, ProductVariantUncheckedUpdateManyWithoutProductInput>
   }
 
-  export type ReturnUpsertWithWhereUniqueWithoutProductInput = {
-    where: ReturnWhereUniqueInput
-    update: XOR<ReturnUpdateWithoutProductInput, ReturnUncheckedUpdateWithoutProductInput>
-    create: XOR<ReturnCreateWithoutProductInput, ReturnUncheckedCreateWithoutProductInput>
-  }
-
-  export type ReturnUpdateWithWhereUniqueWithoutProductInput = {
-    where: ReturnWhereUniqueInput
-    data: XOR<ReturnUpdateWithoutProductInput, ReturnUncheckedUpdateWithoutProductInput>
-  }
-
-  export type ReturnUpdateManyWithWhereWithoutProductInput = {
-    where: ReturnScalarWhereInput
-    data: XOR<ReturnUpdateManyMutationInput, ReturnUncheckedUpdateManyWithoutProductInput>
-  }
-
   export type ProductCreateWithoutProductVariantInput = {
     fashiondesign_code?: string | null
     product_name: string
@@ -34914,7 +33244,6 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutProductInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductVariantInput = {
@@ -34932,7 +33261,6 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutProductInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductVariantInput = {
@@ -34947,7 +33275,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemCreateNestedManyWithoutVariantInput
     Order?: OrderCreateNestedManyWithoutVariantInput
     Outbound?: OutboundCreateNestedManyWithoutVariantInput
-    Return?: ReturnCreateNestedManyWithoutVariantInput
   }
 
   export type VariantUncheckedCreateWithoutProductVariantInput = {
@@ -34958,7 +33285,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutVariantInput
     Order?: OrderUncheckedCreateNestedManyWithoutVariantInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutVariantInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutVariantInput
   }
 
   export type VariantCreateOrConnectWithoutProductVariantInput = {
@@ -34991,7 +33317,6 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutProductNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductVariantInput = {
@@ -35009,7 +33334,6 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutProductNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type VariantUpsertWithoutProductVariantInput = {
@@ -35030,7 +33354,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUpdateManyWithoutVariantNestedInput
     Order?: OrderUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUpdateManyWithoutVariantNestedInput
   }
 
   export type VariantUncheckedUpdateWithoutProductVariantInput = {
@@ -35041,7 +33364,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutVariantNestedInput
     Order?: OrderUncheckedUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutVariantNestedInput
   }
 
   export type UserCreateWithoutImportInput = {
@@ -35053,7 +33375,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -35072,7 +33393,8 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutImportInput = {
@@ -35085,7 +33407,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -35104,7 +33425,8 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutImportInput = {
@@ -35132,7 +33454,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -35151,7 +33472,8 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutImportInput = {
@@ -35164,7 +33486,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -35183,7 +33504,8 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type ProductCreateWithoutOrderInput = {
@@ -35200,7 +33522,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutOrderInput = {
@@ -35218,7 +33539,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutOrderInput = {
@@ -35233,7 +33553,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemCreateNestedManyWithoutVariantInput
     Outbound?: OutboundCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutVariantInput
-    Return?: ReturnCreateNestedManyWithoutVariantInput
   }
 
   export type VariantUncheckedCreateWithoutOrderInput = {
@@ -35244,7 +33563,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutVariantInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutVariantInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutVariantInput
   }
 
   export type VariantCreateOrConnectWithoutOrderInput = {
@@ -35285,7 +33603,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -35303,8 +33620,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutOrderInput = {
@@ -35317,7 +33635,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -35335,8 +33652,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutOrderInput = {
@@ -35369,7 +33687,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutOrderInput = {
@@ -35387,7 +33704,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type VariantUpsertWithoutOrderInput = {
@@ -35408,7 +33724,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUpdateManyWithoutVariantNestedInput
   }
 
   export type VariantUncheckedUpdateWithoutOrderInput = {
@@ -35419,7 +33734,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutVariantNestedInput
   }
 
   export type ProjectUpsertWithoutOrderInput = {
@@ -35472,7 +33786,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -35490,8 +33803,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrderInput = {
@@ -35504,7 +33818,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -35522,8 +33835,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type ProjectItemCreateWithoutProjectInput = {
@@ -35572,7 +33886,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
     TailorUpdated?: TailorCreateNestedManyWithoutUpdatedByInput
@@ -35590,8 +33903,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutProjectInput = {
@@ -35604,7 +33918,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
     TailorUpdated?: TailorUncheckedCreateNestedManyWithoutUpdatedByInput
@@ -35622,8 +33935,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutProjectInput = {
@@ -35712,7 +34026,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
     TailorUpdated?: TailorUpdateManyWithoutUpdatedByNestedInput
@@ -35730,8 +34043,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectInput = {
@@ -35744,7 +34058,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
     TailorUpdated?: TailorUncheckedUpdateManyWithoutUpdatedByNestedInput
@@ -35762,8 +34075,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type OrderUpsertWithWhereUniqueWithoutProjectInput = {
@@ -35815,7 +34129,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
     TailorUpdated?: TailorCreateNestedManyWithoutUpdatedByInput
@@ -35833,8 +34146,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutProjectItemInput = {
@@ -35847,7 +34161,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
     TailorUpdated?: TailorUncheckedCreateNestedManyWithoutUpdatedByInput
@@ -35865,8 +34178,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutProjectItemInput = {
@@ -35916,7 +34230,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProjectItemInput = {
@@ -35934,7 +34247,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProjectItemInput = {
@@ -35949,7 +34261,6 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutVariantInput
     Outbound?: OutboundCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutVariantInput
-    Return?: ReturnCreateNestedManyWithoutVariantInput
   }
 
   export type VariantUncheckedCreateWithoutProjectItemInput = {
@@ -35960,7 +34271,6 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutVariantInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutVariantInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutVariantInput
   }
 
   export type VariantCreateOrConnectWithoutProjectItemInput = {
@@ -35972,24 +34282,26 @@ export namespace Prisma {
     inbound_date: Date | string
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
-    created_by?: number | null
-    User?: UserCreateNestedOneWithoutInboundInput
     Tailor?: TailorCreateNestedOneWithoutInboundInput
     Product?: ProductCreateNestedOneWithoutInboundInput
     Variant?: VariantCreateNestedOneWithoutInboundInput
+    Pic?: UserCreateNestedOneWithoutInboundsAsPicInput
+    CreatedBy?: UserCreateNestedOneWithoutInboundsAsCreatedByInput
   }
 
   export type InboundUncheckedCreateWithoutProjectItemInput = {
     inbound_id?: number
     inbound_date: Date | string
-    pic_id: number
-    tailor_id: number
+    pic_id?: number | null
+    tailor_id?: number | null
     product_id: number
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -36055,7 +34367,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
     TailorUpdated?: TailorUpdateManyWithoutUpdatedByNestedInput
@@ -36073,8 +34384,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectItemInput = {
@@ -36087,7 +34399,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
     TailorUpdated?: TailorUncheckedUpdateManyWithoutUpdatedByNestedInput
@@ -36105,8 +34416,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type TailorUpsertWithoutProjectItemInput = {
@@ -36168,7 +34480,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProjectItemInput = {
@@ -36186,7 +34497,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type VariantUpsertWithoutProjectItemInput = {
@@ -36207,7 +34517,6 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUpdateManyWithoutVariantNestedInput
   }
 
   export type VariantUncheckedUpdateWithoutProjectItemInput = {
@@ -36218,7 +34527,6 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutVariantNestedInput
   }
 
   export type InboundUpsertWithWhereUniqueWithoutProjectItemInput = {
@@ -36269,74 +34577,6 @@ export namespace Prisma {
     create: XOR<ProjectItemCreateWithoutInboundInput, ProjectItemUncheckedCreateWithoutInboundInput>
   }
 
-  export type UserCreateWithoutInboundInput = {
-    username: string
-    password: string
-    token?: string | null
-    user_agent?: string | null
-    ip_address?: string | null
-    full_name: string
-    role?: $Enums.Role
-    created_at?: Date | string
-    ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
-    Project?: ProjectCreateNestedManyWithoutUserInput
-    TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
-    TailorUpdated?: TailorCreateNestedManyWithoutUpdatedByInput
-    ProductCreated?: ProductCreateNestedManyWithoutCreatedByInput
-    ProductUpdated?: ProductCreateNestedManyWithoutUpdatedByInput
-    FashionDesignCreated?: FashionDesignCreateNestedManyWithoutCreatedByInput
-    FashionDesignUpdated?: FashionDesignCreateNestedManyWithoutUpdatedByInput
-    MerchandiseCreated?: MerchandiseCreateNestedManyWithoutCreatedByInput
-    MerchandiseUpdated?: MerchandiseCreateNestedManyWithoutUpdatedByInput
-    SupplierCreated?: SupplierCreateNestedManyWithoutCreatedByInput
-    SupplierUpdated?: SupplierCreateNestedManyWithoutUpdatedByInput
-    ColorCreated?: ColorCreateNestedManyWithoutCreatedByInput
-    ColorUpdated?: ColorCreateNestedManyWithoutUpdatedByInput
-    Order?: OrderCreateNestedManyWithoutUserInput
-    Outbound?: OutboundCreateNestedManyWithoutUserInput
-    MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
-    MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
-    Import?: ImportCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutInboundInput = {
-    user_id?: number
-    username: string
-    password: string
-    token?: string | null
-    user_agent?: string | null
-    ip_address?: string | null
-    full_name: string
-    role?: $Enums.Role
-    created_at?: Date | string
-    ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
-    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
-    TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
-    TailorUpdated?: TailorUncheckedCreateNestedManyWithoutUpdatedByInput
-    ProductCreated?: ProductUncheckedCreateNestedManyWithoutCreatedByInput
-    ProductUpdated?: ProductUncheckedCreateNestedManyWithoutUpdatedByInput
-    FashionDesignCreated?: FashionDesignUncheckedCreateNestedManyWithoutCreatedByInput
-    FashionDesignUpdated?: FashionDesignUncheckedCreateNestedManyWithoutUpdatedByInput
-    MerchandiseCreated?: MerchandiseUncheckedCreateNestedManyWithoutCreatedByInput
-    MerchandiseUpdated?: MerchandiseUncheckedCreateNestedManyWithoutUpdatedByInput
-    SupplierCreated?: SupplierUncheckedCreateNestedManyWithoutCreatedByInput
-    SupplierUpdated?: SupplierUncheckedCreateNestedManyWithoutUpdatedByInput
-    ColorCreated?: ColorUncheckedCreateNestedManyWithoutCreatedByInput
-    ColorUpdated?: ColorUncheckedCreateNestedManyWithoutUpdatedByInput
-    Order?: OrderUncheckedCreateNestedManyWithoutUserInput
-    Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
-    MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
-    MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
-    Import?: ImportUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutInboundInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutInboundInput, UserUncheckedCreateWithoutInboundInput>
-  }
-
   export type TailorCreateWithoutInboundInput = {
     tailor_name: string
     created_at?: Date | string
@@ -36379,7 +34619,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutInboundInput = {
@@ -36397,7 +34636,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutInboundInput = {
@@ -36412,7 +34650,6 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutVariantInput
     Outbound?: OutboundCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutVariantInput
-    Return?: ReturnCreateNestedManyWithoutVariantInput
   }
 
   export type VariantUncheckedCreateWithoutInboundInput = {
@@ -36423,12 +34660,147 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutVariantInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutVariantInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutVariantInput
   }
 
   export type VariantCreateOrConnectWithoutInboundInput = {
     where: VariantWhereUniqueInput
     create: XOR<VariantCreateWithoutInboundInput, VariantUncheckedCreateWithoutInboundInput>
+  }
+
+  export type UserCreateWithoutInboundsAsPicInput = {
+    username: string
+    password: string
+    token?: string | null
+    user_agent?: string | null
+    ip_address?: string | null
+    full_name: string
+    role?: $Enums.Role
+    created_at?: Date | string
+    ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
+    Project?: ProjectCreateNestedManyWithoutUserInput
+    TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
+    TailorUpdated?: TailorCreateNestedManyWithoutUpdatedByInput
+    ProductCreated?: ProductCreateNestedManyWithoutCreatedByInput
+    ProductUpdated?: ProductCreateNestedManyWithoutUpdatedByInput
+    FashionDesignCreated?: FashionDesignCreateNestedManyWithoutCreatedByInput
+    FashionDesignUpdated?: FashionDesignCreateNestedManyWithoutUpdatedByInput
+    MerchandiseCreated?: MerchandiseCreateNestedManyWithoutCreatedByInput
+    MerchandiseUpdated?: MerchandiseCreateNestedManyWithoutUpdatedByInput
+    SupplierCreated?: SupplierCreateNestedManyWithoutCreatedByInput
+    SupplierUpdated?: SupplierCreateNestedManyWithoutUpdatedByInput
+    ColorCreated?: ColorCreateNestedManyWithoutCreatedByInput
+    ColorUpdated?: ColorCreateNestedManyWithoutUpdatedByInput
+    Order?: OrderCreateNestedManyWithoutUserInput
+    Outbound?: OutboundCreateNestedManyWithoutUserInput
+    MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
+    MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
+    Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutInboundsAsPicInput = {
+    user_id?: number
+    username: string
+    password: string
+    token?: string | null
+    user_agent?: string | null
+    ip_address?: string | null
+    full_name: string
+    role?: $Enums.Role
+    created_at?: Date | string
+    ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
+    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
+    TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
+    TailorUpdated?: TailorUncheckedCreateNestedManyWithoutUpdatedByInput
+    ProductCreated?: ProductUncheckedCreateNestedManyWithoutCreatedByInput
+    ProductUpdated?: ProductUncheckedCreateNestedManyWithoutUpdatedByInput
+    FashionDesignCreated?: FashionDesignUncheckedCreateNestedManyWithoutCreatedByInput
+    FashionDesignUpdated?: FashionDesignUncheckedCreateNestedManyWithoutUpdatedByInput
+    MerchandiseCreated?: MerchandiseUncheckedCreateNestedManyWithoutCreatedByInput
+    MerchandiseUpdated?: MerchandiseUncheckedCreateNestedManyWithoutUpdatedByInput
+    SupplierCreated?: SupplierUncheckedCreateNestedManyWithoutCreatedByInput
+    SupplierUpdated?: SupplierUncheckedCreateNestedManyWithoutUpdatedByInput
+    ColorCreated?: ColorUncheckedCreateNestedManyWithoutCreatedByInput
+    ColorUpdated?: ColorUncheckedCreateNestedManyWithoutUpdatedByInput
+    Order?: OrderUncheckedCreateNestedManyWithoutUserInput
+    Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
+    MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
+    MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
+    Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutInboundsAsPicInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInboundsAsPicInput, UserUncheckedCreateWithoutInboundsAsPicInput>
+  }
+
+  export type UserCreateWithoutInboundsAsCreatedByInput = {
+    username: string
+    password: string
+    token?: string | null
+    user_agent?: string | null
+    ip_address?: string | null
+    full_name: string
+    role?: $Enums.Role
+    created_at?: Date | string
+    ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
+    Project?: ProjectCreateNestedManyWithoutUserInput
+    TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
+    TailorUpdated?: TailorCreateNestedManyWithoutUpdatedByInput
+    ProductCreated?: ProductCreateNestedManyWithoutCreatedByInput
+    ProductUpdated?: ProductCreateNestedManyWithoutUpdatedByInput
+    FashionDesignCreated?: FashionDesignCreateNestedManyWithoutCreatedByInput
+    FashionDesignUpdated?: FashionDesignCreateNestedManyWithoutUpdatedByInput
+    MerchandiseCreated?: MerchandiseCreateNestedManyWithoutCreatedByInput
+    MerchandiseUpdated?: MerchandiseCreateNestedManyWithoutUpdatedByInput
+    SupplierCreated?: SupplierCreateNestedManyWithoutCreatedByInput
+    SupplierUpdated?: SupplierCreateNestedManyWithoutUpdatedByInput
+    ColorCreated?: ColorCreateNestedManyWithoutCreatedByInput
+    ColorUpdated?: ColorCreateNestedManyWithoutUpdatedByInput
+    Order?: OrderCreateNestedManyWithoutUserInput
+    Outbound?: OutboundCreateNestedManyWithoutUserInput
+    MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
+    MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
+    Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+  }
+
+  export type UserUncheckedCreateWithoutInboundsAsCreatedByInput = {
+    user_id?: number
+    username: string
+    password: string
+    token?: string | null
+    user_agent?: string | null
+    ip_address?: string | null
+    full_name: string
+    role?: $Enums.Role
+    created_at?: Date | string
+    ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
+    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
+    TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
+    TailorUpdated?: TailorUncheckedCreateNestedManyWithoutUpdatedByInput
+    ProductCreated?: ProductUncheckedCreateNestedManyWithoutCreatedByInput
+    ProductUpdated?: ProductUncheckedCreateNestedManyWithoutUpdatedByInput
+    FashionDesignCreated?: FashionDesignUncheckedCreateNestedManyWithoutCreatedByInput
+    FashionDesignUpdated?: FashionDesignUncheckedCreateNestedManyWithoutUpdatedByInput
+    MerchandiseCreated?: MerchandiseUncheckedCreateNestedManyWithoutCreatedByInput
+    MerchandiseUpdated?: MerchandiseUncheckedCreateNestedManyWithoutUpdatedByInput
+    SupplierCreated?: SupplierUncheckedCreateNestedManyWithoutCreatedByInput
+    SupplierUpdated?: SupplierUncheckedCreateNestedManyWithoutUpdatedByInput
+    ColorCreated?: ColorUncheckedCreateNestedManyWithoutCreatedByInput
+    ColorUpdated?: ColorUncheckedCreateNestedManyWithoutUpdatedByInput
+    Order?: OrderUncheckedCreateNestedManyWithoutUserInput
+    Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
+    MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
+    MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
+    Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+  }
+
+  export type UserCreateOrConnectWithoutInboundsAsCreatedByInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInboundsAsCreatedByInput, UserUncheckedCreateWithoutInboundsAsCreatedByInput>
   }
 
   export type ProjectItemUpsertWithoutInboundInput = {
@@ -36467,80 +34839,6 @@ export namespace Prisma {
     status?: EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type UserUpsertWithoutInboundInput = {
-    update: XOR<UserUpdateWithoutInboundInput, UserUncheckedUpdateWithoutInboundInput>
-    create: XOR<UserCreateWithoutInboundInput, UserUncheckedCreateWithoutInboundInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutInboundInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutInboundInput, UserUncheckedUpdateWithoutInboundInput>
-  }
-
-  export type UserUpdateWithoutInboundInput = {
-    username?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    token?: NullableStringFieldUpdateOperationsInput | string | null
-    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
-    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
-    full_name?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
-    Project?: ProjectUpdateManyWithoutUserNestedInput
-    TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
-    TailorUpdated?: TailorUpdateManyWithoutUpdatedByNestedInput
-    ProductCreated?: ProductUpdateManyWithoutCreatedByNestedInput
-    ProductUpdated?: ProductUpdateManyWithoutUpdatedByNestedInput
-    FashionDesignCreated?: FashionDesignUpdateManyWithoutCreatedByNestedInput
-    FashionDesignUpdated?: FashionDesignUpdateManyWithoutUpdatedByNestedInput
-    MerchandiseCreated?: MerchandiseUpdateManyWithoutCreatedByNestedInput
-    MerchandiseUpdated?: MerchandiseUpdateManyWithoutUpdatedByNestedInput
-    SupplierCreated?: SupplierUpdateManyWithoutCreatedByNestedInput
-    SupplierUpdated?: SupplierUpdateManyWithoutUpdatedByNestedInput
-    ColorCreated?: ColorUpdateManyWithoutCreatedByNestedInput
-    ColorUpdated?: ColorUpdateManyWithoutUpdatedByNestedInput
-    Order?: OrderUpdateManyWithoutUserNestedInput
-    Outbound?: OutboundUpdateManyWithoutUserNestedInput
-    MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
-    MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
-    Import?: ImportUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutInboundInput = {
-    user_id?: IntFieldUpdateOperationsInput | number
-    username?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    token?: NullableStringFieldUpdateOperationsInput | string | null
-    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
-    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
-    full_name?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
-    Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
-    TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
-    TailorUpdated?: TailorUncheckedUpdateManyWithoutUpdatedByNestedInput
-    ProductCreated?: ProductUncheckedUpdateManyWithoutCreatedByNestedInput
-    ProductUpdated?: ProductUncheckedUpdateManyWithoutUpdatedByNestedInput
-    FashionDesignCreated?: FashionDesignUncheckedUpdateManyWithoutCreatedByNestedInput
-    FashionDesignUpdated?: FashionDesignUncheckedUpdateManyWithoutUpdatedByNestedInput
-    MerchandiseCreated?: MerchandiseUncheckedUpdateManyWithoutCreatedByNestedInput
-    MerchandiseUpdated?: MerchandiseUncheckedUpdateManyWithoutUpdatedByNestedInput
-    SupplierCreated?: SupplierUncheckedUpdateManyWithoutCreatedByNestedInput
-    SupplierUpdated?: SupplierUncheckedUpdateManyWithoutUpdatedByNestedInput
-    ColorCreated?: ColorUncheckedUpdateManyWithoutCreatedByNestedInput
-    ColorUpdated?: ColorUncheckedUpdateManyWithoutUpdatedByNestedInput
-    Order?: OrderUncheckedUpdateManyWithoutUserNestedInput
-    Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
-    MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
-    MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
-    Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TailorUpsertWithoutInboundInput = {
@@ -36602,7 +34900,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutInboundInput = {
@@ -36620,7 +34917,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type VariantUpsertWithoutInboundInput = {
@@ -36641,7 +34937,6 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUpdateManyWithoutVariantNestedInput
   }
 
   export type VariantUncheckedUpdateWithoutInboundInput = {
@@ -36652,233 +34947,20 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutVariantNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutVariantNestedInput
   }
 
-  export type ProductCreateWithoutReturnInput = {
-    fashiondesign_code?: string | null
-    product_name: string
-    cogs?: number | null
-    selling_price?: number | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    CreatedBy?: UserCreateNestedOneWithoutProductCreatedInput
-    UpdatedBy?: UserCreateNestedOneWithoutProductUpdatedInput
-    Inbound?: InboundCreateNestedManyWithoutProductInput
-    ProjectItem?: ProjectItemCreateNestedManyWithoutProductInput
-    Order?: OrderCreateNestedManyWithoutProductInput
-    MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
-    Outbound?: OutboundCreateNestedManyWithoutProductInput
-    ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-  }
-
-  export type ProductUncheckedCreateWithoutReturnInput = {
-    product_id?: number
-    fashiondesign_code?: string | null
-    product_name: string
-    cogs?: number | null
-    selling_price?: number | null
-    created_at?: Date | string
-    created_by?: number | null
-    updated_at?: Date | string
-    updated_by?: number | null
-    Inbound?: InboundUncheckedCreateNestedManyWithoutProductInput
-    ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutProductInput
-    Order?: OrderUncheckedCreateNestedManyWithoutProductInput
-    MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
-    Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
-    ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-  }
-
-  export type ProductCreateOrConnectWithoutReturnInput = {
-    where: ProductWhereUniqueInput
-    create: XOR<ProductCreateWithoutReturnInput, ProductUncheckedCreateWithoutReturnInput>
-  }
-
-  export type VariantCreateWithoutReturnInput = {
-    variant_name: string
-    created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutVariantInput
-    ProjectItem?: ProjectItemCreateNestedManyWithoutVariantInput
-    Order?: OrderCreateNestedManyWithoutVariantInput
-    Outbound?: OutboundCreateNestedManyWithoutVariantInput
-    ProductVariant?: ProductVariantCreateNestedManyWithoutVariantInput
-  }
-
-  export type VariantUncheckedCreateWithoutReturnInput = {
-    variant_id?: number
-    variant_name: string
-    created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutVariantInput
-    ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutVariantInput
-    Order?: OrderUncheckedCreateNestedManyWithoutVariantInput
-    Outbound?: OutboundUncheckedCreateNestedManyWithoutVariantInput
-    ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutVariantInput
-  }
-
-  export type VariantCreateOrConnectWithoutReturnInput = {
-    where: VariantWhereUniqueInput
-    create: XOR<VariantCreateWithoutReturnInput, VariantUncheckedCreateWithoutReturnInput>
-  }
-
-  export type UserCreateWithoutReturnInput = {
-    username: string
-    password: string
-    token?: string | null
-    user_agent?: string | null
-    ip_address?: string | null
-    full_name: string
-    role?: $Enums.Role
-    created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
-    ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
-    Project?: ProjectCreateNestedManyWithoutUserInput
-    TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
-    TailorUpdated?: TailorCreateNestedManyWithoutUpdatedByInput
-    ProductCreated?: ProductCreateNestedManyWithoutCreatedByInput
-    ProductUpdated?: ProductCreateNestedManyWithoutUpdatedByInput
-    FashionDesignCreated?: FashionDesignCreateNestedManyWithoutCreatedByInput
-    FashionDesignUpdated?: FashionDesignCreateNestedManyWithoutUpdatedByInput
-    MerchandiseCreated?: MerchandiseCreateNestedManyWithoutCreatedByInput
-    MerchandiseUpdated?: MerchandiseCreateNestedManyWithoutUpdatedByInput
-    SupplierCreated?: SupplierCreateNestedManyWithoutCreatedByInput
-    SupplierUpdated?: SupplierCreateNestedManyWithoutUpdatedByInput
-    ColorCreated?: ColorCreateNestedManyWithoutCreatedByInput
-    ColorUpdated?: ColorCreateNestedManyWithoutUpdatedByInput
-    Order?: OrderCreateNestedManyWithoutUserInput
-    Outbound?: OutboundCreateNestedManyWithoutUserInput
-    MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
-    MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Import?: ImportCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutReturnInput = {
-    user_id?: number
-    username: string
-    password: string
-    token?: string | null
-    user_agent?: string | null
-    ip_address?: string | null
-    full_name: string
-    role?: $Enums.Role
-    created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
-    ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
-    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
-    TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
-    TailorUpdated?: TailorUncheckedCreateNestedManyWithoutUpdatedByInput
-    ProductCreated?: ProductUncheckedCreateNestedManyWithoutCreatedByInput
-    ProductUpdated?: ProductUncheckedCreateNestedManyWithoutUpdatedByInput
-    FashionDesignCreated?: FashionDesignUncheckedCreateNestedManyWithoutCreatedByInput
-    FashionDesignUpdated?: FashionDesignUncheckedCreateNestedManyWithoutUpdatedByInput
-    MerchandiseCreated?: MerchandiseUncheckedCreateNestedManyWithoutCreatedByInput
-    MerchandiseUpdated?: MerchandiseUncheckedCreateNestedManyWithoutUpdatedByInput
-    SupplierCreated?: SupplierUncheckedCreateNestedManyWithoutCreatedByInput
-    SupplierUpdated?: SupplierUncheckedCreateNestedManyWithoutUpdatedByInput
-    ColorCreated?: ColorUncheckedCreateNestedManyWithoutCreatedByInput
-    ColorUpdated?: ColorUncheckedCreateNestedManyWithoutUpdatedByInput
-    Order?: OrderUncheckedCreateNestedManyWithoutUserInput
-    Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
-    MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
-    MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Import?: ImportUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutReturnInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutReturnInput, UserUncheckedCreateWithoutReturnInput>
-  }
-
-  export type ProductUpsertWithoutReturnInput = {
-    update: XOR<ProductUpdateWithoutReturnInput, ProductUncheckedUpdateWithoutReturnInput>
-    create: XOR<ProductCreateWithoutReturnInput, ProductUncheckedCreateWithoutReturnInput>
-    where?: ProductWhereInput
-  }
-
-  export type ProductUpdateToOneWithWhereWithoutReturnInput = {
-    where?: ProductWhereInput
-    data: XOR<ProductUpdateWithoutReturnInput, ProductUncheckedUpdateWithoutReturnInput>
-  }
-
-  export type ProductUpdateWithoutReturnInput = {
-    fashiondesign_code?: NullableStringFieldUpdateOperationsInput | string | null
-    product_name?: StringFieldUpdateOperationsInput | string
-    cogs?: NullableIntFieldUpdateOperationsInput | number | null
-    selling_price?: NullableIntFieldUpdateOperationsInput | number | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    CreatedBy?: UserUpdateOneWithoutProductCreatedNestedInput
-    UpdatedBy?: UserUpdateOneWithoutProductUpdatedNestedInput
-    Inbound?: InboundUpdateManyWithoutProductNestedInput
-    ProjectItem?: ProjectItemUpdateManyWithoutProductNestedInput
-    Order?: OrderUpdateManyWithoutProductNestedInput
-    MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
-    Outbound?: OutboundUpdateManyWithoutProductNestedInput
-    ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-  }
-
-  export type ProductUncheckedUpdateWithoutReturnInput = {
-    product_id?: IntFieldUpdateOperationsInput | number
-    fashiondesign_code?: NullableStringFieldUpdateOperationsInput | string | null
-    product_name?: StringFieldUpdateOperationsInput | string
-    cogs?: NullableIntFieldUpdateOperationsInput | number | null
-    selling_price?: NullableIntFieldUpdateOperationsInput | number | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
-    Inbound?: InboundUncheckedUpdateManyWithoutProductNestedInput
-    ProjectItem?: ProjectItemUncheckedUpdateManyWithoutProductNestedInput
-    Order?: OrderUncheckedUpdateManyWithoutProductNestedInput
-    MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
-    Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
-    ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-  }
-
-  export type VariantUpsertWithoutReturnInput = {
-    update: XOR<VariantUpdateWithoutReturnInput, VariantUncheckedUpdateWithoutReturnInput>
-    create: XOR<VariantCreateWithoutReturnInput, VariantUncheckedCreateWithoutReturnInput>
-    where?: VariantWhereInput
-  }
-
-  export type VariantUpdateToOneWithWhereWithoutReturnInput = {
-    where?: VariantWhereInput
-    data: XOR<VariantUpdateWithoutReturnInput, VariantUncheckedUpdateWithoutReturnInput>
-  }
-
-  export type VariantUpdateWithoutReturnInput = {
-    variant_name?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutVariantNestedInput
-    ProjectItem?: ProjectItemUpdateManyWithoutVariantNestedInput
-    Order?: OrderUpdateManyWithoutVariantNestedInput
-    Outbound?: OutboundUpdateManyWithoutVariantNestedInput
-    ProductVariant?: ProductVariantUpdateManyWithoutVariantNestedInput
-  }
-
-  export type VariantUncheckedUpdateWithoutReturnInput = {
-    variant_id?: IntFieldUpdateOperationsInput | number
-    variant_name?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutVariantNestedInput
-    ProjectItem?: ProjectItemUncheckedUpdateManyWithoutVariantNestedInput
-    Order?: OrderUncheckedUpdateManyWithoutVariantNestedInput
-    Outbound?: OutboundUncheckedUpdateManyWithoutVariantNestedInput
-    ProductVariant?: ProductVariantUncheckedUpdateManyWithoutVariantNestedInput
-  }
-
-  export type UserUpsertWithoutReturnInput = {
-    update: XOR<UserUpdateWithoutReturnInput, UserUncheckedUpdateWithoutReturnInput>
-    create: XOR<UserCreateWithoutReturnInput, UserUncheckedCreateWithoutReturnInput>
+  export type UserUpsertWithoutInboundsAsPicInput = {
+    update: XOR<UserUpdateWithoutInboundsAsPicInput, UserUncheckedUpdateWithoutInboundsAsPicInput>
+    create: XOR<UserCreateWithoutInboundsAsPicInput, UserUncheckedCreateWithoutInboundsAsPicInput>
     where?: UserWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutReturnInput = {
+  export type UserUpdateToOneWithWhereWithoutInboundsAsPicInput = {
     where?: UserWhereInput
-    data: XOR<UserUpdateWithoutReturnInput, UserUncheckedUpdateWithoutReturnInput>
+    data: XOR<UserUpdateWithoutInboundsAsPicInput, UserUncheckedUpdateWithoutInboundsAsPicInput>
   }
 
-  export type UserUpdateWithoutReturnInput = {
+  export type UserUpdateWithoutInboundsAsPicInput = {
     username?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     token?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36887,7 +34969,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -36907,9 +34988,10 @@ export namespace Prisma {
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutReturnInput = {
+  export type UserUncheckedUpdateWithoutInboundsAsPicInput = {
     user_id?: IntFieldUpdateOperationsInput | number
     username?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
@@ -36919,7 +35001,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -36939,6 +35020,81 @@ export namespace Prisma {
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUpsertWithoutInboundsAsCreatedByInput = {
+    update: XOR<UserUpdateWithoutInboundsAsCreatedByInput, UserUncheckedUpdateWithoutInboundsAsCreatedByInput>
+    create: XOR<UserCreateWithoutInboundsAsCreatedByInput, UserUncheckedCreateWithoutInboundsAsCreatedByInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutInboundsAsCreatedByInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutInboundsAsCreatedByInput, UserUncheckedUpdateWithoutInboundsAsCreatedByInput>
+  }
+
+  export type UserUpdateWithoutInboundsAsCreatedByInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
+    full_name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
+    Project?: ProjectUpdateManyWithoutUserNestedInput
+    TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
+    TailorUpdated?: TailorUpdateManyWithoutUpdatedByNestedInput
+    ProductCreated?: ProductUpdateManyWithoutCreatedByNestedInput
+    ProductUpdated?: ProductUpdateManyWithoutUpdatedByNestedInput
+    FashionDesignCreated?: FashionDesignUpdateManyWithoutCreatedByNestedInput
+    FashionDesignUpdated?: FashionDesignUpdateManyWithoutUpdatedByNestedInput
+    MerchandiseCreated?: MerchandiseUpdateManyWithoutCreatedByNestedInput
+    MerchandiseUpdated?: MerchandiseUpdateManyWithoutUpdatedByNestedInput
+    SupplierCreated?: SupplierUpdateManyWithoutCreatedByNestedInput
+    SupplierUpdated?: SupplierUpdateManyWithoutUpdatedByNestedInput
+    ColorCreated?: ColorUpdateManyWithoutCreatedByNestedInput
+    ColorUpdated?: ColorUpdateManyWithoutUpdatedByNestedInput
+    Order?: OrderUpdateManyWithoutUserNestedInput
+    Outbound?: OutboundUpdateManyWithoutUserNestedInput
+    MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
+    MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
+    Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutInboundsAsCreatedByInput = {
+    user_id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
+    full_name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
+    Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
+    TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
+    TailorUpdated?: TailorUncheckedUpdateManyWithoutUpdatedByNestedInput
+    ProductCreated?: ProductUncheckedUpdateManyWithoutCreatedByNestedInput
+    ProductUpdated?: ProductUncheckedUpdateManyWithoutUpdatedByNestedInput
+    FashionDesignCreated?: FashionDesignUncheckedUpdateManyWithoutCreatedByNestedInput
+    FashionDesignUpdated?: FashionDesignUncheckedUpdateManyWithoutUpdatedByNestedInput
+    MerchandiseCreated?: MerchandiseUncheckedUpdateManyWithoutCreatedByNestedInput
+    MerchandiseUpdated?: MerchandiseUncheckedUpdateManyWithoutUpdatedByNestedInput
+    SupplierCreated?: SupplierUncheckedUpdateManyWithoutCreatedByNestedInput
+    SupplierUpdated?: SupplierUncheckedUpdateManyWithoutUpdatedByNestedInput
+    ColorCreated?: ColorUncheckedUpdateManyWithoutCreatedByNestedInput
+    ColorUpdated?: ColorUncheckedUpdateManyWithoutUpdatedByNestedInput
+    Order?: OrderUncheckedUpdateManyWithoutUserNestedInput
+    Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
+    MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
+    MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
+    Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
   }
 
   export type ProductCreateWithoutOutboundInput = {
@@ -36955,7 +35111,6 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutProductInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutOutboundInput = {
@@ -36973,7 +35128,6 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutProductInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutOutboundInput = {
@@ -36988,7 +35142,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemCreateNestedManyWithoutVariantInput
     Order?: OrderCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutVariantInput
-    Return?: ReturnCreateNestedManyWithoutVariantInput
   }
 
   export type VariantUncheckedCreateWithoutOutboundInput = {
@@ -36999,7 +35152,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutVariantInput
     Order?: OrderUncheckedCreateNestedManyWithoutVariantInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutVariantInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutVariantInput
   }
 
   export type VariantCreateOrConnectWithoutOutboundInput = {
@@ -37016,7 +35168,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -37034,8 +35185,9 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutOutboundInput = {
@@ -37048,7 +35200,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -37066,8 +35217,9 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutOutboundInput = {
@@ -37100,7 +35252,6 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutProductNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutOutboundInput = {
@@ -37118,7 +35269,6 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutProductNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type VariantUpsertWithoutOutboundInput = {
@@ -37139,7 +35289,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUpdateManyWithoutVariantNestedInput
     Order?: OrderUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUpdateManyWithoutVariantNestedInput
   }
 
   export type VariantUncheckedUpdateWithoutOutboundInput = {
@@ -37150,7 +35299,6 @@ export namespace Prisma {
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutVariantNestedInput
     Order?: OrderUncheckedUpdateManyWithoutVariantNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutVariantNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutVariantNestedInput
   }
 
   export type UserUpsertWithoutOutboundInput = {
@@ -37173,7 +35321,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -37191,8 +35338,9 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOutboundInput = {
@@ -37205,7 +35353,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -37223,8 +35370,9 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type MerchandiseOutboundCreateWithoutFashionDesignInput = {
@@ -37305,7 +35453,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -37323,8 +35470,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutFashionDesignCreatedInput = {
@@ -37337,7 +35485,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -37355,8 +35502,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutFashionDesignCreatedInput = {
@@ -37373,7 +35521,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -37391,8 +35538,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutFashionDesignUpdatedInput = {
@@ -37405,7 +35553,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -37423,8 +35570,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutFashionDesignUpdatedInput = {
@@ -37502,7 +35650,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -37520,8 +35667,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFashionDesignCreatedInput = {
@@ -37534,7 +35682,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -37552,8 +35699,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUpsertWithoutFashionDesignUpdatedInput = {
@@ -37576,7 +35724,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -37594,8 +35741,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFashionDesignUpdatedInput = {
@@ -37608,7 +35756,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -37626,8 +35773,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserCreateWithoutMerchandiseCreatedInput = {
@@ -37639,7 +35787,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -37657,8 +35804,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutMerchandiseCreatedInput = {
@@ -37671,7 +35819,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -37689,8 +35836,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutMerchandiseCreatedInput = {
@@ -37707,7 +35855,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -37725,8 +35872,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutMerchandiseUpdatedInput = {
@@ -37739,7 +35887,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -37757,8 +35904,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutMerchandiseUpdatedInput = {
@@ -37864,7 +36012,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -37882,8 +36029,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMerchandiseCreatedInput = {
@@ -37896,7 +36044,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -37914,8 +36061,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUpsertWithoutMerchandiseUpdatedInput = {
@@ -37938,7 +36086,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -37956,8 +36103,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMerchandiseUpdatedInput = {
@@ -37970,7 +36118,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -37988,8 +36135,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type MerchandiseInboundUpsertWithWhereUniqueWithoutMerchandiseInput = {
@@ -38033,7 +36181,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -38051,8 +36198,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutSupplierCreatedInput = {
@@ -38065,7 +36213,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -38083,8 +36230,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutSupplierCreatedInput = {
@@ -38101,7 +36249,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -38119,8 +36266,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutSupplierUpdatedInput = {
@@ -38133,7 +36281,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -38151,8 +36298,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutSupplierUpdatedInput = {
@@ -38217,7 +36365,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -38235,8 +36382,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSupplierCreatedInput = {
@@ -38249,7 +36397,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -38267,8 +36414,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUpsertWithoutSupplierUpdatedInput = {
@@ -38291,7 +36439,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -38309,8 +36456,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSupplierUpdatedInput = {
@@ -38323,7 +36471,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -38341,8 +36488,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type MerchandiseInboundUpsertWithWhereUniqueWithoutSupplierInput = {
@@ -38370,7 +36518,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -38388,8 +36535,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutColorCreatedInput = {
@@ -38402,7 +36550,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -38420,8 +36567,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutColorCreatedInput = {
@@ -38438,7 +36586,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -38456,8 +36603,9 @@ export namespace Prisma {
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutColorUpdatedInput = {
@@ -38470,7 +36618,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -38488,8 +36635,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutColorUpdatedInput = {
@@ -38554,7 +36702,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -38572,8 +36719,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutColorCreatedInput = {
@@ -38586,7 +36734,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -38604,8 +36751,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUpsertWithoutColorUpdatedInput = {
@@ -38628,7 +36776,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -38646,8 +36793,9 @@ export namespace Prisma {
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutColorUpdatedInput = {
@@ -38660,7 +36808,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -38678,8 +36825,9 @@ export namespace Prisma {
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type MerchandiseInboundUpsertWithWhereUniqueWithoutColorInput = {
@@ -38779,7 +36927,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -38797,8 +36944,9 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutUserInput
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutMerchandiseInboundInput = {
@@ -38811,7 +36959,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -38829,8 +36976,9 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutUserInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutMerchandiseInboundInput = {
@@ -38948,7 +37096,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -38966,8 +37113,9 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutUserNestedInput
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMerchandiseInboundInput = {
@@ -38980,7 +37128,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -38998,8 +37145,9 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutUserNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type MerchandiseCreateWithoutMerchandiseOutboundInput = {
@@ -39084,7 +37232,6 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutProductInput
     Outbound?: OutboundCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantCreateNestedManyWithoutProductInput
-    Return?: ReturnCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutMerchandiseOutboundInput = {
@@ -39102,7 +37249,6 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutProductInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutProductInput
     ProductVariant?: ProductVariantUncheckedCreateNestedManyWithoutProductInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutMerchandiseOutboundInput = {
@@ -39147,7 +37293,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemCreateNestedManyWithoutUserInput
     Project?: ProjectCreateNestedManyWithoutUserInput
     TailorCreated?: TailorCreateNestedManyWithoutCreatedByInput
@@ -39165,8 +37310,9 @@ export namespace Prisma {
     Order?: OrderCreateNestedManyWithoutUserInput
     Outbound?: OutboundCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundCreateNestedManyWithoutUserInput
-    Return?: ReturnCreateNestedManyWithoutUserInput
     Import?: ImportCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateWithoutMerchandiseOutboundInput = {
@@ -39179,7 +37325,6 @@ export namespace Prisma {
     full_name: string
     role?: $Enums.Role
     created_at?: Date | string
-    Inbound?: InboundUncheckedCreateNestedManyWithoutUserInput
     ProjectItem?: ProjectItemUncheckedCreateNestedManyWithoutUserInput
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     TailorCreated?: TailorUncheckedCreateNestedManyWithoutCreatedByInput
@@ -39197,8 +37342,9 @@ export namespace Prisma {
     Order?: OrderUncheckedCreateNestedManyWithoutUserInput
     Outbound?: OutboundUncheckedCreateNestedManyWithoutUserInput
     MerchandiseInbound?: MerchandiseInboundUncheckedCreateNestedManyWithoutUserInput
-    Return?: ReturnUncheckedCreateNestedManyWithoutUserInput
     Import?: ImportUncheckedCreateNestedManyWithoutUserInput
+    InboundsAsPic?: InboundUncheckedCreateNestedManyWithoutPicInput
+    InboundsAsCreatedBy?: InboundUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserCreateOrConnectWithoutMerchandiseOutboundInput = {
@@ -39311,7 +37457,6 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutMerchandiseOutboundInput = {
@@ -39329,7 +37474,6 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type TailorUpsertWithoutMerchandiseOutboundInput = {
@@ -39386,7 +37530,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUpdateManyWithoutUserNestedInput
     Project?: ProjectUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUpdateManyWithoutCreatedByNestedInput
@@ -39404,8 +37547,9 @@ export namespace Prisma {
     Order?: OrderUpdateManyWithoutUserNestedInput
     Outbound?: OutboundUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUpdateManyWithoutUserNestedInput
-    Return?: ReturnUpdateManyWithoutUserNestedInput
     Import?: ImportUpdateManyWithoutUserNestedInput
+    InboundsAsPic?: InboundUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMerchandiseOutboundInput = {
@@ -39418,7 +37562,6 @@ export namespace Prisma {
     full_name?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Inbound?: InboundUncheckedUpdateManyWithoutUserNestedInput
     ProjectItem?: ProjectItemUncheckedUpdateManyWithoutUserNestedInput
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     TailorCreated?: TailorUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -39436,22 +37579,9 @@ export namespace Prisma {
     Order?: OrderUncheckedUpdateManyWithoutUserNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutUserNestedInput
     MerchandiseInbound?: MerchandiseInboundUncheckedUpdateManyWithoutUserNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutUserNestedInput
     Import?: ImportUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type InboundCreateManyUserInput = {
-    inbound_id?: number
-    inbound_date: Date | string
-    projectitem_id: number
-    tailor_id: number
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.InboundStatus
-    created_at?: Date | string
-    created_by?: number | null
+    InboundsAsPic?: InboundUncheckedUpdateManyWithoutPicNestedInput
+    InboundsAsCreatedBy?: InboundUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type ProjectItemCreateManyUserInput = {
@@ -39658,17 +37788,6 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type ReturnCreateManyUserInput = {
-    return_id?: number
-    return_date: Date | string
-    product_id: number
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-  }
-
   export type ImportCreateManyUserInput = {
     import_id?: number
     channel?: string | null
@@ -39678,45 +37797,34 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type InboundUpdateWithoutUserInput = {
-    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-    ProjectItem?: ProjectItemUpdateOneWithoutInboundNestedInput
-    Tailor?: TailorUpdateOneWithoutInboundNestedInput
-    Product?: ProductUpdateOneWithoutInboundNestedInput
-    Variant?: VariantUpdateOneWithoutInboundNestedInput
+  export type InboundCreateManyPicInput = {
+    inbound_id?: number
+    inbound_date: Date | string
+    projectitem_id?: number | null
+    tailor_id?: number | null
+    product_id: number
+    variant_id: number
+    quantity: number
+    notes?: string | null
+    source_type?: $Enums.InboundSourceType
+    status?: $Enums.InboundStatus
+    created_at?: Date | string
+    created_by?: number | null
   }
 
-  export type InboundUncheckedUpdateWithoutUserInput = {
-    inbound_id?: IntFieldUpdateOperationsInput | number
-    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
-    product_id?: IntFieldUpdateOperationsInput | number
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type InboundUncheckedUpdateManyWithoutUserInput = {
-    inbound_id?: IntFieldUpdateOperationsInput | number
-    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
-    product_id?: IntFieldUpdateOperationsInput | number
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+  export type InboundCreateManyCreatedByInput = {
+    inbound_id?: number
+    inbound_date: Date | string
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
+    product_id: number
+    variant_id: number
+    quantity: number
+    notes?: string | null
+    source_type?: $Enums.InboundSourceType
+    status?: $Enums.InboundStatus
+    created_at?: Date | string
   }
 
   export type ProjectItemUpdateWithoutUserInput = {
@@ -39862,7 +37970,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutCreatedByInput = {
@@ -39880,7 +37987,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutCreatedByInput = {
@@ -39908,7 +38014,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUpdateManyWithoutProductNestedInput
-    Return?: ReturnUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutUpdatedByInput = {
@@ -39926,7 +38031,6 @@ export namespace Prisma {
     MerchandiseOutbound?: MerchandiseOutboundUncheckedUpdateManyWithoutProductNestedInput
     Outbound?: OutboundUncheckedUpdateManyWithoutProductNestedInput
     ProductVariant?: ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-    Return?: ReturnUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -40383,38 +38487,6 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ReturnUpdateWithoutUserInput = {
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Product?: ProductUpdateOneWithoutReturnNestedInput
-    Variant?: VariantUpdateOneWithoutReturnNestedInput
-  }
-
-  export type ReturnUncheckedUpdateWithoutUserInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    product_id?: IntFieldUpdateOperationsInput | number
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ReturnUncheckedUpdateManyWithoutUserInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    product_id?: IntFieldUpdateOperationsInput | number
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type ImportUpdateWithoutUserInput = {
     channel?: NullableStringFieldUpdateOperationsInput | string | null
     import_type?: NullableEnumImportTypeFieldUpdateOperationsInput | $Enums.ImportType | null
@@ -40441,15 +38513,104 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type InboundUpdateWithoutPicInput = {
+    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
+    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    ProjectItem?: ProjectItemUpdateOneWithoutInboundNestedInput
+    Tailor?: TailorUpdateOneWithoutInboundNestedInput
+    Product?: ProductUpdateOneWithoutInboundNestedInput
+    Variant?: VariantUpdateOneWithoutInboundNestedInput
+    CreatedBy?: UserUpdateOneWithoutInboundsAsCreatedByNestedInput
+  }
+
+  export type InboundUncheckedUpdateWithoutPicInput = {
+    inbound_id?: IntFieldUpdateOperationsInput | number
+    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    product_id?: IntFieldUpdateOperationsInput | number
+    variant_id?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
+    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type InboundUncheckedUpdateManyWithoutPicInput = {
+    inbound_id?: IntFieldUpdateOperationsInput | number
+    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    product_id?: IntFieldUpdateOperationsInput | number
+    variant_id?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
+    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type InboundUpdateWithoutCreatedByInput = {
+    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
+    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    ProjectItem?: ProjectItemUpdateOneWithoutInboundNestedInput
+    Tailor?: TailorUpdateOneWithoutInboundNestedInput
+    Product?: ProductUpdateOneWithoutInboundNestedInput
+    Variant?: VariantUpdateOneWithoutInboundNestedInput
+    Pic?: UserUpdateOneWithoutInboundsAsPicNestedInput
+  }
+
+  export type InboundUncheckedUpdateWithoutCreatedByInput = {
+    inbound_id?: IntFieldUpdateOperationsInput | number
+    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    product_id?: IntFieldUpdateOperationsInput | number
+    variant_id?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
+    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InboundUncheckedUpdateManyWithoutCreatedByInput = {
+    inbound_id?: IntFieldUpdateOperationsInput | number
+    inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    product_id?: IntFieldUpdateOperationsInput | number
+    variant_id?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
+    status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type InboundCreateManyTailorInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
     product_id: number
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -40505,24 +38666,26 @@ export namespace Prisma {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
     ProjectItem?: ProjectItemUpdateOneWithoutInboundNestedInput
-    User?: UserUpdateOneWithoutInboundNestedInput
     Product?: ProductUpdateOneWithoutInboundNestedInput
     Variant?: VariantUpdateOneWithoutInboundNestedInput
+    Pic?: UserUpdateOneWithoutInboundsAsPicNestedInput
+    CreatedBy?: UserUpdateOneWithoutInboundsAsCreatedByNestedInput
   }
 
   export type InboundUncheckedUpdateWithoutTailorInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -40531,12 +38694,13 @@ export namespace Prisma {
   export type InboundUncheckedUpdateManyWithoutTailorInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -40684,12 +38848,13 @@ export namespace Prisma {
   export type InboundCreateManyVariantInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
-    tailor_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
     product_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -40742,39 +38907,30 @@ export namespace Prisma {
     product_id: number
   }
 
-  export type ReturnCreateManyVariantInput = {
-    return_id?: number
-    return_date: Date | string
-    product_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    created_by?: number | null
-  }
-
   export type InboundUpdateWithoutVariantInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
     ProjectItem?: ProjectItemUpdateOneWithoutInboundNestedInput
-    User?: UserUpdateOneWithoutInboundNestedInput
     Tailor?: TailorUpdateOneWithoutInboundNestedInput
     Product?: ProductUpdateOneWithoutInboundNestedInput
+    Pic?: UserUpdateOneWithoutInboundsAsPicNestedInput
+    CreatedBy?: UserUpdateOneWithoutInboundsAsCreatedByNestedInput
   }
 
   export type InboundUncheckedUpdateWithoutVariantInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -40783,12 +38939,13 @@ export namespace Prisma {
   export type InboundUncheckedUpdateManyWithoutVariantInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -40933,47 +39090,16 @@ export namespace Prisma {
     product_id?: IntFieldUpdateOperationsInput | number
   }
 
-  export type ReturnUpdateWithoutVariantInput = {
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Product?: ProductUpdateOneWithoutReturnNestedInput
-    User?: UserUpdateOneWithoutReturnNestedInput
-  }
-
-  export type ReturnUncheckedUpdateWithoutVariantInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    product_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type ReturnUncheckedUpdateManyWithoutVariantInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    product_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
   export type InboundCreateManyProductInput = {
     inbound_id?: number
     inbound_date: Date | string
-    projectitem_id: number
-    pic_id: number
-    tailor_id: number
+    projectitem_id?: number | null
+    pic_id?: number | null
+    tailor_id?: number | null
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -41042,39 +39168,30 @@ export namespace Prisma {
     variant_id: number
   }
 
-  export type ReturnCreateManyProductInput = {
-    return_id?: number
-    return_date: Date | string
-    variant_id: number
-    quantity: number
-    notes?: string | null
-    status?: $Enums.ReturnStatus
-    created_at?: Date | string
-    created_by?: number | null
-  }
-
   export type InboundUpdateWithoutProductInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
     ProjectItem?: ProjectItemUpdateOneWithoutInboundNestedInput
-    User?: UserUpdateOneWithoutInboundNestedInput
     Tailor?: TailorUpdateOneWithoutInboundNestedInput
     Variant?: VariantUpdateOneWithoutInboundNestedInput
+    Pic?: UserUpdateOneWithoutInboundsAsPicNestedInput
+    CreatedBy?: UserUpdateOneWithoutInboundsAsCreatedByNestedInput
   }
 
   export type InboundUncheckedUpdateWithoutProductInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -41083,12 +39200,13 @@ export namespace Prisma {
   export type InboundUncheckedUpdateManyWithoutProductInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    projectitem_id?: IntFieldUpdateOperationsInput | number
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    projectitem_id?: NullableIntFieldUpdateOperationsInput | number | null
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -41280,38 +39398,6 @@ export namespace Prisma {
     variant_id?: IntFieldUpdateOperationsInput | number
   }
 
-  export type ReturnUpdateWithoutProductInput = {
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    Variant?: VariantUpdateOneWithoutReturnNestedInput
-    User?: UserUpdateOneWithoutReturnNestedInput
-  }
-
-  export type ReturnUncheckedUpdateWithoutProductInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type ReturnUncheckedUpdateManyWithoutProductInput = {
-    return_id?: IntFieldUpdateOperationsInput | number
-    return_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    variant_id?: IntFieldUpdateOperationsInput | number
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumReturnStatusFieldUpdateOperationsInput | $Enums.ReturnStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
   export type ProjectItemCreateManyProjectInput = {
     projectitem_id?: number
     pic_id: number
@@ -41439,12 +39525,13 @@ export namespace Prisma {
   export type InboundCreateManyProjectItemInput = {
     inbound_id?: number
     inbound_date: Date | string
-    pic_id: number
-    tailor_id: number
+    pic_id?: number | null
+    tailor_id?: number | null
     product_id: number
     variant_id: number
     quantity: number
     notes?: string | null
+    source_type?: $Enums.InboundSourceType
     status?: $Enums.InboundStatus
     created_at?: Date | string
     created_by?: number | null
@@ -41454,24 +39541,26 @@ export namespace Prisma {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-    User?: UserUpdateOneWithoutInboundNestedInput
     Tailor?: TailorUpdateOneWithoutInboundNestedInput
     Product?: ProductUpdateOneWithoutInboundNestedInput
     Variant?: VariantUpdateOneWithoutInboundNestedInput
+    Pic?: UserUpdateOneWithoutInboundsAsPicNestedInput
+    CreatedBy?: UserUpdateOneWithoutInboundsAsCreatedByNestedInput
   }
 
   export type InboundUncheckedUpdateWithoutProjectItemInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
@@ -41480,12 +39569,13 @@ export namespace Prisma {
   export type InboundUncheckedUpdateManyWithoutProjectItemInput = {
     inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    pic_id?: IntFieldUpdateOperationsInput | number
-    tailor_id?: IntFieldUpdateOperationsInput | number
+    pic_id?: NullableIntFieldUpdateOperationsInput | number | null
+    tailor_id?: NullableIntFieldUpdateOperationsInput | number | null
     product_id?: IntFieldUpdateOperationsInput | number
     variant_id?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    source_type?: EnumInboundSourceTypeFieldUpdateOperationsInput | $Enums.InboundSourceType
     status?: EnumInboundStatusFieldUpdateOperationsInput | $Enums.InboundStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null

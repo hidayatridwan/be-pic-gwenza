@@ -60,6 +60,21 @@ const byExpiredDate = async (req) => {
     inbounds
   WHERE
     status = 'OK'
+    AND source_type = 'PROJECT'
+  GROUP BY
+    product_id,
+    variant_id`;
+
+  // Get opening stock data
+  const openingStocks = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    inbounds
+  WHERE
+    status = 'OK'
+    AND source_type = 'OPENING_STOCK'
   GROUP BY
     product_id,
     variant_id`;
@@ -70,9 +85,10 @@ const byExpiredDate = async (req) => {
     variant_id,
     SUM(quantity) AS quantity
   FROM
-    returns
+    inbounds
   WHERE
     status = 'OK'
+    AND source_type = 'RETURN'
   GROUP BY
     product_id,
     variant_id`;
@@ -105,6 +121,7 @@ const byExpiredDate = async (req) => {
 
   // Create lookup maps
   const inboundMap = {};
+  const openingStockMap = {};
   const returnMap = {};
   const outboundMap = {};
   const projectItemMap = {};
@@ -113,6 +130,11 @@ const byExpiredDate = async (req) => {
   inbounds.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
     inboundMap[key] = Number(item.quantity) || 0;
+  });
+
+  openingStocks.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    openingStockMap[key] = Number(item.quantity) || 0;
   });
 
   returns.forEach((item) => {
@@ -158,6 +180,7 @@ const byExpiredDate = async (req) => {
         variant_name: item.variant_name,
         current_period_orders: 0,
         inbounds: inboundMap[compositeKey] || 0,
+        opening_stocks: openingStockMap[compositeKey] || 0,
         returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
         project_items: projectItemMap[compositeKey] || 0,
@@ -186,15 +209,15 @@ const byExpiredDate = async (req) => {
       acc[date] = item[date];
       return acc;
     }, {}),
-    project_items: item.project_items, // taken from all project items
-    inbounds: item.inbounds, // taken from all inbounds
-    returns: item.returns, // taken from all returns
-    closed_orders: item.closed_orders, // taken from all orders with closed status
-    current_period_orders: item.current_period_orders, // taken from the current order period
-    outbounds: item.outbounds, // taken from all outbounds
-    available_stock: (item.inbounds + item.returns) - item.outbounds, // calculated from inbounds + returns - outbounds
-    fulfillment_gap: (item.inbounds + item.returns) - item.outbounds - item.current_period_orders, // calculated from available stock minus current period orders
-    work_in_progress: item.project_items - item.inbounds, // calculated from total project items minus inbounds
+    project_items: item.project_items,
+    inbounds: item.inbounds,
+    opening_stocks: item.opening_stocks,
+    returns: item.returns,
+    closed_orders: item.closed_orders,
+    current_period_orders: item.current_period_orders,
+    outbounds: item.outbounds,
+    fulfillment_stock: (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.current_period_orders),
+    work_in_progress: Math.max(0, item.project_items - item.inbounds)
   }));
 
   return {
@@ -312,6 +335,20 @@ FROM
 	inbounds
 WHERE
 	status = 'OK'
+AND source_type = 'PROJECT'
+GROUP BY
+	product_id,
+	variant_id`;
+
+  const openingStocks = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	inbounds
+WHERE
+	status = 'OK'
+AND source_type = 'OPENING_STOCK'
 GROUP BY
 	product_id,
 	variant_id`;
@@ -321,9 +358,10 @@ GROUP BY
 	variant_id,
 	sum(quantity) AS quantity
 FROM
-	returns
+	inbounds
 WHERE
 	status = 'OK'
+AND source_type = 'RETURN'
 GROUP BY
 	product_id,
 	variant_id`;
@@ -356,6 +394,7 @@ GROUP BY
   const closedOrderMap = toMap(closedOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
+  const openingStockMap = toMap(openingStocks);
   const returnMap = toMap(returns);
   const outboundMap = toMap(outbounds);
 
@@ -368,6 +407,7 @@ GROUP BY
       open_orders: openOrderMap[key] || 0,
       project_items: projectMap[key] || 0,
       inbounds: inboundMap[key] || 0,
+      opening_stocks: openingStockMap[key] || 0,
       returns: returnMap[key] || 0,
       outbounds: outboundMap[key] || 0,
     };
@@ -375,9 +415,9 @@ GROUP BY
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      (item.inbounds + item.returns) - item.outbounds - item.closed_orders - item.open_orders;
+      (item.inbounds + item.opening_stocks + item.returns) - item.outbounds - item.closed_orders - item.open_orders;
 
-    const work_in_progress = item.project_items - item.inbounds;
+    const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
     let fulfillment_status = "FULFILLED";
     if (fulfillment_stock < 0 && work_in_progress > 0) {

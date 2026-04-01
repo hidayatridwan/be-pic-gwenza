@@ -7,7 +7,7 @@ import {
 } from "../validations/inbound.validation.js";
 import { ResponseError } from "../errors/response.error.js";
 import constants from "../utils/constants.js";
-import { InboundStatus, ProjectStatus } from "../generated/prisma/index.js";
+import { InboundSourceType, InboundStatus, ProjectStatus } from "../generated/prisma/index.js";
 
 const create = async (user, req) => {
   const createRequest = validate(createInboundValidation, req);
@@ -144,9 +144,12 @@ const search = async (req) => {
   const searchRequest = validate(searchInboundValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
 
-  let where = {};
+  let where = {
+    source_type: InboundSourceType.PROJECT
+  };
   if (searchRequest.search) {
     where = {
+      ...where,
       OR: [
         { notes: { contains: searchRequest.search } },
         {
@@ -163,7 +166,7 @@ const search = async (req) => {
           },
         },
         {
-          User: {
+          Pic: {
             is: {
               full_name: {
                 contains: searchRequest.search,
@@ -216,7 +219,7 @@ const search = async (req) => {
           assign_date: true,
         },
       },
-      User: {
+      Pic: {
         select: {
           full_name: true,
         },
@@ -236,6 +239,11 @@ const search = async (req) => {
           variant_name: true,
         },
       },
+      CreatedBy: {
+        select: {
+          full_name: true,
+        },
+      },
       inbound_date: true,
       quantity: true,
       notes: true,
@@ -253,7 +261,7 @@ const search = async (req) => {
   const data = items.map((item) => ({
     inbound_id: item.inbound_id,
     batch_id: item.ProjectItem.Project.batch_id,
-    pic_name: item.User.full_name,
+    pic_name: item.Pic.full_name,
     tailor_name: item.Tailor.tailor_name,
     product_name: item.Product.product_name,
     variant_name: item.Variant.variant_name,
@@ -263,7 +271,7 @@ const search = async (req) => {
     notes: item.notes,
     status: item.status,
     created_at: item.created_at,
-    created_by: item.User.full_name,
+    created_by: item.CreatedBy.full_name,
   }));
 
   const total = await prismaClient.inbound.count({ where });

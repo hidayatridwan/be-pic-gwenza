@@ -36,7 +36,6 @@ model User {
   role       Role     @default(PPIC)
   created_at DateTime @default(now())
 
-  Inbound              Inbound[]
   ProjectItem          ProjectItem[]
   Project              Project[]
   TailorCreated        Tailor[]              @relation("TailorCreatedBy")
@@ -55,8 +54,9 @@ model User {
   Outbound             Outbound[]
   MerchandiseInbound   MerchandiseInbound[]
   MerchandiseOutbound  MerchandiseOutbound[]
-  Return               Return[]
   Import               Import[]
+  InboundsAsPic        Inbound[]             @relation("InboundPic")
+  InboundsAsCreatedBy  Inbound[]             @relation("InboundCreatedBy")
 
   @@map("users")
 }
@@ -90,7 +90,6 @@ model Variant {
   Order          Order[]
   Outbound       Outbound[]
   ProductVariant ProductVariant[]
-  Return         Return[]
 
   @@map("variants")
 }
@@ -115,7 +114,6 @@ model Product {
   MerchandiseOutbound MerchandiseOutbound[]
   Outbound            Outbound[]
   ProductVariant      ProductVariant[]
-  Return              Return[]
 
   @@map("products")
 }
@@ -236,50 +234,35 @@ enum InboundStatus {
   CANCEL
 }
 
+enum InboundSourceType {
+  PROJECT
+  OPENING_STOCK
+  RETURN
+}
+
 model Inbound {
-  inbound_id     Int           @id @default(autoincrement()) @db.Int
-  inbound_date   DateTime      @db.Date()
-  projectitem_id Int           @db.Int
-  pic_id         Int           @db.Int
-  tailor_id      Int           @db.Int
-  product_id     Int           @db.Int
-  variant_id     Int           @db.Int
-  quantity       Int           @db.Int
-  notes          String?       @db.VarChar(255)
-  status         InboundStatus @default(OK)
-  created_at     DateTime      @default(now())
-  created_by     Int?          @db.Int
+  inbound_id     Int               @id @default(autoincrement()) @db.Int
+  inbound_date   DateTime          @db.Date()
+  projectitem_id Int?              @db.Int
+  pic_id         Int?              @db.Int
+  tailor_id      Int?              @db.Int
+  product_id     Int               @db.Int
+  variant_id     Int               @db.Int
+  quantity       Int               @db.Int
+  notes          String?           @db.VarChar(255)
+  source_type    InboundSourceType @default(PROJECT)
+  status         InboundStatus     @default(OK)
+  created_at     DateTime          @default(now())
+  created_by     Int?              @db.Int
 
   ProjectItem ProjectItem? @relation(fields: [projectitem_id], references: [projectitem_id])
-  User        User?        @relation(fields: [pic_id], references: [user_id])
   Tailor      Tailor?      @relation(fields: [tailor_id], references: [tailor_id])
   Product     Product?     @relation(fields: [product_id], references: [product_id])
   Variant     Variant?     @relation(fields: [variant_id], references: [variant_id])
+  Pic         User?        @relation("InboundPic", fields: [pic_id], references: [user_id])
+  CreatedBy   User?        @relation("InboundCreatedBy", fields: [created_by], references: [user_id])
 
   @@map("inbounds")
-}
-
-enum ReturnStatus {
-  OK
-  CANCEL
-}
-
-model Return {
-  return_id   Int          @id @default(autoincrement()) @db.Int
-  return_date DateTime     @db.Date()
-  product_id  Int          @db.Int
-  variant_id  Int          @db.Int
-  quantity    Int          @db.Int
-  notes       String?      @db.VarChar(255)
-  status      ReturnStatus @default(OK)
-  created_at  DateTime     @default(now())
-  created_by  Int?         @db.Int
-
-  Product Product? @relation(fields: [product_id], references: [product_id])
-  Variant Variant? @relation(fields: [variant_id], references: [variant_id])
-  User    User?    @relation(fields: [created_by], references: [user_id])
-
-  @@map("returns")
 }
 
 enum OutboundStatus {

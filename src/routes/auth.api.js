@@ -17,7 +17,7 @@ import merchandiseOutboundController from "../controllers/merchandise.outbound.c
 import supplierController from "../controllers/supplier.controller.js";
 import colorController from "../controllers/color.controller.js";
 import outboundController from "../controllers/outbound.controller.js";
-import returnController from "../controllers/return.controller.js";
+import manualInboundController from "../controllers/manual.inbound.controller.js";
 import aiController from "../controllers/ai.controller.js";
 
 const router = express.Router();
@@ -72,8 +72,8 @@ router.post("/outbounds", outboundController.create);
 router.get("/outbounds", outboundController.search);
 router.delete("/outbounds/{:outboundId}", outboundController.cancel);
 
-router.post("/returns", returnController.create);
-router.get("/returns", returnController.search);
+router.post("/manual-inbounds", manualInboundController.create);
+router.get("/manual-inbounds", manualInboundController.search);
 
 router.get("/reports/products", reportController.byProducts);
 router.get("/reports/pic", reportController.byPIC);
