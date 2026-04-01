@@ -38,7 +38,7 @@ const standardizeDate = (input) => {
   return `${datePart} ${timePart}`;
 };
 
-const addTwentySevenDays = (input) => {
+const addDays = (input) => {
   if (!isValidDate(input)) {
     return null;
   }
@@ -48,7 +48,7 @@ const addTwentySevenDays = (input) => {
   const [hours, minutes, seconds] = timePart.split(":").map(Number);
 
   const date = new Date(year, month - 1, day, hours, minutes, seconds);
-  date.setDate(date.getDate() + 27); // <-- changed line
+  date.setDate(date.getDate() + 30); // <-- changed line
 
   const newYear = date.getFullYear();
   const newMonth = String(date.getMonth() + 1).padStart(2, "0");
@@ -68,4 +68,4 @@ const isValidDate = (dateString) => {
 const truncate = (str, max = 512) =>
   str.length > max ? str.slice(0, max) + " ...[TRUNCATED]" : str;
 
-export { standardizeDate, addTwentySevenDays, truncate };
+export { standardizeDate, addDays, truncate };

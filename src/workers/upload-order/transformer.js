@@ -1,5 +1,5 @@
 import constants from "../../utils/constants.js";
-import { standardizeDate, addTwentySevenDays } from "../../utils/format.js";
+import { standardizeDate, addDays } from "../../utils/format.js";
 
 function transformTiktok(item, created_by) {
     if (item[4] !== "Pre-order") return null;
@@ -13,7 +13,7 @@ function transformTiktok(item, created_by) {
         item[8],
         item[9],
         createdDate,
-        addTwentySevenDays(createdDate),
+        addDays(createdDate),
         constants.TIKTOK,
         created_by,
     ];
@@ -29,7 +29,7 @@ function transformShopee(item, created_by) {
         item[14],
         item[17],
         createdDate,
-        addTwentySevenDays(createdDate),
+        addDays(createdDate),
         constants.SHOPEE,
         created_by,
     ];
