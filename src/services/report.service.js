@@ -416,9 +416,9 @@ GROUP BY
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
     let fulfillment_status = "FULFILLED";
-    if (fulfillment_stock < 0 && work_in_progress > 0) {
+    if ((fulfillment_stock + work_in_progress) > 0) {
       fulfillment_status = "IN_PROGRESS";
-    } else if (fulfillment_stock < 0 && work_in_progress <= 0) {
+    } else if ((fulfillment_stock + work_in_progress) < 0) {
       fulfillment_status = "CRITICAL";
     }
 
