@@ -238,15 +238,15 @@ const byExpiredDate = async (req) => {
     work_in_progress: Math.max(0, item.project_items - item.inbounds)
   }));
 
-  // Keep variants of the same product adjacent while preserving descending order priority by quantity.
-  const productGroupMaxOrders = data.reduce((acc, item) => {
-    const currentMax = acc[item.product_name] || 0;
-    acc[item.product_name] = Math.max(currentMax, item.fulfillment_stock);
+  // Keep variants of the same product adjacent while preserving ascending order priority by fulfillment_period (most negative first).
+  const productGroupMinFulfillmentPeriod = data.reduce((acc, item) => {
+    const currentMin = acc[item.product_name] ?? Infinity;
+    acc[item.product_name] = Math.min(currentMin, item.fulfillment_period);
     return acc;
   }, {});
 
   data.sort((a, b) => {
-    const groupOrderDiff = (productGroupMaxOrders[b.product_name] || 0) - (productGroupMaxOrders[a.product_name] || 0);
+    const groupOrderDiff = (productGroupMinFulfillmentPeriod[a.product_name] ?? Infinity) - (productGroupMinFulfillmentPeriod[b.product_name] ?? Infinity);
     if (groupOrderDiff !== 0) {
       return groupOrderDiff;
     }
@@ -255,7 +255,7 @@ const byExpiredDate = async (req) => {
       return a.product_name.localeCompare(b.product_name);
     }
 
-    return b.fulfillment_stock - a.fulfillment_stock;
+    return a.fulfillment_period - b.fulfillment_period;
   });
 
   return {
