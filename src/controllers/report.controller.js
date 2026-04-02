@@ -2,9 +2,7 @@ import reportService from "../services/report.service.js";
 
 const byProducts = async (req, res, next) => {
   try {
-    req.query.page = Number(req.query.page);
-    req.query.size = Number(req.query.size);
-    const result = await reportService.byProducts(req.query);
+    const result = await reportService.byProducts();
     res.status(200).json(result);
   } catch (err) {
     next(err);

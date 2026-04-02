@@ -2,7 +2,6 @@ import { prismaClient } from "../apps/database.js";
 import { MerchandiseInboundStatus, MerchandiseOutboundStatus, Prisma } from "../generated/prisma/index.js";
 import {
   getExpiredProductsValidation,
-  getOrderProductsValidation,
   searchByPicValidation,
   searchByTailorValidation,
   searchMerchandiseDateValidation,
@@ -265,33 +264,9 @@ const byExpiredDate = async (req) => {
   };
 };
 
-const byProducts = async (req) => {
-  const searchRequest = validate(getOrderProductsValidation, req);
-  const skip = (searchRequest.page - 1) * searchRequest.size;
-  let where = {};
-  if (searchRequest.search) {
-    where = {
-      OR: [
-        {
-          Product: {
-            product_name: {
-              contains: searchRequest.search
-            },
-          },
-        },
-        {
-          Variant: {
-            variant_name: {
-              contains: searchRequest.search
-            },
-          },
-        },
-      ],
-    };
-  }
+const byProducts = async () => {
 
   const result = await prismaClient.productVariant.findMany({
-    where,
     include: {
       Product: {
         select: {
@@ -303,21 +278,7 @@ const byProducts = async (req) => {
           variant_name: true,
         }
       }
-    },
-    take: searchRequest.size,
-    skip: skip,
-    orderBy: [
-      {
-        Product: {
-          product_name: "asc",
-        },
-      },
-      {
-        Variant: {
-          variant_name: "asc",
-        },
-      },
-    ],
+    }
   });
 
   const resultMap = result.map((item) => {
@@ -416,9 +377,6 @@ GROUP BY
 	product_id,
 	variant_id`;
 
-  // Count total matching rows without re-running the full query
-  const total = await prismaClient.productVariant.count({ where });
-
   // Helper: map (product_id, variant_id) => quantity
   function toMap(data) {
     return data.reduce((map, item) => {
@@ -453,7 +411,7 @@ GROUP BY
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      (item.inbounds + item.opening_stocks + item.returns) - item.outbounds - item.closed_orders - item.open_orders;
+      (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.open_orders);
 
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
@@ -472,16 +430,16 @@ GROUP BY
     };
   });
 
-  const productGroupMaxFulfillmentStock = data.reduce((acc, item) => {
-    const currentMax = acc[item.product_name] || 0;
-    acc[item.product_name] = Math.max(currentMax, item.fulfillment_stock);
+  const productGroupMinFulfillmentStock = data.reduce((acc, item) => {
+    const currentMin = acc[item.product_name] ?? Infinity;
+    acc[item.product_name] = Math.min(currentMin, item.fulfillment_stock);
     return acc;
   }, {});
 
   data.sort((a, b) => {
     const groupOrderDiff =
-      (productGroupMaxFulfillmentStock[b.product_name] || 0) -
-      (productGroupMaxFulfillmentStock[a.product_name] || 0);
+      (productGroupMinFulfillmentStock[a.product_name] ?? Infinity) -
+      (productGroupMinFulfillmentStock[b.product_name] ?? Infinity);
 
     if (groupOrderDiff !== 0) {
       return groupOrderDiff;
@@ -491,10 +449,10 @@ GROUP BY
       return a.product_name.localeCompare(b.product_name);
     }
 
-    return b.fulfillment_stock - a.fulfillment_stock;
+    return a.fulfillment_stock - b.fulfillment_stock;
   });
 
-  return { data, total };
+  return { data };
 };
 
 const byPIC = async (req) => {
