@@ -32,11 +32,20 @@ const byExpiredDate = async (req) => {
   GROUP BY
     product_id,
     variant_id,
-    DATE(CONVERT_TZ(end_date, '+00:00', '+07:00'))
-  ORDER BY
-    product_name,
-    variant_name,
-    end_date`;
+    DATE(CONVERT_TZ(end_date, '+00:00', '+07:00'))`;
+
+  // Get all open orders
+  const openOrders = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    orders
+  WHERE
+    status = 'OPEN'
+  GROUP BY
+    product_id,
+    variant_id`;
 
   // Get closed orders data
   const closedOrders = await prismaClient.$queryRaw`SELECT
@@ -120,12 +129,18 @@ const byExpiredDate = async (req) => {
     variant_id`;
 
   // Create lookup maps
+  const openOrderMap = {};
   const inboundMap = {};
   const openingStockMap = {};
   const returnMap = {};
   const outboundMap = {};
   const projectItemMap = {};
   const closedOrderMap = {};
+
+  openOrders.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    openOrderMap[key] = Number(item.quantity) || 0;
+  });
 
   inbounds.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
@@ -185,6 +200,7 @@ const byExpiredDate = async (req) => {
         outbounds: outboundMap[compositeKey] || 0,
         project_items: projectItemMap[compositeKey] || 0,
         closed_orders: closedOrderMap[compositeKey] || 0,
+        open_orders: openOrderMap[compositeKey] || 0,
       };
 
       // Initialize daily order quantities
@@ -215,10 +231,32 @@ const byExpiredDate = async (req) => {
     returns: item.returns,
     closed_orders: item.closed_orders,
     current_period_orders: item.current_period_orders,
+    open_orders: item.open_orders,
     outbounds: item.outbounds,
-    fulfillment_stock: (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.current_period_orders),
+    fulfillment_period: (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.current_period_orders),
+    fulfillment_stock: (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.open_orders),
     work_in_progress: Math.max(0, item.project_items - item.inbounds)
   }));
+
+  // Keep variants of the same product adjacent while preserving descending order priority by quantity.
+  const productGroupMaxOrders = data.reduce((acc, item) => {
+    const currentMax = acc[item.product_name] || 0;
+    acc[item.product_name] = Math.max(currentMax, item.fulfillment_stock);
+    return acc;
+  }, {});
+
+  data.sort((a, b) => {
+    const groupOrderDiff = (productGroupMaxOrders[b.product_name] || 0) - (productGroupMaxOrders[a.product_name] || 0);
+    if (groupOrderDiff !== 0) {
+      return groupOrderDiff;
+    }
+
+    if (a.product_name !== b.product_name) {
+      return a.product_name.localeCompare(b.product_name);
+    }
+
+    return b.fulfillment_stock - a.fulfillment_stock;
+  });
 
   return {
     data,
@@ -432,6 +470,28 @@ GROUP BY
       work_in_progress,
       fulfillment_status,
     };
+  });
+
+  const productGroupMaxFulfillmentStock = data.reduce((acc, item) => {
+    const currentMax = acc[item.product_name] || 0;
+    acc[item.product_name] = Math.max(currentMax, item.fulfillment_stock);
+    return acc;
+  }, {});
+
+  data.sort((a, b) => {
+    const groupOrderDiff =
+      (productGroupMaxFulfillmentStock[b.product_name] || 0) -
+      (productGroupMaxFulfillmentStock[a.product_name] || 0);
+
+    if (groupOrderDiff !== 0) {
+      return groupOrderDiff;
+    }
+
+    if (a.product_name !== b.product_name) {
+      return a.product_name.localeCompare(b.product_name);
+    }
+
+    return b.fulfillment_stock - a.fulfillment_stock;
   });
 
   return { data, total };

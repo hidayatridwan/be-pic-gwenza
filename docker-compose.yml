@@ -20,7 +20,87 @@ services:
         condition: service_healthy
     restart: unless-stopped
     init: true
-    
+
+  worker-upload-order:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    command: node ./src/workers/upload-order/consumer.js
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+
+  worker-upload-cancel:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    command: node ./src/workers/upload-cancel/consumer.js
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+
+  worker-process-order:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    command: node ./src/workers/process-order/consumer.js
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+
+  worker-process-cancel:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    command: node ./src/workers/process-cancel/consumer.js
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+
   mariadb:
     image: mariadb:10.11
     environment:
