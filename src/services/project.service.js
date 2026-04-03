@@ -229,7 +229,7 @@ FROM
 	JOIN tailors ON projectitems.tailor_id = tailors.tailor_id
 	JOIN products ON projectitems.product_id = products.product_id
 	JOIN variants ON projectitems.variant_id = variants.variant_id
-	LEFT JOIN inbounds ON projectitems.projectitem_id = inbounds.projectitem_id
+	LEFT JOIN inbounds ON projectitems.projectitem_id = inbounds.projectitem_id AND inbounds.status != 'CANCEL'
 WHERE
   projectitems.product_id = ${productId}
 	AND projectitems.status IN ('OPEN', 'PARTIAL')
