@@ -1,7 +1,7 @@
 import { prismaClient } from "../apps/database.js";
 import { ResponseError } from "../errors/response.error.js";
-import { MerchandiseInboundStatus } from "../generated/prisma/index.js";
-import { cancelMerchandiseInboundValidation, createMerchandiseInboundValidation, inboundCodesValidation, searchMerchandiseInboundValidation } from "../validations/merchandise.inbound.validation.js";
+import { InboundStatus, MerchandiseInboundStatus } from "../generated/prisma/index.js";
+import { cancelMerchandiseInboundValidation, createMerchandiseInboundValidation, inboundCodesValidation, searchMerchandiseInboundValidation, getMerchandiseByInboundCodeValidation } from "../validations/merchandise.inbound.validation.js";
 import { validate } from "../validations/validation.js";
 import constants from "../utils/constants.js";
 
@@ -140,6 +140,7 @@ const inboundCodes = async (merchandiseIdInput) => {
     by: ["outbound_code"],
     where: {
       outbound_code: { in: inboundCodeList },
+      status: InboundStatus.OK
     },
     _sum: {
       quantity: true,
@@ -154,6 +155,49 @@ const inboundCodes = async (merchandiseIdInput) => {
     inbound_code: item.inbound_code,
     quantity: item.quantity - (outboundQuantityMap.get(item.inbound_code) || 0),
   }));
+};
+
+const getMerchandiseByInboundCode = async (inboundCodeInput) => {
+  const inboundCode = validate(getMerchandiseByInboundCodeValidation, inboundCodeInput);
+
+  const summaryMerchandiseOutbound = await prismaClient.merchandiseOutbound.groupBy({
+    by: ["outbound_code"],
+    where: {
+      outbound_code: inboundCode,
+      status: InboundStatus.OK
+    },
+    _sum: {
+      quantity: true,
+    },
+  });
+
+  const result = await prismaClient.merchandiseInbound.findFirst({
+    where: {
+      inbound_code: inboundCode,
+      status: MerchandiseInboundStatus.OPEN,
+    },
+    select: {
+      merchandise_id: true,
+      inbound_code: true,
+      Merchandise: {
+        select: {
+          product_name: true,
+        },
+      },
+      quantity: true,
+    },
+  });
+
+  if (!result) return null;
+
+  const outboundQty = summaryMerchandiseOutbound[0]?._sum?.quantity || 0;
+
+  return {
+    merchandise_id: result.merchandise_id,
+    inbound_code: result.inbound_code,
+    product_name: result.Merchandise.product_name,
+    quantity: result.quantity - outboundQty,
+  };
 };
 
 const cancel = async (merchandiseInboundId) => {
@@ -185,5 +229,6 @@ export default {
   create,
   search,
   inboundCodes,
+  getMerchandiseByInboundCode,
   cancel
 };

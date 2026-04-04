@@ -29,6 +29,15 @@ const inboundCodes = async (req, res, next) => {
   }
 };
 
+const getMerchandiseByInboundCode = async (req, res, next) => {
+  try {
+    const result = await merchandiseInboundService.getMerchandiseByInboundCode(req.params.inboundCode);
+    res.status(200).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const cancel = async (req, res, next) => {
   try {
     const merchandiseInboundId = Number(req.params.merchandiseInboundId);
@@ -43,5 +52,6 @@ export default {
   create,
   search,
   inboundCodes,
+  getMerchandiseByInboundCode,
   cancel
 };

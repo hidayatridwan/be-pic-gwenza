@@ -236,12 +236,18 @@ WHERE
 GROUP BY
 	projectitems.projectitem_id`;
 
-  return result.map((item) => ({
-    ...item,
-    assign_age: Number(item.assign_age ?? 0),
-    quantity: Number(item.quantity ?? 0),
-    received: Number(item.received ?? 0),
-  }));
+  return result.map((item) => {
+    const quantity = Number(item.quantity ?? 0);
+    const received = Number(item.received ?? 0);
+
+    return {
+      ...item,
+      assign_age: Number(item.assign_age ?? 0),
+      quantity: quantity,
+      received: received,
+      remaining: quantity - received
+    };
+  });
 };
 
 const products = async () => {

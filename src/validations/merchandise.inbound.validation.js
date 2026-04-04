@@ -21,11 +21,14 @@ const searchMerchandiseInboundValidation = Joi.object({
 
 const inboundCodesValidation = Joi.number().min(1).positive().required();
 
+const getMerchandiseByInboundCodeValidation = Joi.string().min(1).required();
+
 const cancelMerchandiseInboundValidation = Joi.number().positive().required();
 
 export {
   createMerchandiseInboundValidation,
   searchMerchandiseInboundValidation,
   inboundCodesValidation,
+  getMerchandiseByInboundCodeValidation,
   cancelMerchandiseInboundValidation
 };
