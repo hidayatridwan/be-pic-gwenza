@@ -443,6 +443,7 @@ exports.ProjectStatus = exports.$Enums.ProjectStatus = {
 exports.InboundSourceType = exports.$Enums.InboundSourceType = {
   PROJECT: 'PROJECT',
   OPENING_STOCK: 'OPENING_STOCK',
+  ADJUSTMENT: 'ADJUSTMENT',
   RETURN: 'RETURN'
 };
 

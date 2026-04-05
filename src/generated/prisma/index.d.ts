@@ -155,6 +155,7 @@ export type InboundStatus = (typeof InboundStatus)[keyof typeof InboundStatus]
 export const InboundSourceType: {
   PROJECT: 'PROJECT',
   OPENING_STOCK: 'OPENING_STOCK',
+  ADJUSTMENT: 'ADJUSTMENT',
   RETURN: 'RETURN'
 };
 

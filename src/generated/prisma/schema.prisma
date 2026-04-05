@@ -58,6 +58,7 @@ model User {
   InboundsAsPic        Inbound[]             @relation("InboundPic")
   InboundsAsCreatedBy  Inbound[]             @relation("InboundCreatedBy")
 
+  @@index([role])
   @@map("users")
 }
 
@@ -237,6 +238,7 @@ enum InboundStatus {
 enum InboundSourceType {
   PROJECT
   OPENING_STOCK
+  ADJUSTMENT
   RETURN
 }
 

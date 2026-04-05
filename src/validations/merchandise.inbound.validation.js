@@ -17,6 +17,8 @@ const searchMerchandiseInboundValidation = Joi.object({
   page: Joi.number().min(1).positive().default(1),
   size: Joi.number().min(1).max(100).positive().default(10),
   search: Joi.string().min(0).max(100).optional(),
+  supplier_id: Joi.number().min(1).positive().optional(),
+  color_id: Joi.number().min(1).positive().optional(),
 });
 
 const inboundCodesValidation = Joi.number().min(1).positive().required();

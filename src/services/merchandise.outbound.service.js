@@ -87,6 +87,9 @@ const search = async (req) => {
   const searchRequest = validate(searchMerchandiseOutboundValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
   const search = `%${searchRequest.search ?? ""}%`;
+  const supplierId = searchRequest.supplier_id ?? null;
+  const colorId = searchRequest.color_id ?? null;
+  const tailorId = searchRequest.tailor_id ?? null;
 
   const items = await prismaClient.$queryRaw`SELECT
   merchandiseoutbounds.merchandise_outbound_id,
@@ -112,13 +115,15 @@ FROM
 	LEFT JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
 	LEFT JOIN products ON merchandiseoutbounds.product_id = products.product_id
 WHERE
-  merchandiseoutbounds.outbound_code LIKE ${search} OR
-  merchandises.product_name LIKE ${search} OR
-  tailors.tailor_name LIKE ${search} OR
-  fashiondesigns.sample_code LIKE ${search} OR
-  products.product_name LIKE ${search} OR
-  colors.color_name LIKE ${search} OR
-  suppliers.supplier_name LIKE ${search}
+  (
+    merchandiseoutbounds.outbound_code LIKE ${search} OR
+    merchandises.product_name LIKE ${search} OR
+    fashiondesigns.sample_code LIKE ${search} OR
+    products.product_name LIKE ${search}
+  )
+  AND (${supplierId} IS NULL OR merchandiseoutbounds.supplier_id = ${supplierId})
+  AND (${colorId} IS NULL OR merchandiseoutbounds.color_id = ${colorId})
+  AND (${tailorId} IS NULL OR merchandiseoutbounds.tailor_id = ${tailorId})
 ORDER BY merchandiseoutbounds.created_at DESC
 LIMIT ${searchRequest.size}
 OFFSET ${skip}`;
@@ -153,13 +158,15 @@ OFFSET ${skip}`;
       LEFT JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
       LEFT JOIN products ON merchandiseoutbounds.product_id = products.product_id
     WHERE
-      merchandiseoutbounds.outbound_code LIKE ${search} OR
-      merchandises.product_name LIKE ${search} OR
-      tailors.tailor_name LIKE ${search} OR
-      fashiondesigns.sample_code LIKE ${search} OR
-      products.product_name LIKE ${search} OR
-      colors.color_name LIKE ${search} OR
-      suppliers.supplier_name LIKE ${search}
+      (
+        merchandiseoutbounds.outbound_code LIKE ${search} OR
+        merchandises.product_name LIKE ${search} OR
+        fashiondesigns.sample_code LIKE ${search} OR
+        products.product_name LIKE ${search}
+      )
+      AND (${supplierId} IS NULL OR merchandiseoutbounds.supplier_id = ${supplierId})
+      AND (${colorId} IS NULL OR merchandiseoutbounds.color_id = ${colorId})
+      AND (${tailorId} IS NULL OR merchandiseoutbounds.tailor_id = ${tailorId})
     ) AS grouped`;
 
   const total = Number(countResult[0]?.total ?? 0);

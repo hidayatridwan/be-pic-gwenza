@@ -45,18 +45,14 @@ const search = async (req) => {
             product_name: { contains: searchRequest.search },
           },
         },
-        {
-          Supplier: {
-            supplier_name: { contains: searchRequest.search },
-          },
-        },
-        {
-          Color: {
-            color_name: { contains: searchRequest.search },
-          },
-        },
       ],
     };
+  }
+  if (searchRequest.supplier_id) {
+    where.supplier_id = searchRequest.supplier_id;
+  }
+  if (searchRequest.color_id) {
+    where.color_id = searchRequest.color_id;
   }
 
   const items = await prismaClient.merchandiseInbound.findMany({

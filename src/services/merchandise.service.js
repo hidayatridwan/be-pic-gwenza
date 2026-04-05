@@ -47,6 +47,9 @@ const search = async (req) => {
       ],
     };
   }
+  if (searchRequest.category) {
+    where.category = searchRequest.category;
+  }
 
   const result = await prismaClient.merchandise.findMany({
     where,

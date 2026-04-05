@@ -182,6 +182,9 @@ const search = async (req) => {
       ],
     };
   }
+  if (searchRequest.role) {
+    where.role = searchRequest.role;
+  }
 
   const data = await prismaClient.user.findMany({
     where,

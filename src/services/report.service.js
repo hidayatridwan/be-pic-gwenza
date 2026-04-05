@@ -466,6 +466,7 @@ const byPIC = async (req) => {
   const searchRequest = validate(searchByPicValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
   const search = `%${searchRequest.search ?? ""}%`;
+  const picId = searchRequest.pic_id ?? null;
 
   // Get paginated result
   const result = await prismaClient.$queryRaw`SELECT
@@ -485,10 +486,13 @@ FROM
 	JOIN variants ON variants.variant_id = projectitems.variant_id
 	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
 WHERE
-  products.product_name LIKE ${search}
-  OR variants.variant_name LIKE ${search}
-  OR projects.batch_id LIKE ${search}
-	OR users.full_name LIKE ${search}
+  (
+    products.product_name LIKE ${search}
+    OR variants.variant_name LIKE ${search}
+    OR projects.batch_id LIKE ${search}
+	  OR users.full_name LIKE ${search}
+  )
+  AND (${picId} IS NULL OR projectitems.pic_id = ${picId})
 GROUP BY
 	projectitems.projectitem_id
 ORDER BY
@@ -508,10 +512,13 @@ FROM
 	JOIN variants ON variants.variant_id = projectitems.variant_id
 	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
 WHERE
-  products.product_name LIKE ${search}
-  OR variants.variant_name LIKE ${search}
-  OR projects.batch_id LIKE ${search}
-	OR users.full_name LIKE ${search}
+  (
+    products.product_name LIKE ${search}
+    OR variants.variant_name LIKE ${search}
+    OR projects.batch_id LIKE ${search}
+	  OR users.full_name LIKE ${search}
+  )
+  AND (${picId} IS NULL OR projectitems.pic_id = ${picId})
 GROUP BY
 	projectitems.projectitem_id
     ) AS grouped`;
@@ -537,6 +544,7 @@ const byTailors = async (req) => {
   const searchRequest = validate(searchByTailorValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
   const search = `%${searchRequest.search ?? ""}%`;
+  const tailorId = searchRequest.tailor_id ?? null;
 
   // Get paginated result
   const result = await prismaClient.$queryRaw`SELECT
@@ -556,10 +564,13 @@ FROM
 	JOIN variants ON variants.variant_id = projectitems.variant_id
 	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
 WHERE
-  products.product_name LIKE ${search}
-  OR variants.variant_name LIKE ${search}
-  OR projects.batch_id LIKE ${search}
-	OR tailors.tailor_name LIKE ${search}
+  (
+    products.product_name LIKE ${search}
+    OR variants.variant_name LIKE ${search}
+    OR projects.batch_id LIKE ${search}
+	  OR tailors.tailor_name LIKE ${search}
+  )
+  AND (${tailorId} IS NULL OR projectitems.tailor_id = ${tailorId})
 GROUP BY
 	projectitems.projectitem_id
 ORDER BY
@@ -579,10 +590,13 @@ FROM
 	JOIN variants ON variants.variant_id = projectitems.variant_id
 	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
 WHERE
-  products.product_name LIKE ${search}
-  OR variants.variant_name LIKE ${search}
-  OR projects.batch_id LIKE ${search}
-	OR tailors.tailor_name LIKE ${search}
+  (
+    products.product_name LIKE ${search}
+    OR variants.variant_name LIKE ${search}
+    OR projects.batch_id LIKE ${search}
+	  OR tailors.tailor_name LIKE ${search}
+  )
+  AND (${tailorId} IS NULL OR projectitems.tailor_id = ${tailorId})
 GROUP BY
 	projectitems.projectitem_id
     ) AS grouped`;
@@ -608,6 +622,9 @@ const byMerchandiseSummary = async (req) => {
   const searchRequest = validate(searchMerchandiseSummaryValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
   const search = `%${searchRequest.search ?? ""}%`;
+  const category = searchRequest.category ?? null;
+  const supplierId = searchRequest.supplier_id ?? null;
+  const colorId = searchRequest.color_id ?? null;
 
   const products = await prismaClient.$queryRaw`SELECT
 	merchandises.category,
@@ -624,8 +641,9 @@ FROM
 	LEFT JOIN suppliers ON merchandiseinbounds.supplier_id = suppliers.supplier_id
 WHERE
   merchandises.product_name LIKE ${search}
-  OR colors.color_name LIKE ${search}
-  OR suppliers.supplier_name LIKE ${search}
+  AND (${category} IS NULL OR merchandises.category = ${category})
+  AND (${supplierId} IS NULL OR merchandiseinbounds.supplier_id = ${supplierId})
+  AND (${colorId} IS NULL OR merchandiseinbounds.color_id = ${colorId})
 GROUP BY
 	merchandises.merchandise_id,
 	merchandiseinbounds.color_id,
@@ -696,8 +714,9 @@ FROM
 	LEFT JOIN suppliers ON merchandiseinbounds.supplier_id = suppliers.supplier_id
 WHERE
   merchandises.product_name LIKE ${search}
-  OR colors.color_name LIKE ${search}
-  OR suppliers.supplier_name LIKE ${search}
+  AND (${category} IS NULL OR merchandises.category = ${category})
+  AND (${supplierId} IS NULL OR merchandiseinbounds.supplier_id = ${supplierId})
+  AND (${colorId} IS NULL OR merchandiseinbounds.color_id = ${colorId})
 GROUP BY
 	merchandises.merchandise_id,
 	merchandiseinbounds.color_id,
@@ -713,6 +732,8 @@ const byMerchandiseDate = async (req) => {
   const searchRequest = validate(searchMerchandiseDateValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
   const search = `%${searchRequest.search ?? ""}%`;
+  const startDate = searchRequest.start_date ?? null;
+  const endDate = searchRequest.end_date ?? null;
 
   const products = await prismaClient.$queryRaw`SELECT
 	merchandise_id,
@@ -720,12 +741,26 @@ const byMerchandiseDate = async (req) => {
 FROM
 	merchandises
 WHERE
-	merchandise_id IN (
-		SELECT DISTINCT
-			merchandise_id
-		FROM
-			merchandiseinbounds
-	)
+  merchandise_id IN (
+    SELECT DISTINCT
+      filtered_transactions.merchandise_id
+    FROM (
+      SELECT
+        merchandiseinbounds.merchandise_id,
+        merchandiseinbounds.inbound_date AS tx_date
+      FROM
+        merchandiseinbounds
+      UNION
+      SELECT
+        merchandiseoutbounds.merchandise_id,
+        merchandiseoutbounds.outbound_date AS tx_date
+      FROM
+        merchandiseoutbounds
+    ) AS filtered_transactions
+    WHERE
+      (${startDate} IS NULL OR DATE(filtered_transactions.tx_date) >= DATE(${startDate}))
+      AND (${endDate} IS NULL OR DATE(filtered_transactions.tx_date) <= DATE(${endDate}))
+  )
 AND product_name LIKE ${search}
 ORDER BY
   product_name
@@ -749,7 +784,9 @@ FROM
 JOIN colors ON merchandiseinbounds.color_id = colors.color_id
 JOIN suppliers ON merchandiseinbounds.supplier_id = suppliers.supplier_id
 WHERE
-	merchandiseinbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
+  merchandiseinbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
+  AND (${startDate} IS NULL OR DATE(merchandiseinbounds.inbound_date) >= DATE(${startDate}))
+  AND (${endDate} IS NULL OR DATE(merchandiseinbounds.inbound_date) <= DATE(${endDate}))
 UNION ALL
 SELECT
 	merchandiseoutbounds.merchandise_id,
@@ -766,7 +803,9 @@ FROM
 	LEFT JOIN fashiondesigns ON merchandiseoutbounds.fashiondesign_id = fashiondesigns.fashiondesign_id
 	LEFT JOIN products ON merchandiseoutbounds.product_id = products.product_id
 WHERE
-	merchandiseoutbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
+  merchandiseoutbounds.merchandise_id IN (${Prisma.join(merchandiseIds)})
+  AND (${startDate} IS NULL OR DATE(merchandiseoutbounds.outbound_date) >= DATE(${startDate}))
+  AND (${endDate} IS NULL OR DATE(merchandiseoutbounds.outbound_date) <= DATE(${endDate}))
 ORDER BY
 	tx_date`;
 
@@ -791,9 +830,23 @@ FROM
 WHERE
 	merchandise_id IN (
 		SELECT DISTINCT
-			merchandise_id
-		FROM
-			merchandiseinbounds
+      filtered_transactions.merchandise_id
+    FROM (
+      SELECT
+        merchandiseinbounds.merchandise_id,
+        merchandiseinbounds.inbound_date AS tx_date
+      FROM
+        merchandiseinbounds
+      UNION
+      SELECT
+        merchandiseoutbounds.merchandise_id,
+        merchandiseoutbounds.outbound_date AS tx_date
+      FROM
+        merchandiseoutbounds
+    ) AS filtered_transactions
+    WHERE
+      (${startDate} IS NULL OR DATE(filtered_transactions.tx_date) >= DATE(${startDate}))
+      AND (${endDate} IS NULL OR DATE(filtered_transactions.tx_date) <= DATE(${endDate}))
 	)
 AND product_name LIKE ${search}
     ) AS grouped`;
