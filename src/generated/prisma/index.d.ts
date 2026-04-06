@@ -20155,6 +20155,7 @@ export namespace Prisma {
     merchandise_inbound_id: number | null
     inbound_date: Date | null
     inbound_code: string | null
+    barcode_key: string | null
     merchandise_id: number | null
     supplier_id: number | null
     color_id: number | null
@@ -20170,6 +20171,7 @@ export namespace Prisma {
     merchandise_inbound_id: number | null
     inbound_date: Date | null
     inbound_code: string | null
+    barcode_key: string | null
     merchandise_id: number | null
     supplier_id: number | null
     color_id: number | null
@@ -20185,6 +20187,7 @@ export namespace Prisma {
     merchandise_inbound_id: number
     inbound_date: number
     inbound_code: number
+    barcode_key: number
     merchandise_id: number
     supplier_id: number
     color_id: number
@@ -20222,6 +20225,7 @@ export namespace Prisma {
     merchandise_inbound_id?: true
     inbound_date?: true
     inbound_code?: true
+    barcode_key?: true
     merchandise_id?: true
     supplier_id?: true
     color_id?: true
@@ -20237,6 +20241,7 @@ export namespace Prisma {
     merchandise_inbound_id?: true
     inbound_date?: true
     inbound_code?: true
+    barcode_key?: true
     merchandise_id?: true
     supplier_id?: true
     color_id?: true
@@ -20252,6 +20257,7 @@ export namespace Prisma {
     merchandise_inbound_id?: true
     inbound_date?: true
     inbound_code?: true
+    barcode_key?: true
     merchandise_id?: true
     supplier_id?: true
     color_id?: true
@@ -20354,6 +20360,7 @@ export namespace Prisma {
     merchandise_inbound_id: number
     inbound_date: Date
     inbound_code: string
+    barcode_key: string | null
     merchandise_id: number
     supplier_id: number
     color_id: number
@@ -20388,6 +20395,7 @@ export namespace Prisma {
     merchandise_inbound_id?: boolean
     inbound_date?: boolean
     inbound_code?: boolean
+    barcode_key?: boolean
     merchandise_id?: boolean
     supplier_id?: boolean
     color_id?: boolean
@@ -20409,6 +20417,7 @@ export namespace Prisma {
     merchandise_inbound_id?: boolean
     inbound_date?: boolean
     inbound_code?: boolean
+    barcode_key?: boolean
     merchandise_id?: boolean
     supplier_id?: boolean
     color_id?: boolean
@@ -20420,7 +20429,7 @@ export namespace Prisma {
     created_by?: boolean
   }
 
-  export type MerchandiseInboundOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"merchandise_inbound_id" | "inbound_date" | "inbound_code" | "merchandise_id" | "supplier_id" | "color_id" | "price" | "quantity" | "notes" | "status" | "created_at" | "created_by", ExtArgs["result"]["merchandiseInbound"]>
+  export type MerchandiseInboundOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"merchandise_inbound_id" | "inbound_date" | "inbound_code" | "barcode_key" | "merchandise_id" | "supplier_id" | "color_id" | "price" | "quantity" | "notes" | "status" | "created_at" | "created_by", ExtArgs["result"]["merchandiseInbound"]>
   export type MerchandiseInboundInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Merchandise?: boolean | MerchandiseInbound$MerchandiseArgs<ExtArgs>
     Supplier?: boolean | MerchandiseInbound$SupplierArgs<ExtArgs>
@@ -20440,6 +20449,7 @@ export namespace Prisma {
       merchandise_inbound_id: number
       inbound_date: Date
       inbound_code: string
+      barcode_key: string | null
       merchandise_id: number
       supplier_id: number
       color_id: number
@@ -20825,6 +20835,7 @@ export namespace Prisma {
     readonly merchandise_inbound_id: FieldRef<"MerchandiseInbound", 'Int'>
     readonly inbound_date: FieldRef<"MerchandiseInbound", 'DateTime'>
     readonly inbound_code: FieldRef<"MerchandiseInbound", 'String'>
+    readonly barcode_key: FieldRef<"MerchandiseInbound", 'String'>
     readonly merchandise_id: FieldRef<"MerchandiseInbound", 'Int'>
     readonly supplier_id: FieldRef<"MerchandiseInbound", 'Int'>
     readonly color_id: FieldRef<"MerchandiseInbound", 'Int'>
@@ -22711,6 +22722,7 @@ export namespace Prisma {
     merchandise_inbound_id: 'merchandise_inbound_id',
     inbound_date: 'inbound_date',
     inbound_code: 'inbound_code',
+    barcode_key: 'barcode_key',
     merchandise_id: 'merchandise_id',
     supplier_id: 'supplier_id',
     color_id: 'color_id',
@@ -22869,6 +22881,7 @@ export namespace Prisma {
 
   export const MerchandiseInboundOrderByRelevanceFieldEnum: {
     inbound_code: 'inbound_code',
+    barcode_key: 'barcode_key',
     notes: 'notes'
   };
 
@@ -24325,6 +24338,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFilter<"MerchandiseInbound"> | number
     inbound_date?: DateTimeFilter<"MerchandiseInbound"> | Date | string
     inbound_code?: StringFilter<"MerchandiseInbound"> | string
+    barcode_key?: StringNullableFilter<"MerchandiseInbound"> | string | null
     merchandise_id?: IntFilter<"MerchandiseInbound"> | number
     supplier_id?: IntFilter<"MerchandiseInbound"> | number
     color_id?: IntFilter<"MerchandiseInbound"> | number
@@ -24344,6 +24358,7 @@ export namespace Prisma {
     merchandise_inbound_id?: SortOrder
     inbound_date?: SortOrder
     inbound_code?: SortOrder
+    barcode_key?: SortOrderInput | SortOrder
     merchandise_id?: SortOrder
     supplier_id?: SortOrder
     color_id?: SortOrder
@@ -24367,6 +24382,7 @@ export namespace Prisma {
     NOT?: MerchandiseInboundWhereInput | MerchandiseInboundWhereInput[]
     inbound_date?: DateTimeFilter<"MerchandiseInbound"> | Date | string
     inbound_code?: StringFilter<"MerchandiseInbound"> | string
+    barcode_key?: StringNullableFilter<"MerchandiseInbound"> | string | null
     merchandise_id?: IntFilter<"MerchandiseInbound"> | number
     supplier_id?: IntFilter<"MerchandiseInbound"> | number
     color_id?: IntFilter<"MerchandiseInbound"> | number
@@ -24386,6 +24402,7 @@ export namespace Prisma {
     merchandise_inbound_id?: SortOrder
     inbound_date?: SortOrder
     inbound_code?: SortOrder
+    barcode_key?: SortOrderInput | SortOrder
     merchandise_id?: SortOrder
     supplier_id?: SortOrder
     color_id?: SortOrder
@@ -24409,6 +24426,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntWithAggregatesFilter<"MerchandiseInbound"> | number
     inbound_date?: DateTimeWithAggregatesFilter<"MerchandiseInbound"> | Date | string
     inbound_code?: StringWithAggregatesFilter<"MerchandiseInbound"> | string
+    barcode_key?: StringNullableWithAggregatesFilter<"MerchandiseInbound"> | string | null
     merchandise_id?: IntWithAggregatesFilter<"MerchandiseInbound"> | number
     supplier_id?: IntWithAggregatesFilter<"MerchandiseInbound"> | number
     color_id?: IntWithAggregatesFilter<"MerchandiseInbound"> | number
@@ -25839,6 +25857,7 @@ export namespace Prisma {
   export type MerchandiseInboundCreateInput = {
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     price: number
     quantity: number
     notes?: string | null
@@ -25854,6 +25873,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     supplier_id: number
     color_id: number
@@ -25868,6 +25888,7 @@ export namespace Prisma {
   export type MerchandiseInboundUpdateInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     price?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25883,6 +25904,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     supplier_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
@@ -25898,6 +25920,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     supplier_id: number
     color_id: number
@@ -25912,6 +25935,7 @@ export namespace Prisma {
   export type MerchandiseInboundUpdateManyMutationInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     price?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25923,6 +25947,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     supplier_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
@@ -27393,6 +27418,7 @@ export namespace Prisma {
     merchandise_inbound_id?: SortOrder
     inbound_date?: SortOrder
     inbound_code?: SortOrder
+    barcode_key?: SortOrder
     merchandise_id?: SortOrder
     supplier_id?: SortOrder
     color_id?: SortOrder
@@ -27418,6 +27444,7 @@ export namespace Prisma {
     merchandise_inbound_id?: SortOrder
     inbound_date?: SortOrder
     inbound_code?: SortOrder
+    barcode_key?: SortOrder
     merchandise_id?: SortOrder
     supplier_id?: SortOrder
     color_id?: SortOrder
@@ -27433,6 +27460,7 @@ export namespace Prisma {
     merchandise_inbound_id?: SortOrder
     inbound_date?: SortOrder
     inbound_code?: SortOrder
+    barcode_key?: SortOrder
     merchandise_id?: SortOrder
     supplier_id?: SortOrder
     color_id?: SortOrder
@@ -31131,6 +31159,7 @@ export namespace Prisma {
   export type MerchandiseInboundCreateWithoutUserInput = {
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     price: number
     quantity: number
     notes?: string | null
@@ -31145,6 +31174,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     supplier_id: number
     color_id: number
@@ -31742,6 +31772,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFilter<"MerchandiseInbound"> | number
     inbound_date?: DateTimeFilter<"MerchandiseInbound"> | Date | string
     inbound_code?: StringFilter<"MerchandiseInbound"> | string
+    barcode_key?: StringNullableFilter<"MerchandiseInbound"> | string | null
     merchandise_id?: IntFilter<"MerchandiseInbound"> | number
     supplier_id?: IntFilter<"MerchandiseInbound"> | number
     color_id?: IntFilter<"MerchandiseInbound"> | number
@@ -35918,6 +35949,7 @@ export namespace Prisma {
   export type MerchandiseInboundCreateWithoutMerchandiseInput = {
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     price: number
     quantity: number
     notes?: string | null
@@ -35932,6 +35964,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     supplier_id: number
     color_id: number
     price: number
@@ -36312,6 +36345,7 @@ export namespace Prisma {
   export type MerchandiseInboundCreateWithoutSupplierInput = {
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     price: number
     quantity: number
     notes?: string | null
@@ -36326,6 +36360,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     color_id: number
     price: number
@@ -36649,6 +36684,7 @@ export namespace Prisma {
   export type MerchandiseInboundCreateWithoutColorInput = {
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     price: number
     quantity: number
     notes?: string | null
@@ -36663,6 +36699,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     supplier_id: number
     price: number
@@ -37763,6 +37800,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     supplier_id: number
     color_id: number
@@ -38403,6 +38441,7 @@ export namespace Prisma {
   export type MerchandiseInboundUpdateWithoutUserInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     price?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38417,6 +38456,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     supplier_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
@@ -38431,6 +38471,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     supplier_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
@@ -39649,6 +39690,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     supplier_id: number
     color_id: number
     price: number
@@ -39678,6 +39720,7 @@ export namespace Prisma {
   export type MerchandiseInboundUpdateWithoutMerchandiseInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     price?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39692,6 +39735,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     supplier_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
@@ -39706,6 +39750,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     supplier_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
@@ -39767,6 +39812,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     color_id: number
     price: number
@@ -39780,6 +39826,7 @@ export namespace Prisma {
   export type MerchandiseInboundUpdateWithoutSupplierInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     price?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39794,6 +39841,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
@@ -39808,6 +39856,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     color_id?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
@@ -39822,6 +39871,7 @@ export namespace Prisma {
     merchandise_inbound_id?: number
     inbound_date: Date | string
     inbound_code: string
+    barcode_key?: string | null
     merchandise_id: number
     supplier_id: number
     price: number
@@ -39835,6 +39885,7 @@ export namespace Prisma {
   export type MerchandiseInboundUpdateWithoutColorInput = {
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     price?: IntFieldUpdateOperationsInput | number
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39849,6 +39900,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     supplier_id?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number
@@ -39863,6 +39915,7 @@ export namespace Prisma {
     merchandise_inbound_id?: IntFieldUpdateOperationsInput | number
     inbound_date?: DateTimeFieldUpdateOperationsInput | Date | string
     inbound_code?: StringFieldUpdateOperationsInput | string
+    barcode_key?: NullableStringFieldUpdateOperationsInput | string | null
     merchandise_id?: IntFieldUpdateOperationsInput | number
     supplier_id?: IntFieldUpdateOperationsInput | number
     price?: IntFieldUpdateOperationsInput | number

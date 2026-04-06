@@ -5,11 +5,17 @@ import { cancelMerchandiseInboundValidation, createMerchandiseInboundValidation,
 import { validate } from "../validations/validation.js";
 import constants from "../utils/constants.js";
 
+const normalizeBarcodeKey = (inboundCode) =>
+  String(inboundCode || "")
+    .toUpperCase()
+    .replaceAll(/[^A-Z0-9]/g, "");
+
 const create = async (user, req) => {
   const createRequest = validate(createMerchandiseInboundValidation, req);
 
   const merchandiseInbounds = createRequest.map((item) => ({
     ...item,
+    barcode_key: normalizeBarcodeKey(item.inbound_code),
     created_by: user.user_id
   }));
 
@@ -154,22 +160,12 @@ const inboundCodes = async (merchandiseIdInput) => {
 };
 
 const getMerchandiseByInboundCode = async (inboundCodeInput) => {
-  const inboundCode = validate(getMerchandiseByInboundCodeValidation, inboundCodeInput);
-
-  const summaryMerchandiseOutbound = await prismaClient.merchandiseOutbound.groupBy({
-    by: ["outbound_code"],
-    where: {
-      outbound_code: inboundCode,
-      status: InboundStatus.OK
-    },
-    _sum: {
-      quantity: true,
-    },
-  });
+  const inboundCodeValue = validate(getMerchandiseByInboundCodeValidation, inboundCodeInput);
+  const normalizedInboundCode = normalizeBarcodeKey(inboundCodeValue);
 
   const result = await prismaClient.merchandiseInbound.findFirst({
     where: {
-      inbound_code: inboundCode,
+      barcode_key: normalizedInboundCode,
       status: MerchandiseInboundStatus.OPEN,
     },
     select: {
@@ -186,7 +182,17 @@ const getMerchandiseByInboundCode = async (inboundCodeInput) => {
 
   if (!result) return null;
 
-  const outboundQty = summaryMerchandiseOutbound[0]?._sum?.quantity || 0;
+  const summaryMerchandiseOutbound = await prismaClient.merchandiseOutbound.aggregate({
+    where: {
+      outbound_code: result.inbound_code,
+      status: InboundStatus.OK
+    },
+    _sum: {
+      quantity: true,
+    },
+  });
+
+  const outboundQty = summaryMerchandiseOutbound._sum.quantity || 0;
 
   return {
     merchandise_id: result.merchandise_id,

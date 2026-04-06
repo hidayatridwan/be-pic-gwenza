@@ -297,6 +297,7 @@ exports.Prisma.MerchandiseInboundScalarFieldEnum = {
   merchandise_inbound_id: 'merchandise_inbound_id',
   inbound_date: 'inbound_date',
   inbound_code: 'inbound_code',
+  barcode_key: 'barcode_key',
   merchandise_id: 'merchandise_id',
   supplier_id: 'supplier_id',
   color_id: 'color_id',
@@ -404,6 +405,7 @@ exports.Prisma.ColorOrderByRelevanceFieldEnum = {
 
 exports.Prisma.MerchandiseInboundOrderByRelevanceFieldEnum = {
   inbound_code: 'inbound_code',
+  barcode_key: 'barcode_key',
   notes: 'notes'
 };
 
