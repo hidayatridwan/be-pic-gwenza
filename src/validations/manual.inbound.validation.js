@@ -18,7 +18,13 @@ const searchManualInboundValidation = Joi.object({
   search: Joi.string().min(0).max(100).optional(),
 });
 
+const getAdjustmentValueValidation = Joi.object({
+  product_id: Joi.number().min(1).positive().required(),
+  variant_id: Joi.number().min(1).positive().required(),
+});
+
 export {
   createManualInboundValidation,
-  searchManualInboundValidation
+  searchManualInboundValidation,
+  getAdjustmentValueValidation
 };

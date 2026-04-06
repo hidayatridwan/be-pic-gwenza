@@ -20,7 +20,17 @@ const search = async (req, res, next) => {
   }
 };
 
+const getAdjustmentValue = async (req, res, next) => {
+  try {
+    const result = await manualInboundService.getAdjustmentValue(req.query);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
-  search
+  search,
+  getAdjustmentValue
 };

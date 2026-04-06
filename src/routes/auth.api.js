@@ -74,6 +74,7 @@ router.delete("/outbounds/{:outboundId}", outboundController.cancel);
 
 router.post("/manual-inbounds", manualInboundController.create);
 router.get("/manual-inbounds", manualInboundController.search);
+router.get("/manual-inbounds/adjustment-value", manualInboundController.getAdjustmentValue);
 
 router.get("/reports/products", reportController.byProducts);
 router.get("/reports/pic", reportController.byPIC);

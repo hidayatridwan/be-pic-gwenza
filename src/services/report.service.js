@@ -87,6 +87,20 @@ const byExpiredDate = async (req) => {
     product_id,
     variant_id`;
 
+  // Get adjustments data
+  const adjustments = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    inbounds
+  WHERE
+    status = 'OK'
+    AND source_type = 'ADJUSTMENT'
+  GROUP BY
+    product_id,
+    variant_id`;
+
   // Get returns data
   const returns = await prismaClient.$queryRaw`SELECT
     product_id,
@@ -131,6 +145,7 @@ const byExpiredDate = async (req) => {
   const openOrderMap = {};
   const inboundMap = {};
   const openingStockMap = {};
+  const adjustmentMap = {};
   const returnMap = {};
   const outboundMap = {};
   const projectItemMap = {};
@@ -150,6 +165,12 @@ const byExpiredDate = async (req) => {
     const key = `${item.product_id}|${item.variant_id}`;
     openingStockMap[key] = Number(item.quantity) || 0;
   });
+
+  adjustments.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    adjustmentMap[key] = Number(item.quantity) || 0;
+  });
+
 
   returns.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
@@ -195,6 +216,7 @@ const byExpiredDate = async (req) => {
         current_period_orders: 0,
         inbounds: inboundMap[compositeKey] || 0,
         opening_stocks: openingStockMap[compositeKey] || 0,
+        adjustments: adjustmentMap[compositeKey] || 0,
         returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
         project_items: projectItemMap[compositeKey] || 0,
@@ -227,13 +249,14 @@ const byExpiredDate = async (req) => {
     project_items: item.project_items,
     inbounds: item.inbounds,
     opening_stocks: item.opening_stocks,
+    adjustments: item.adjustments,
     returns: item.returns,
     closed_orders: item.closed_orders,
     current_period_orders: item.current_period_orders,
     open_orders: item.open_orders,
     outbounds: item.outbounds,
-    fulfillment_period: (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.current_period_orders),
-    fulfillment_stock: (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.open_orders),
+    fulfillment_period: (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.current_period_orders),
+    fulfillment_stock: (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.open_orders),
     work_in_progress: Math.max(0, item.project_items - item.inbounds)
   }));
 
@@ -352,6 +375,19 @@ GROUP BY
 	product_id,
 	variant_id`;
 
+  const adjustments = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	inbounds
+WHERE
+	status = 'OK'
+AND source_type = 'ADJUSTMENT'
+GROUP BY
+	product_id,
+	variant_id`;
+
   const returns = await prismaClient.$queryRaw`SELECT
 	product_id,
 	variant_id,
@@ -391,6 +427,7 @@ GROUP BY
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
   const openingStockMap = toMap(openingStocks);
+  const adjustmentMap = toMap(adjustments);
   const returnMap = toMap(returns);
   const outboundMap = toMap(outbounds);
 
@@ -404,6 +441,7 @@ GROUP BY
       project_items: projectMap[key] || 0,
       inbounds: inboundMap[key] || 0,
       opening_stocks: openingStockMap[key] || 0,
+      adjustments: adjustmentMap[key] || 0,
       returns: returnMap[key] || 0,
       outbounds: outboundMap[key] || 0,
     };
@@ -411,7 +449,7 @@ GROUP BY
 
   const data = items.map((item) => {
     const fulfillment_stock =
-      (item.inbounds + item.opening_stocks + item.returns) - (item.outbounds + item.closed_orders + item.open_orders);
+      (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.open_orders);
 
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
