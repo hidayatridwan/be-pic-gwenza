@@ -64,15 +64,26 @@ const create = async (user, req) => {
 const search = async (req) => {
   const searchRequest = validate(searchImportValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
-  let where = {};
+  const whereConditions = [];
+
   if (searchRequest.search) {
-    where = {
+    whereConditions.push({
       OR: [
         { channel: { contains: searchRequest.search } },
         { file_name: { contains: searchRequest.search } },
-      ]
-    };
+      ],
+    });
   }
+
+  if (searchRequest.channel) {
+    whereConditions.push({ channel: searchRequest.channel });
+  }
+
+  if (searchRequest.import_type) {
+    whereConditions.push({ import_type: searchRequest.import_type });
+  }
+
+  const where = whereConditions.length > 0 ? { AND: whereConditions } : {};
 
   const result = await prismaClient.import.findMany({
     where,

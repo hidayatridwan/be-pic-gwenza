@@ -102,7 +102,7 @@ const create = async (user, req) => {
       where: { project_id: projectId },
       data: { status: ProjectStatus.FULFILLED },
     });
-  } else if (statuses.some((s) => s === ProjectStatus.PARTIAL)) {
+  } else if (statuses.includes(ProjectStatus.PARTIAL)) {
     await prismaClient.project.update({
       where: { project_id: projectId },
       data: { status: ProjectStatus.PARTIAL },
@@ -118,26 +118,104 @@ const create = async (user, req) => {
 const cancel = async (inboundId) => {
   inboundId = validate(cancelInboundValidation, inboundId);
 
-  const countInbound = await prismaClient.inbound.count({
-    where: {
-      inbound_id: inboundId,
-    },
+  await prismaClient.$transaction(async (tx) => {
+    const inbound = await tx.inbound.findFirst({
+      where: {
+        inbound_id: inboundId,
+      },
+      select: {
+        inbound_id: true,
+        projectitem_id: true,
+      },
+    });
+
+    if (!inbound) {
+      throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+    }
+
+    await tx.inbound.update({
+      where: {
+        inbound_id: inboundId,
+      },
+      data: {
+        status: InboundStatus.CANCEL,
+      },
+    });
+
+    if (!inbound.projectitem_id) {
+      return;
+    }
+
+    const projectItem = await tx.projectItem.findFirst({
+      where: {
+        projectitem_id: inbound.projectitem_id,
+      },
+      select: {
+        projectitem_id: true,
+        project_id: true,
+        quantity: true,
+      },
+    });
+
+    if (!projectItem) {
+      throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+    }
+
+    const inboundSummary = await tx.inbound.aggregate({
+      where: {
+        projectitem_id: inbound.projectitem_id,
+        status: InboundStatus.OK,
+      },
+      _sum: {
+        quantity: true,
+      },
+    });
+
+    const totalInboundQty = Number(inboundSummary._sum.quantity || 0);
+
+    let projectItemStatus = ProjectStatus.OPEN;
+    if (totalInboundQty >= projectItem.quantity) {
+      projectItemStatus = ProjectStatus.FULFILLED;
+    } else if (totalInboundQty > 0) {
+      projectItemStatus = ProjectStatus.PARTIAL;
+    }
+
+    await tx.projectItem.update({
+      where: {
+        projectitem_id: inbound.projectitem_id,
+      },
+      data: {
+        status: projectItemStatus,
+      },
+    });
+
+    const allProjectItems = await tx.projectItem.findMany({
+      where: {
+        project_id: projectItem.project_id,
+      },
+      select: {
+        status: true,
+      },
+    });
+
+    const statuses = allProjectItems.map((item) => item.status);
+
+    let projectStatus = ProjectStatus.OPEN;
+    if (statuses.every((status) => status === ProjectStatus.FULFILLED)) {
+      projectStatus = ProjectStatus.FULFILLED;
+    } else if (statuses.includes(ProjectStatus.PARTIAL) || statuses.includes(ProjectStatus.FULFILLED)) {
+      projectStatus = ProjectStatus.PARTIAL;
+    }
+
+    await tx.project.update({
+      where: {
+        project_id: projectItem.project_id,
+      },
+      data: {
+        status: projectStatus,
+      },
+    });
   });
-
-  if (countInbound === 0) {
-    throw new ResponseError(404, constants.RECORD_NOT_FOUND);
-  }
-
-  const result = await prismaClient.inbound.updateMany({
-    where: {
-      inbound_id: inboundId,
-    },
-    data: {
-      status: InboundStatus.CANCEL,
-    },
-  });
-
-  return result;
 };
 
 const search = async (req) => {

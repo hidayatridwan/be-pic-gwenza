@@ -118,9 +118,10 @@ const cancel = async (projectId) => {
 const search = async (req) => {
   const searchRequest = validate(searchProjectValidation, req);
   const skip = (searchRequest.page - 1) * searchRequest.size;
-  let where = {};
+  const whereConditions = [];
+
   if (searchRequest.search) {
-    where = {
+    whereConditions.push({
       OR: [
         { batch_id: { contains: searchRequest.search } },
         {
@@ -129,8 +130,18 @@ const search = async (req) => {
           },
         },
       ],
-    };
+    });
   }
+
+  if (searchRequest.pic_id) {
+    whereConditions.push({ pic_id: searchRequest.pic_id });
+  }
+
+  if (searchRequest.status) {
+    whereConditions.push({ status: searchRequest.status });
+  }
+
+  const where = whereConditions.length > 0 ? { AND: whereConditions } : {};
 
   const items = await prismaClient.project.findMany({
     where,
