@@ -35,6 +35,7 @@ const create = async (user, req) => {
     by: ["projectitem_id"],
     where: {
       projectitem_id: { in: projectItemIds },
+      status: InboundStatus.OK,
     },
     _sum: {
       quantity: true,
@@ -50,7 +51,7 @@ const create = async (user, req) => {
 
   for (const item of projectItems) {
     const request = requestMap.get(item.projectitem_id);
-    const previousInboundQty = inboundMap.get(item.projectitem_id) || 0;
+    const previousInboundQty = Number(inboundMap.get(item.projectitem_id) || 0);
     const currentInboundQty = request?.quantity ?? 0;
     const totalInboundQty = previousInboundQty + currentInboundQty;
 
