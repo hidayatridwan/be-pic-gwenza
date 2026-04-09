@@ -44,6 +44,10 @@ const search = async (req) => {
     };
   }
 
+  if (searchRequest.status) {
+    where.status = searchRequest.status;
+  }
+
   const items = await prismaClient.outbound.findMany({
     where,
     select: {

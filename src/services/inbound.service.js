@@ -284,6 +284,18 @@ const search = async (req) => {
     };
   }
 
+  if (searchRequest.pic_id) {
+    where.pic_id = searchRequest.pic_id;
+  }
+
+  if (searchRequest.tailor_id) {
+    where.tailor_id = searchRequest.tailor_id;
+  }
+
+  if (searchRequest.status) {
+    where.status = searchRequest.status;
+  }
+
   const items = await prismaClient.inbound.findMany({
     where,
     select: {
