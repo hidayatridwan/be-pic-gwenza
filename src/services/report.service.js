@@ -325,6 +325,18 @@ GROUP BY
 	product_id,
 	variant_id`;
 
+  const cancelOrders = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	orders
+WHERE
+  status = 'CANCEL'
+GROUP BY
+	product_id,
+	variant_id`;
+
   const closedOrders = await prismaClient.$queryRaw`SELECT
 	product_id,
 	variant_id,
@@ -423,6 +435,7 @@ GROUP BY
   }
 
   const openOrderMap = toMap(openOrders);
+  const cancelOrderMap = toMap(cancelOrders);
   const closedOrderMap = toMap(closedOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
@@ -436,6 +449,7 @@ GROUP BY
     return {
       product_name: order.product_name,
       variant_name: order.variant_name,
+      cancel_orders: cancelOrderMap[key] || 0,
       closed_orders: closedOrderMap[key] || 0,
       open_orders: openOrderMap[key] || 0,
       project_items: projectMap[key] || 0,
@@ -448,8 +462,9 @@ GROUP BY
   });
 
   const data = items.map((item) => {
+
     const fulfillment_stock =
-      (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.open_orders);
+      (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.cancel_orders + item.open_orders);
 
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
