@@ -457,14 +457,12 @@ GROUP BY
 
     let fulfillment_status;
 
-    if (stok_ready > 0) {
-      fulfillment_status = "FULFILLED";
-    } else if (work_in_progress > 0 && demand < 0) {
-      fulfillment_status = "IN_PROGRESS";
-    } else if (stok_ready === 0 && work_in_progress === 0) {
-      fulfillment_status = "EMPTY";
+    if (stok_ready >= item.open_orders) {
+      fulfillment_status = "FULFILLED";           // Stok ready saja sudah cukup untuk open orders
+    } else if (stok_ready + work_in_progress >= item.open_orders) {
+      fulfillment_status = "IN_PROGRESS";         // Stok ready + WIP cukup untuk open orders
     } else {
-      fulfillment_status = "CRITICAL";
+      fulfillment_status = "CRITICAL";            // Stok ready + WIP tetap tidak mencukupi open orders
     }
 
     return {
