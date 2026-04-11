@@ -61,11 +61,11 @@ export async function handleProcessOrder(payload) {
             });
 
             const productMap = Object.fromEntries(
-                products.map(p => [p.product_name, p.product_id])
+                products.map(p => [p.product_name.toLowerCase(), p.product_id])
             );
 
             const variantMap = Object.fromEntries(
-                variants.map(v => [v.variant_name, v.variant_id])
+                variants.map(v => [v.variant_name.toLowerCase(), v.variant_id])
             );
 
             // =============================
@@ -78,8 +78,8 @@ export async function handleProcessOrder(payload) {
                     order_number: order[0],
                     product_name: order[1],
                     variant_name: variantName,
-                    product_id: productMap[order[1]],
-                    variant_id: variantMap[variantName],
+                    product_id: productMap[order[1]?.toLowerCase()],
+                    variant_id: variantMap[variantName.toLowerCase()],
                     quantity: Number(order[3]),
                     start_date: order[4] ? new Date(order[4]) : null,
                     end_date: order[5] ? new Date(order[5]) : null,

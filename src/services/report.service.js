@@ -325,18 +325,6 @@ GROUP BY
 	product_id,
 	variant_id`;
 
-  const cancelOrders = await prismaClient.$queryRaw`SELECT
-	product_id,
-	variant_id,
-	sum(quantity) AS quantity
-FROM
-	orders
-WHERE
-  status = 'CANCEL'
-GROUP BY
-	product_id,
-	variant_id`;
-
   const closedOrders = await prismaClient.$queryRaw`SELECT
 	product_id,
 	variant_id,
@@ -435,7 +423,6 @@ GROUP BY
   }
 
   const openOrderMap = toMap(openOrders);
-  const cancelOrderMap = toMap(cancelOrders);
   const closedOrderMap = toMap(closedOrders);
   const projectMap = toMap(projects);
   const inboundMap = toMap(inbounds);
@@ -449,7 +436,6 @@ GROUP BY
     return {
       product_name: order.product_name,
       variant_name: order.variant_name,
-      cancel_orders: cancelOrderMap[key] || 0,
       closed_orders: closedOrderMap[key] || 0,
       open_orders: openOrderMap[key] || 0,
       project_items: projectMap[key] || 0,
@@ -463,20 +449,19 @@ GROUP BY
 
   const data = items.map((item) => {
 
-    const fulfillment_stock =
-      (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.cancel_orders + item.open_orders);
+    const stok_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders)
 
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
+    const demand = stok_ready - item.open_orders - work_in_progress;
+
     let fulfillment_status;
 
-    const total = fulfillment_stock + work_in_progress;
-
-    if (fulfillment_stock > 0) {
+    if (stok_ready > 0) {
       fulfillment_status = "FULFILLED";
-    } else if (total > 0) {
+    } else if (work_in_progress > 0 && demand < 0) {
       fulfillment_status = "IN_PROGRESS";
-    } else if (total === 0) {
+    } else if (stok_ready === 0 && work_in_progress === 0) {
       fulfillment_status = "EMPTY";
     } else {
       fulfillment_status = "CRITICAL";
@@ -484,15 +469,16 @@ GROUP BY
 
     return {
       ...item,
-      fulfillment_stock,
+      stok_ready,
       work_in_progress,
+      demand,
       fulfillment_status,
     };
   });
 
   const productGroupMinFulfillmentStock = data.reduce((acc, item) => {
     const currentMin = acc[item.product_name] ?? Infinity;
-    acc[item.product_name] = Math.min(currentMin, item.fulfillment_stock);
+    acc[item.product_name] = Math.min(currentMin, item.demand);
     return acc;
   }, {});
 
@@ -509,7 +495,7 @@ GROUP BY
       return a.product_name.localeCompare(b.product_name);
     }
 
-    return a.fulfillment_stock - b.fulfillment_stock;
+    return a.demand - b.demand;
   });
 
   return { data };
