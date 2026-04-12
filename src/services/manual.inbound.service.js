@@ -121,28 +121,7 @@ const getAdjustmentValue = async (req) => {
     }
   });
 
-  const [openOrder, cancelOrder, closedOrder, project, inbound, openingStock, returnStock, outbound] = await Promise.all([
-    prismaClient.$queryRaw`SELECT
-	product_id,
-	variant_id,
-	sum(quantity) AS quantity
-FROM
-	orders
-WHERE
-  status = 'OPEN'
-  AND product_id = ${request.product_id}
-  AND variant_id = ${request.variant_id}`,
-
-    prismaClient.$queryRaw`SELECT
-	product_id,
-	variant_id,
-	sum(quantity) AS quantity
-FROM
-	orders
-WHERE
-  status = 'CANCEL'
-  AND product_id = ${request.product_id}
-  AND variant_id = ${request.variant_id}`,
+  const [closedOrder, inbound, openingStock, returnStock, outbound] = await Promise.all([
 
     prismaClient.$queryRaw`SELECT
 	product_id,
@@ -152,17 +131,6 @@ FROM
 	orders
 WHERE
   status = 'CLOSED'
-  AND product_id = ${request.product_id}
-  AND variant_id = ${request.variant_id}`,
-
-    prismaClient.$queryRaw`SELECT
-	product_id,
-	variant_id,
-	sum(quantity) AS quantity
-FROM
-	projectitems
-WHERE
-  status != 'CANCEL'
   AND product_id = ${request.product_id}
   AND variant_id = ${request.variant_id}`,
 
@@ -215,15 +183,12 @@ AND variant_id = ${request.variant_id}`
   ]);
 
   const { Product, Variant, ...resultData } = result || {};
-  const openOrderQty = Number(openOrder?.[0]?.quantity || 0);
-  const cancelOrderQty = Number(cancelOrder?.[0]?.quantity || 0);
   const closedOrderQty = Number(closedOrder?.[0]?.quantity || 0);
-  const projectQty = Number(project?.[0]?.quantity || 0);
   const inboundQty = Number(inbound?.[0]?.quantity || 0);
   const openingStockQty = Number(openingStock?.[0]?.quantity || 0);
   const returnQty = Number(returnStock?.[0]?.quantity || 0);
   const outboundQty = Number(outbound?.[0]?.quantity || 0);
-  const adjustmentQty = (cancelOrderQty + closedOrderQty + openOrderQty + outboundQty) - (inboundQty + openingStockQty + returnQty) - (projectQty - inboundQty);
+  const adjustmentQty = (closedOrderQty + outboundQty) - (inboundQty + openingStockQty + returnQty);
 
   return {
     data: {

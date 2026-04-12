@@ -449,25 +449,25 @@ GROUP BY
 
   const data = items.map((item) => {
 
-    const stok_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders)
+    const stock_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders)
 
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
-    const demand = stok_ready - item.open_orders - work_in_progress;
+    const demand = (stock_ready + work_in_progress) - item.open_orders;
 
     let fulfillment_status;
 
-    if (stok_ready >= item.open_orders) {
-      fulfillment_status = "FULFILLED";           // Stok ready saja sudah cukup untuk open orders
-    } else if (stok_ready + work_in_progress >= item.open_orders) {
-      fulfillment_status = "IN_PROGRESS";         // Stok ready + WIP cukup untuk open orders
+    if (stock_ready >= item.open_orders) {
+      fulfillment_status = "FULFILLED";           // Stock ready saja sudah cukup untuk open orders
+    } else if (stock_ready + work_in_progress >= item.open_orders) {
+      fulfillment_status = "IN_PROGRESS";         // Stock ready + WIP cukup untuk open orders
     } else {
-      fulfillment_status = "CRITICAL";            // Stok ready + WIP tetap tidak mencukupi open orders
+      fulfillment_status = "CRITICAL";            // Stock ready + WIP tetap tidak mencukupi open orders
     }
 
     return {
       ...item,
-      stok_ready,
+      stock_ready,
       work_in_progress,
       demand,
       fulfillment_status,
