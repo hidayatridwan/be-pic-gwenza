@@ -15,7 +15,7 @@ const byExpiredDate = async (req) => {
   const reportEndDate = new Date(reportStartDate);
   reportEndDate.setDate(reportEndDate.getDate() + 7);
 
-  // Get current period orders
+  // Get current period open orders
   const currentOrders = await prismaClient.$queryRaw`SELECT
     product_id,
     product_name,
@@ -58,6 +58,19 @@ const byExpiredDate = async (req) => {
   GROUP BY
     product_id,
     variant_id`;
+
+  // Get projects data
+  const projects = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	projectitems
+WHERE
+  status != 'CANCEL'
+GROUP BY
+	product_id,
+	variant_id`;
 
   // Get inbounds data
   const inbounds = await prismaClient.$queryRaw`SELECT
@@ -115,19 +128,6 @@ const byExpiredDate = async (req) => {
     product_id,
     variant_id`;
 
-  // Get project items data
-  const projectItems = await prismaClient.$queryRaw`SELECT
-    product_id,
-    variant_id,
-    SUM(quantity) AS quantity
-  FROM
-    projectitems
-  WHERE
-    status != 'CANCEL'
-  GROUP BY
-    product_id,
-    variant_id`;
-
   // Get outbounds data
   const outbounds = await prismaClient.$queryRaw`SELECT
     product_id,
@@ -142,18 +142,18 @@ const byExpiredDate = async (req) => {
     variant_id`;
 
   // Create lookup maps
-  const openOrderMap = {};
+  const projectMap = {};
   const inboundMap = {};
   const openingStockMap = {};
   const adjustmentMap = {};
   const returnMap = {};
   const outboundMap = {};
-  const projectItemMap = {};
   const closedOrderMap = {};
+  const openOrderMap = {};
 
-  openOrders.forEach((item) => {
+  projects.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
-    openOrderMap[key] = Number(item.quantity) || 0;
+    projectMap[key] = Number(item.quantity) || 0;
   });
 
   inbounds.forEach((item) => {
@@ -171,7 +171,6 @@ const byExpiredDate = async (req) => {
     adjustmentMap[key] = Number(item.quantity) || 0;
   });
 
-
   returns.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
     returnMap[key] = Number(item.quantity) || 0;
@@ -182,14 +181,14 @@ const byExpiredDate = async (req) => {
     outboundMap[key] = Number(item.quantity) || 0;
   });
 
-  projectItems.forEach((item) => {
-    const key = `${item.product_id}|${item.variant_id}`;
-    projectItemMap[key] = Number(item.quantity) || 0;
-  });
-
   closedOrders.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
     closedOrderMap[key] = Number(item.quantity) || 0;
+  });
+
+  openOrders.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    openOrderMap[key] = Number(item.quantity) || 0;
   });
 
   // Generate date columns for report period
@@ -214,12 +213,12 @@ const byExpiredDate = async (req) => {
         variant_id: item.variant_id,
         variant_name: item.variant_name,
         current_period_orders: 0,
+        projects: projectMap[compositeKey] || 0,
         inbounds: inboundMap[compositeKey] || 0,
         opening_stocks: openingStockMap[compositeKey] || 0,
         adjustments: adjustmentMap[compositeKey] || 0,
         returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
-        project_items: projectItemMap[compositeKey] || 0,
         closed_orders: closedOrderMap[compositeKey] || 0,
         open_orders: openOrderMap[compositeKey] || 0,
       };
@@ -237,33 +236,37 @@ const byExpiredDate = async (req) => {
   });
 
   // Prepare final output
-  const data = Object.values(reportData).map((item) => ({
-    product_id: item.product_id,
-    product_name: item.product_name,
-    variant_id: item.variant_id,
-    variant_name: item.variant_name,
-    ...dateColumns.reduce((acc, date) => {
-      acc[date] = item[date];
-      return acc;
-    }, {}),
-    project_items: item.project_items,
-    inbounds: item.inbounds,
-    opening_stocks: item.opening_stocks,
-    adjustments: item.adjustments,
-    returns: item.returns,
-    closed_orders: item.closed_orders,
-    current_period_orders: item.current_period_orders,
-    open_orders: item.open_orders,
-    outbounds: item.outbounds,
-    fulfillment_period: (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.current_period_orders),
-    fulfillment_stock: (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.open_orders),
-    work_in_progress: Math.max(0, item.project_items - item.inbounds)
-  }));
+  const data = Object.values(reportData).map((item) => {
 
-  // Keep variants of the same product adjacent while preserving ascending order priority by fulfillment_period (most negative first).
+    const stock_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders)
+
+    const work_in_progress = Math.max(0, item.projects - item.inbounds);
+
+    const rawDemand = (stock_ready + work_in_progress) - item.open_orders;
+    const demand = rawDemand > 0 ? 0 : -rawDemand;
+
+    return {
+      product_id: item.product_id,
+      product_name: item.product_name,
+      variant_id: item.variant_id,
+      variant_name: item.variant_name,
+      ...dateColumns.reduce((acc, date) => {
+        acc[date] = item[date];
+        return acc;
+      }, {}),
+      current_period_orders: item.current_period_orders,
+      open_orders: item.open_orders,
+      stock_ready,
+      work_in_progress,
+      rawDemand,
+      demand
+    };
+  });
+
+  // Keep variants of the same product adjacent while preserving ascending order priority by rawDemand (most negative first).
   const productGroupMinFulfillmentPeriod = data.reduce((acc, item) => {
     const currentMin = acc[item.product_name] ?? Infinity;
-    acc[item.product_name] = Math.min(currentMin, item.fulfillment_period);
+    acc[item.product_name] = Math.min(currentMin, item.rawDemand);
     return acc;
   }, {});
 
@@ -277,7 +280,7 @@ const byExpiredDate = async (req) => {
       return a.product_name.localeCompare(b.product_name);
     }
 
-    return a.fulfillment_period - b.fulfillment_period;
+    return a.rawDemand - b.rawDemand;
   });
 
   return {
@@ -453,7 +456,8 @@ GROUP BY
 
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 
-    const demand = (stock_ready + work_in_progress) - item.open_orders;
+    const rawDemand = (stock_ready + work_in_progress) - item.open_orders;
+    const demand = rawDemand > 0 ? 0 : -rawDemand;
 
     let fulfillment_status;
 
@@ -469,6 +473,7 @@ GROUP BY
       ...item,
       stock_ready,
       work_in_progress,
+      rawDemand,
       demand,
       fulfillment_status,
     };
@@ -476,7 +481,7 @@ GROUP BY
 
   const productGroupMinFulfillmentStock = data.reduce((acc, item) => {
     const currentMin = acc[item.product_name] ?? Infinity;
-    acc[item.product_name] = Math.min(currentMin, item.demand);
+    acc[item.product_name] = Math.min(currentMin, item.rawDemand);
     return acc;
   }, {});
 
@@ -493,7 +498,7 @@ GROUP BY
       return a.product_name.localeCompare(b.product_name);
     }
 
-    return a.demand - b.demand;
+    return a.rawDemand - b.rawDemand;
   });
 
   return { data };
