@@ -1,0 +1,40 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ secrets.APP_DIR }}
+
+            echo "Pull latest code"
+            git pull origin main
+
+            echo "Install dependencies"
+            npm install
+
+            echo "Prisma generate"
+            npx prisma generate
+
+            echo "Prisma push"
+            npx prisma db push --accept-data-loss
+
+            echo "Restart PM2"
+            pm2 reload ecosystem.config.cjs
+
+            echo "Done 🚀"
