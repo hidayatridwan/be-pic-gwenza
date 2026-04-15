@@ -14,7 +14,8 @@ export async function handleCancelOrder(payload) {
                 }
             },
             data: {
-                status: OrderStatus.CANCEL
+                status: OrderStatus.CANCEL,
+                canceled_at: new Date(),
             },
         });
 

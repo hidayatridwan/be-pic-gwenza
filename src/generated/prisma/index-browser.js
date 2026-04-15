@@ -192,7 +192,9 @@ exports.Prisma.OrderScalarFieldEnum = {
   waybill_number: 'waybill_number',
   project_id: 'project_id',
   created_at: 'created_at',
-  created_by: 'created_by'
+  created_by: 'created_by',
+  closed_at: 'closed_at',
+  canceled_at: 'canceled_at'
 };
 
 exports.Prisma.ProjectScalarFieldEnum = {

@@ -93,14 +93,17 @@ export async function handleProcessOrder(payload) {
                 skipDuplicates: true
             });
 
-            await tx.order.updateMany({
-                where: {
-                    order_number: { in: ordersData.map(o => o.order_number) },
-                },
-                data: {
-                    status: 'OPEN',
-                },
-            });
+            const orderNumbers = ordersData.map(o => o.order_number);
+
+            await tx.$executeRaw(
+                Prisma.sql`
+                    UPDATE orders
+                    SET
+                    status = 'OPEN',
+                    closed_at = NULL
+                    WHERE order_number IN (${Prisma.join(orderNumbers)})
+                `
+            );
 
             const productVariantPairs = [
                 ...new Set(

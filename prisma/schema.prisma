@@ -173,6 +173,8 @@ model Order {
   project_id     Int?        @db.Int
   created_at     DateTime    @default(now())
   created_by     Int?        @db.Int
+  closed_at      DateTime?
+  canceled_at    DateTime?
 
   Product Product? @relation(fields: [product_id], references: [product_id])
   Variant Variant? @relation(fields: [variant_id], references: [variant_id])

@@ -17,7 +17,8 @@ const create = async (user, req) => {
 
       await prismaClient.order.updateMany({
         data: {
-          status: OrderStatus.CLOSED
+          status: OrderStatus.CLOSED,
+          closed_at: new Date(),
         },
         where: {
           channel: importRequest.channel,

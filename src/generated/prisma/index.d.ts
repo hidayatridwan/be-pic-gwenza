@@ -10024,6 +10024,8 @@ export namespace Prisma {
     project_id: number | null
     created_at: Date | null
     created_by: number | null
+    closed_at: Date | null
+    canceled_at: Date | null
   }
 
   export type OrderMaxAggregateOutputType = {
@@ -10043,6 +10045,8 @@ export namespace Prisma {
     project_id: number | null
     created_at: Date | null
     created_by: number | null
+    closed_at: Date | null
+    canceled_at: Date | null
   }
 
   export type OrderCountAggregateOutputType = {
@@ -10062,6 +10066,8 @@ export namespace Prisma {
     project_id: number
     created_at: number
     created_by: number
+    closed_at: number
+    canceled_at: number
     _all: number
   }
 
@@ -10101,6 +10107,8 @@ export namespace Prisma {
     project_id?: true
     created_at?: true
     created_by?: true
+    closed_at?: true
+    canceled_at?: true
   }
 
   export type OrderMaxAggregateInputType = {
@@ -10120,6 +10128,8 @@ export namespace Prisma {
     project_id?: true
     created_at?: true
     created_by?: true
+    closed_at?: true
+    canceled_at?: true
   }
 
   export type OrderCountAggregateInputType = {
@@ -10139,6 +10149,8 @@ export namespace Prisma {
     project_id?: true
     created_at?: true
     created_by?: true
+    closed_at?: true
+    canceled_at?: true
     _all?: true
   }
 
@@ -10245,6 +10257,8 @@ export namespace Prisma {
     project_id: number | null
     created_at: Date
     created_by: number | null
+    closed_at: Date | null
+    canceled_at: Date | null
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
     _sum: OrderSumAggregateOutputType | null
@@ -10283,6 +10297,8 @@ export namespace Prisma {
     project_id?: boolean
     created_at?: boolean
     created_by?: boolean
+    closed_at?: boolean
+    canceled_at?: boolean
     Product?: boolean | Order$ProductArgs<ExtArgs>
     Variant?: boolean | Order$VariantArgs<ExtArgs>
     Project?: boolean | Order$ProjectArgs<ExtArgs>
@@ -10308,9 +10324,11 @@ export namespace Prisma {
     project_id?: boolean
     created_at?: boolean
     created_by?: boolean
+    closed_at?: boolean
+    canceled_at?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"order_id" | "channel" | "order_number" | "status" | "product_id" | "product_name" | "variant_id" | "variant_name" | "quantity" | "start_date" | "end_date" | "delivery_date" | "waybill_number" | "project_id" | "created_at" | "created_by", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"order_id" | "channel" | "order_number" | "status" | "product_id" | "product_name" | "variant_id" | "variant_name" | "quantity" | "start_date" | "end_date" | "delivery_date" | "waybill_number" | "project_id" | "created_at" | "created_by" | "closed_at" | "canceled_at", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Product?: boolean | Order$ProductArgs<ExtArgs>
     Variant?: boolean | Order$VariantArgs<ExtArgs>
@@ -10343,6 +10361,8 @@ export namespace Prisma {
       project_id: number | null
       created_at: Date
       created_by: number | null
+      closed_at: Date | null
+      canceled_at: Date | null
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -10732,6 +10752,8 @@ export namespace Prisma {
     readonly project_id: FieldRef<"Order", 'Int'>
     readonly created_at: FieldRef<"Order", 'DateTime'>
     readonly created_by: FieldRef<"Order", 'Int'>
+    readonly closed_at: FieldRef<"Order", 'DateTime'>
+    readonly canceled_at: FieldRef<"Order", 'DateTime'>
   }
     
 
@@ -22590,7 +22612,9 @@ export namespace Prisma {
     waybill_number: 'waybill_number',
     project_id: 'project_id',
     created_at: 'created_at',
-    created_by: 'created_by'
+    created_by: 'created_by',
+    closed_at: 'closed_at',
+    canceled_at: 'canceled_at'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -23523,6 +23547,8 @@ export namespace Prisma {
     project_id?: IntNullableFilter<"Order"> | number | null
     created_at?: DateTimeFilter<"Order"> | Date | string
     created_by?: IntNullableFilter<"Order"> | number | null
+    closed_at?: DateTimeNullableFilter<"Order"> | Date | string | null
+    canceled_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     Product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
     Variant?: XOR<VariantNullableScalarRelationFilter, VariantWhereInput> | null
     Project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
@@ -23546,6 +23572,8 @@ export namespace Prisma {
     project_id?: SortOrderInput | SortOrder
     created_at?: SortOrder
     created_by?: SortOrderInput | SortOrder
+    closed_at?: SortOrderInput | SortOrder
+    canceled_at?: SortOrderInput | SortOrder
     Product?: ProductOrderByWithRelationInput
     Variant?: VariantOrderByWithRelationInput
     Project?: ProjectOrderByWithRelationInput
@@ -23574,6 +23602,8 @@ export namespace Prisma {
     project_id?: IntNullableFilter<"Order"> | number | null
     created_at?: DateTimeFilter<"Order"> | Date | string
     created_by?: IntNullableFilter<"Order"> | number | null
+    closed_at?: DateTimeNullableFilter<"Order"> | Date | string | null
+    canceled_at?: DateTimeNullableFilter<"Order"> | Date | string | null
     Product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
     Variant?: XOR<VariantNullableScalarRelationFilter, VariantWhereInput> | null
     Project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
@@ -23597,6 +23627,8 @@ export namespace Prisma {
     project_id?: SortOrderInput | SortOrder
     created_at?: SortOrder
     created_by?: SortOrderInput | SortOrder
+    closed_at?: SortOrderInput | SortOrder
+    canceled_at?: SortOrderInput | SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
@@ -23624,6 +23656,8 @@ export namespace Prisma {
     project_id?: IntNullableWithAggregatesFilter<"Order"> | number | null
     created_at?: DateTimeWithAggregatesFilter<"Order"> | Date | string
     created_by?: IntNullableWithAggregatesFilter<"Order"> | number | null
+    closed_at?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    canceled_at?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
   }
 
   export type ProjectWhereInput = {
@@ -25070,6 +25104,8 @@ export namespace Prisma {
     delivery_date?: Date | string | null
     waybill_number?: string | null
     created_at?: Date | string
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
     Product?: ProductCreateNestedOneWithoutOrderInput
     Variant?: VariantCreateNestedOneWithoutOrderInput
     Project?: ProjectCreateNestedOneWithoutOrderInput
@@ -25093,6 +25129,8 @@ export namespace Prisma {
     project_id?: number | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OrderUpdateInput = {
@@ -25107,6 +25145,8 @@ export namespace Prisma {
     delivery_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Product?: ProductUpdateOneWithoutOrderNestedInput
     Variant?: VariantUpdateOneWithoutOrderNestedInput
     Project?: ProjectUpdateOneWithoutOrderNestedInput
@@ -25130,6 +25170,8 @@ export namespace Prisma {
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderCreateManyInput = {
@@ -25149,6 +25191,8 @@ export namespace Prisma {
     project_id?: number | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OrderUpdateManyMutationInput = {
@@ -25163,6 +25207,8 @@ export namespace Prisma {
     delivery_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -25182,6 +25228,8 @@ export namespace Prisma {
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ProjectCreateInput = {
@@ -26751,6 +26799,8 @@ export namespace Prisma {
     project_id?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrder
+    closed_at?: SortOrder
+    canceled_at?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
@@ -26779,6 +26829,8 @@ export namespace Prisma {
     project_id?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrder
+    closed_at?: SortOrder
+    canceled_at?: SortOrder
   }
 
   export type OrderMinOrderByAggregateInput = {
@@ -26798,6 +26850,8 @@ export namespace Prisma {
     project_id?: SortOrder
     created_at?: SortOrder
     created_by?: SortOrder
+    closed_at?: SortOrder
+    canceled_at?: SortOrder
   }
 
   export type OrderSumOrderByAggregateInput = {
@@ -31092,6 +31146,8 @@ export namespace Prisma {
     delivery_date?: Date | string | null
     waybill_number?: string | null
     created_at?: Date | string
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
     Product?: ProductCreateNestedOneWithoutOrderInput
     Variant?: VariantCreateNestedOneWithoutOrderInput
     Project?: ProjectCreateNestedOneWithoutOrderInput
@@ -31113,6 +31169,8 @@ export namespace Prisma {
     waybill_number?: string | null
     project_id?: number | null
     created_at?: Date | string
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OrderCreateOrConnectWithoutUserInput = {
@@ -31716,6 +31774,8 @@ export namespace Prisma {
     project_id?: IntNullableFilter<"Order"> | number | null
     created_at?: DateTimeFilter<"Order"> | Date | string
     created_by?: IntNullableFilter<"Order"> | number | null
+    closed_at?: DateTimeNullableFilter<"Order"> | Date | string | null
+    canceled_at?: DateTimeNullableFilter<"Order"> | Date | string | null
   }
 
   export type OutboundUpsertWithWhereUniqueWithoutUserInput = {
@@ -32498,6 +32558,8 @@ export namespace Prisma {
     delivery_date?: Date | string | null
     waybill_number?: string | null
     created_at?: Date | string
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
     Product?: ProductCreateNestedOneWithoutOrderInput
     Project?: ProjectCreateNestedOneWithoutOrderInput
     User?: UserCreateNestedOneWithoutOrderInput
@@ -32519,6 +32581,8 @@ export namespace Prisma {
     project_id?: number | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OrderCreateOrConnectWithoutVariantInput = {
@@ -32894,6 +32958,8 @@ export namespace Prisma {
     delivery_date?: Date | string | null
     waybill_number?: string | null
     created_at?: Date | string
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
     Variant?: VariantCreateNestedOneWithoutOrderInput
     Project?: ProjectCreateNestedOneWithoutOrderInput
     User?: UserCreateNestedOneWithoutOrderInput
@@ -32915,6 +32981,8 @@ export namespace Prisma {
     project_id?: number | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OrderCreateOrConnectWithoutProductInput = {
@@ -33989,6 +34057,8 @@ export namespace Prisma {
     delivery_date?: Date | string | null
     waybill_number?: string | null
     created_at?: Date | string
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
     Product?: ProductCreateNestedOneWithoutOrderInput
     Variant?: VariantCreateNestedOneWithoutOrderInput
     User?: UserCreateNestedOneWithoutOrderInput
@@ -34010,6 +34080,8 @@ export namespace Prisma {
     waybill_number?: string | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OrderCreateOrConnectWithoutProjectInput = {
@@ -37783,6 +37855,8 @@ export namespace Prisma {
     waybill_number?: string | null
     project_id?: number | null
     created_at?: Date | string
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OutboundCreateManyUserInput = {
@@ -38365,6 +38439,8 @@ export namespace Prisma {
     delivery_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Product?: ProductUpdateOneWithoutOrderNestedInput
     Variant?: VariantUpdateOneWithoutOrderNestedInput
     Project?: ProjectUpdateOneWithoutOrderNestedInput
@@ -38386,6 +38462,8 @@ export namespace Prisma {
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUncheckedUpdateManyWithoutUserInput = {
@@ -38404,6 +38482,8 @@ export namespace Prisma {
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OutboundUpdateWithoutUserInput = {
@@ -38931,6 +39011,8 @@ export namespace Prisma {
     project_id?: number | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type OutboundCreateManyVariantInput = {
@@ -39045,6 +39127,8 @@ export namespace Prisma {
     delivery_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Product?: ProductUpdateOneWithoutOrderNestedInput
     Project?: ProjectUpdateOneWithoutOrderNestedInput
     User?: UserUpdateOneWithoutOrderNestedInput
@@ -39066,6 +39150,8 @@ export namespace Prisma {
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUncheckedUpdateManyWithoutVariantInput = {
@@ -39084,6 +39170,8 @@ export namespace Prisma {
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OutboundUpdateWithoutVariantInput = {
@@ -39176,6 +39264,8 @@ export namespace Prisma {
     project_id?: number | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type MerchandiseOutboundCreateManyProductInput = {
@@ -39306,6 +39396,8 @@ export namespace Prisma {
     delivery_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Variant?: VariantUpdateOneWithoutOrderNestedInput
     Project?: ProjectUpdateOneWithoutOrderNestedInput
     User?: UserUpdateOneWithoutOrderNestedInput
@@ -39327,6 +39419,8 @@ export namespace Prisma {
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUncheckedUpdateManyWithoutProductInput = {
@@ -39345,6 +39439,8 @@ export namespace Prisma {
     project_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type MerchandiseOutboundUpdateWithoutProductInput = {
@@ -39469,6 +39565,8 @@ export namespace Prisma {
     waybill_number?: string | null
     created_at?: Date | string
     created_by?: number | null
+    closed_at?: Date | string | null
+    canceled_at?: Date | string | null
   }
 
   export type ProjectItemUpdateWithoutProjectInput = {
@@ -39523,6 +39621,8 @@ export namespace Prisma {
     delivery_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Product?: ProductUpdateOneWithoutOrderNestedInput
     Variant?: VariantUpdateOneWithoutOrderNestedInput
     User?: UserUpdateOneWithoutOrderNestedInput
@@ -39544,6 +39644,8 @@ export namespace Prisma {
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUncheckedUpdateManyWithoutProjectInput = {
@@ -39562,6 +39664,8 @@ export namespace Prisma {
     waybill_number?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    canceled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type InboundCreateManyProjectItemInput = {
