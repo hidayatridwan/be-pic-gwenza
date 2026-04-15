@@ -7,10 +7,12 @@ function transformTiktok(item, created_by) {
     const createdDate = standardizeDate(item[29]);
     if (!createdDate || !item[7]) return null;
 
+    const variantName = item[8]?.trim().replace(/,\s+/g, ',');
+
     return [
         item[0],
-        item[7],
-        item[8],
+        item[7]?.trim(),
+        variantName,
         item[9],
         createdDate,
         addDays(createdDate),
@@ -25,8 +27,8 @@ function transformShopee(item, created_by) {
 
     return [
         item[0],
-        item[12],
-        item[14],
+        item[12]?.trim(),
+        item[14]?.trim(),
         item[17],
         createdDate,
         addDays(createdDate),
