@@ -22,8 +22,12 @@ jobs:
           script: |
             cd ${{ secrets.APP_DIR }}
 
+            echo "Checking directory..."
+            pwd
+            ls -la
+            
             echo "Pull latest code"
-            git pull origin main
+            git pull origin main || { echo "Git pull failed, checking status..."; git status; }
 
             echo "Install dependencies"
             npm install
