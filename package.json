@@ -11,8 +11,10 @@
     "start": "node ./src/main.js",
     "worker:upload-order": "node ./src/workers/upload-order/consumer.js",
     "worker:upload-cancel": "node ./src/workers/upload-cancel/consumer.js",
+    "worker:upload-failed": "node ./src/workers/upload-failed/consumer.js",
     "worker:process-order": "node ./src/workers/process-order/consumer.js",
-    "worker:process-cancel": "node ./src/workers/process-cancel/consumer.js"
+    "worker:process-cancel": "node ./src/workers/process-cancel/consumer.js",
+    "worker:process-failed": "node ./src/workers/process-failed/consumer.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.797.0",
