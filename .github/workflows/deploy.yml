@@ -19,18 +19,31 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          command_timeout: 10m
           script: |
+            set -e
+
             cd ${{ secrets.APP_DIR }}
 
             echo "Checking directory..."
             pwd
             ls -la
-            
+
+            echo "Load Node via NVM"
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm use 22.17.0
+
+            echo "Check versions"
+            node -v
+            npm -v
+
             echo "Pull latest code"
-            git pull origin main || { echo "Git pull failed, checking status..."; git status; }
+            git pull origin main
 
             echo "Install dependencies"
-            npm install
+            npm ci
 
             echo "Prisma generate"
             npx prisma generate
