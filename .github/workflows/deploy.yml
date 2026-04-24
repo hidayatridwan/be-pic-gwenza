@@ -24,7 +24,7 @@ jobs:
           script: |
             set -e
 
-            cd ${{ secrets.APP_DIR }}
+            cd /var/www/be-pic-gwenza
 
             echo "Checking directory..."
             pwd
