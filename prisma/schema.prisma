@@ -134,6 +134,7 @@ model ProductVariant {
 enum ImportType {
   ORDER
   CANCEL
+  FAILED
 }
 
 model Import {
@@ -154,6 +155,7 @@ enum OrderStatus {
   OPEN
   CLOSED
   CANCEL
+  FAILED
 }
 
 model Order {
@@ -175,6 +177,7 @@ model Order {
   created_by     Int?        @db.Int
   closed_at      DateTime?
   canceled_at    DateTime?
+  failed_at      DateTime?
 
   Product Product? @relation(fields: [product_id], references: [product_id])
   Variant Variant? @relation(fields: [variant_id], references: [variant_id])

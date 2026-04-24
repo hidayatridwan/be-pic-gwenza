@@ -61,6 +61,26 @@ services:
     restart: unless-stopped
     init: true
 
+  worker-upload-failed:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    command: node ./src/workers/upload-failed/consumer.js
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+    
   worker-process-order:
     build:
       context: .
@@ -87,6 +107,26 @@ services:
       dockerfile: Dockerfile.dev
     working_dir: /app
     command: node ./src/workers/process-cancel/consumer.js
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+
+  worker-process-failed:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    command: node ./src/workers/process-failed/consumer.js
     env_file:
       - .env
     volumes:

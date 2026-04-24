@@ -110,6 +110,12 @@ class QueueSetup {
                 process.env.UPLOAD_CANCEL_CREATED
             );
 
+            // Setup upload failed queue
+            await this.setupQueueWithRetry(
+                process.env.UPLOAD_FAILED_QUEUE,
+                process.env.UPLOAD_FAILED_CREATED
+            );
+
             // Setup process order queue
             await this.setupQueueWithRetry(
                 process.env.PROCESS_ORDER_QUEUE,
@@ -120,6 +126,12 @@ class QueueSetup {
             await this.setupQueueWithRetry(
                 process.env.PROCESS_CANCEL_QUEUE,
                 process.env.PROCESS_CANCEL_REQUESTED
+            );
+
+            // Setup process failed queue
+            await this.setupQueueWithRetry(
+                process.env.PROCESS_FAILED_QUEUE,
+                process.env.PROCESS_FAILED_REQUESTED
             );
 
             console.log('✅ Semua queue berhasil di-setup');

@@ -114,6 +114,19 @@ GROUP BY
     product_id,
     variant_id`;
 
+  // Get faileds data
+  const faileds = await prismaClient.$queryRaw`SELECT
+    product_id,
+    variant_id,
+    SUM(quantity) AS quantity
+  FROM
+    orders
+  WHERE
+    status = 'FAILED'
+  GROUP BY
+    product_id,
+    variant_id`;
+
   // Get returns data
   const returns = await prismaClient.$queryRaw`SELECT
     product_id,
@@ -146,6 +159,7 @@ GROUP BY
   const inboundMap = {};
   const openingStockMap = {};
   const adjustmentMap = {};
+  const failedMap = {};
   const returnMap = {};
   const outboundMap = {};
   const closedOrderMap = {};
@@ -169,6 +183,11 @@ GROUP BY
   adjustments.forEach((item) => {
     const key = `${item.product_id}|${item.variant_id}`;
     adjustmentMap[key] = Number(item.quantity) || 0;
+  });
+
+  faileds.forEach((item) => {
+    const key = `${item.product_id}|${item.variant_id}`;
+    failedMap[key] = Number(item.quantity) || 0;
   });
 
   returns.forEach((item) => {
@@ -217,6 +236,7 @@ GROUP BY
         inbounds: inboundMap[compositeKey] || 0,
         opening_stocks: openingStockMap[compositeKey] || 0,
         adjustments: adjustmentMap[compositeKey] || 0,
+        faileds: failedMap[compositeKey] || 0,
         returns: returnMap[compositeKey] || 0,
         outbounds: outboundMap[compositeKey] || 0,
         closed_orders: closedOrderMap[compositeKey] || 0,
@@ -238,7 +258,7 @@ GROUP BY
   // Prepare final output
   const data = Object.values(reportData).map((item) => {
 
-    const stock_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders)
+    const stock_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.faileds)
 
     const work_in_progress = Math.max(0, item.projects - item.inbounds);
 
@@ -391,6 +411,18 @@ GROUP BY
 	product_id,
 	variant_id`;
 
+  const faileds = await prismaClient.$queryRaw`SELECT
+	product_id,
+	variant_id,
+	sum(quantity) AS quantity
+FROM
+	orders
+WHERE
+	status = 'FAILED'
+GROUP BY
+	product_id,
+	variant_id`;
+
   const returns = await prismaClient.$queryRaw`SELECT
 	product_id,
 	variant_id,
@@ -431,6 +463,7 @@ GROUP BY
   const inboundMap = toMap(inbounds);
   const openingStockMap = toMap(openingStocks);
   const adjustmentMap = toMap(adjustments);
+  const failedMap = toMap(faileds);
   const returnMap = toMap(returns);
   const outboundMap = toMap(outbounds);
 
@@ -445,6 +478,7 @@ GROUP BY
       inbounds: inboundMap[key] || 0,
       opening_stocks: openingStockMap[key] || 0,
       adjustments: adjustmentMap[key] || 0,
+      faileds: failedMap[key] || 0,
       returns: returnMap[key] || 0,
       outbounds: outboundMap[key] || 0,
     };
@@ -452,7 +486,7 @@ GROUP BY
 
   const data = items.map((item) => {
 
-    const stock_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders)
+    const stock_ready = (item.inbounds + item.opening_stocks + item.adjustments + item.returns) - (item.outbounds + item.closed_orders + item.faileds)
 
     const work_in_progress = Math.max(0, item.project_items - item.inbounds);
 

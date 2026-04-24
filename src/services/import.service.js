@@ -31,10 +31,17 @@ const create = async (user, req) => {
         data: importRequest,
         timestamp: new Date().toISOString(),
       });
-    } else if (ImportType.CANCEL) {
+    } else if (importRequest.import_type === ImportType.CANCEL) {
 
       await publisher.publish(process.env.UPLOAD_CANCEL_CREATED, {
         event: process.env.UPLOAD_CANCEL_CREATED,
+        data: importRequest,
+        timestamp: new Date().toISOString(),
+      });
+    } else if (importRequest.import_type === ImportType.FAILED) {
+
+      await publisher.publish(process.env.UPLOAD_FAILED_CREATED, {
+        event: process.env.UPLOAD_FAILED_CREATED,
         data: importRequest,
         timestamp: new Date().toISOString(),
       });
