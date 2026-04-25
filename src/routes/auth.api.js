@@ -63,6 +63,7 @@ router.get(
   projectController.productItems
 );
 router.get("/projects/products", projectController.products);
+router.delete("/project-item/{:projectItemId}", projectController.cancelItem);
 
 router.post("/inbounds", inboundController.create);
 router.delete("/inbounds/{:inboundId}", inboundController.cancel);

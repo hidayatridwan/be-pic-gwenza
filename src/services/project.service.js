@@ -6,6 +6,7 @@ import {
   searchProjectValidation,
   projectItemsValidation,
   productItemsValidation,
+  cancelProjectItemValidation,
 } from "../validations/project.validation.js";
 import { generateBatchId } from "../utils/generate.js";
 import { ProjectStatus } from "../generated/prisma/index.js";
@@ -285,11 +286,97 @@ const products = async () => {
   }));
 };
 
+const cancelItem = async (projectItemId) => {
+  projectItemId = validate(cancelProjectItemValidation, projectItemId);
+
+  await prismaClient.$transaction(async (tx) => {
+    const countProjectItem = await tx.projectItem.count({
+      where: {
+        projectitem_id: projectItemId,
+      },
+    });
+
+    if (countProjectItem === 0) {
+      throw new ResponseError(404, constants.RECORD_NOT_FOUND);
+    }
+
+    const countInbound = await tx.inbound.count({
+      where: {
+        projectitem_id: projectItemId,
+      },
+    });
+
+    if (countInbound > 0) {
+      throw new ResponseError(409, 'Inbound already created');
+    }
+
+    const projectItem = await tx.projectItem.update({
+      where: {
+        projectitem_id: projectItemId,
+      },
+      data: {
+        status: ProjectStatus.CANCEL,
+      },
+      select: {
+        project_id: true,
+      }
+    });
+
+    const allProjectItems = await tx.projectItem.findMany({
+      where: {
+        project_id: projectItem.project_id,
+      },
+      select: {
+        status: true,
+      },
+    });
+
+    const statuses = allProjectItems.map((item) => item.status);
+
+    const hasPartial = statuses.includes(ProjectStatus.PARTIAL);
+    const hasCancel = statuses.includes(ProjectStatus.CANCEL);
+    const hasOpen = statuses.includes(ProjectStatus.OPEN);
+    const hasFulfilled = statuses.includes(ProjectStatus.FULFILLED);
+
+    let projectStatus = ProjectStatus.OPEN;
+
+    // 1. semua sama persis
+    if (statuses.every((s) => s === ProjectStatus.FULFILLED)) {
+      projectStatus = ProjectStatus.FULFILLED;
+    } else if (statuses.every((s) => s === ProjectStatus.OPEN)) {
+      projectStatus = ProjectStatus.OPEN;
+    } else if (statuses.every((s) => s === ProjectStatus.CANCEL)) {
+      projectStatus = ProjectStatus.CANCEL;
+    } else if (statuses.every((s) => s === ProjectStatus.PARTIAL)) {
+      projectStatus = ProjectStatus.PARTIAL;
+      // 2. ada PARTIAL campur apapun
+    } else if (hasPartial) {
+      projectStatus = ProjectStatus.PARTIAL;
+      // 3. ada CANCEL + sisanya FULFILLED
+    } else if (hasCancel && !hasOpen && hasFulfilled) {
+      projectStatus = ProjectStatus.FULFILLED;
+      // 4. ada CANCEL + sisanya OPEN
+    } else if (hasCancel && !hasFulfilled && hasOpen) {
+      projectStatus = ProjectStatus.OPEN;
+    }
+
+    return await tx.project.update({
+      where: {
+        project_id: projectItem.project_id,
+      },
+      data: {
+        status: projectStatus,
+      },
+    });
+  });
+};
+
 export default {
   create,
   cancel,
   search,
   projectItems,
   productItems,
-  products
+  products,
+  cancelItem,
 };

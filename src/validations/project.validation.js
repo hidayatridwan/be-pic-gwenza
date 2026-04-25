@@ -32,10 +32,13 @@ const projectItemsValidation = Joi.number().positive().required();
 
 const productItemsValidation = Joi.number().positive().required();
 
+const cancelProjectItemValidation = Joi.number().positive().required();
+
 export {
   createProjectValidation,
   cancelProjectValidation,
   searchProjectValidation,
   projectItemsValidation,
-  productItemsValidation
+  productItemsValidation,
+  cancelProjectItemValidation,
 };

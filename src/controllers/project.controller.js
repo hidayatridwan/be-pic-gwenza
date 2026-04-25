@@ -59,11 +59,22 @@ const products = async (req, res, next) => {
   }
 };
 
+const cancelItem = async (req, res, next) => {
+  try {
+    const projectItemId = Number(req.params.projectItemId);
+    await projectService.cancelItem(projectItemId);
+    res.status(204).json({});
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
   cancel,
   search,
   projectItems,
   productItems,
-  products
+  products,
+  cancelItem
 };
