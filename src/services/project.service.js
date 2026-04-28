@@ -303,6 +303,9 @@ const cancelItem = async (projectItemId) => {
     const countInbound = await tx.inbound.count({
       where: {
         projectitem_id: projectItemId,
+        status: {
+          not: ProjectStatus.CANCEL,
+        }
       },
     });
 
