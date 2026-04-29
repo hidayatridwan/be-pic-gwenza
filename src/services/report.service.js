@@ -560,7 +560,7 @@ FROM
 	JOIN users ON users.user_id = projectitems.pic_id
 	JOIN products ON products.product_id = projectitems.product_id
 	JOIN variants ON variants.variant_id = projectitems.variant_id
-	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id AND inbounds.status != 'CANCEL' AND inbounds.source_type = 'PROJECT'
 WHERE
   (
     products.product_name LIKE ${search}
@@ -586,7 +586,7 @@ FROM
 	JOIN users ON users.user_id = projectitems.pic_id
 	JOIN products ON products.product_id = projectitems.product_id
 	JOIN variants ON variants.variant_id = projectitems.variant_id
-	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id AND inbounds.status != 'CANCEL' AND inbounds.source_type = 'PROJECT'
 WHERE
   (
     products.product_name LIKE ${search}
@@ -638,7 +638,7 @@ FROM
 	JOIN tailors ON tailors.tailor_id = projectitems.tailor_id
 	JOIN products ON products.product_id = projectitems.product_id
 	JOIN variants ON variants.variant_id = projectitems.variant_id
-	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id AND inbounds.status != 'CANCEL' AND inbounds.source_type = 'PROJECT'
 WHERE
   (
     products.product_name LIKE ${search}
@@ -664,7 +664,7 @@ FROM
 	JOIN tailors ON tailors.tailor_id = projectitems.tailor_id
 	JOIN products ON products.product_id = projectitems.product_id
 	JOIN variants ON variants.variant_id = projectitems.variant_id
-	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id
+	LEFT JOIN inbounds ON inbounds.projectitem_id = projectitems.projectitem_id AND inbounds.status != 'CANCEL' AND inbounds.source_type = 'PROJECT'
 WHERE
   (
     products.product_name LIKE ${search}
