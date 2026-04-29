@@ -99,8 +99,7 @@ export async function handleProcessOrder(payload) {
                 Prisma.sql`
                     UPDATE orders
                     SET
-                    status = 'OPEN',
-                    closed_at = NULL
+                    status = 'OPEN'
                     WHERE order_number IN (${Prisma.join(orderNumbers)})
                 `
             );
