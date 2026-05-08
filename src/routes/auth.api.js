@@ -39,7 +39,11 @@ router.get("/products/{:productId}", productController.get);
 router.put("/products/{:productId}", productController.update);
 router.get("/products/{:productId}/variants", productController.getVariants);
 
+router.post("/variants", variantController.create);
 router.get("/variants", variantController.search);
+router.get("/variants/{:variantId}", variantController.get);
+router.put("/variants/{:variantId}", variantController.update);
+router.delete("/variants/{:variantId}", variantController.remove);
 
 router.post(
   "/imports",
