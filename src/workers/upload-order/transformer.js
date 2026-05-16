@@ -1,5 +1,9 @@
 import constants from "../../utils/constants.js";
-import { standardizeDate, addDays } from "../../utils/format.js";
+import {
+    standardizeDate,
+    addDays,
+    normalizeTiktokVariantToShopeeStyle,
+} from "../../utils/format.js";
 
 function transformTiktok(item, created_by) {
     if (item[4] !== "Pre-order") return null;
@@ -7,7 +11,7 @@ function transformTiktok(item, created_by) {
     const createdDate = standardizeDate(item[29]);
     if (!createdDate || !item[7]) return null;
 
-    const variantName = item[8]?.trim().replace(/,\s+/g, ',');
+    const variantName = normalizeTiktokVariantToShopeeStyle(item[8]);
 
     return [
         item[0],

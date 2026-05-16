@@ -68,4 +68,16 @@ const isValidDate = (dateString) => {
 const truncate = (str, max = 512) =>
   str.length > max ? str.slice(0, max) + " ...[TRUNCATED]" : str;
 
-export { standardizeDate, addDays, truncate };
+const normalizeTiktokVariantToShopeeStyle = (input) => {
+  if (input == null) return input;
+
+  let value = String(input).trim();
+  if (!value) return value;
+
+  return value
+    .replace(/\s+-\s+/g, ",")
+    .replace(/\s*,\s*/g, ",")
+    .replace(/\s+/g, " ");
+};
+
+export { standardizeDate, addDays, truncate, normalizeTiktokVariantToShopeeStyle };
