@@ -26,8 +26,8 @@ function transformTiktok(item, created_by) {
 }
 
 function transformShopee(item, created_by) {
-    const createdDate = standardizeDate(item[8]);
-    if (!createdDate || !item[12]) return null;
+    const createdDate = standardizeDate(item[9]);
+    if (!createdDate || !item[13]) return null;
 
     return [
         item[0],
