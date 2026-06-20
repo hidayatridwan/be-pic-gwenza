@@ -31,9 +31,9 @@ function transformShopee(item, created_by) {
 
     return [
         item[0],
-        item[12]?.trim(),
-        item[14]?.trim(),
-        item[17],
+        item[13]?.trim(),
+        item[15]?.trim(),
+        item[18],
         createdDate,
         addDays(createdDate),
         constants.SHOPEE,
