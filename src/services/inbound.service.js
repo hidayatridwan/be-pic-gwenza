@@ -22,13 +22,7 @@ const create = async (user, req) => {
   });
 
   if (projectItems.length === 0) {
-    throw new Error("No project items found.");
-  }
-
-  // Validation: all project items must belong to the same project
-  const projectIdsSet = new Set(projectItems.map((item) => item.project_id));
-  if (projectIdsSet.size > 1) {
-    throw new Error("Request must not contain items from multiple project IDs.");
+    throw new ResponseError(404, "No project items found.");
   }
 
   const inboundSummaries = await prismaClient.inbound.groupBy({
@@ -78,41 +72,47 @@ const create = async (user, req) => {
     });
   }
 
-  // Update status of each project item
-  await Promise.all(
-    updatedProjectItemStatuses.map((item) =>
-      prismaClient.projectItem.update({
-        where: { projectitem_id: item.projectitem_id },
-        data: { status: item.status },
+  const affectedProjectIds = [...new Set(projectItems.map((item) => item.project_id))];
+
+  return await prismaClient.$transaction(async (tx) => {
+    // Update status of each project item
+    await Promise.all(
+      updatedProjectItemStatuses.map((item) =>
+        tx.projectItem.update({
+          where: { projectitem_id: item.projectitem_id },
+          data: { status: item.status },
+        })
+      )
+    );
+
+    // Re-evaluate status for each affected project (request may span multiple projects)
+    await Promise.all(
+      affectedProjectIds.map(async (projectId) => {
+        const allProjectItems = await tx.projectItem.findMany({
+          where: { project_id: projectId },
+          select: { status: true },
+        });
+
+        const statuses = allProjectItems.map((item) => item.status);
+
+        if (statuses.every((s) => s === ProjectStatus.FULFILLED)) {
+          await tx.project.update({
+            where: { project_id: projectId },
+            data: { status: ProjectStatus.FULFILLED },
+          });
+        } else if (statuses.includes(ProjectStatus.PARTIAL)) {
+          await tx.project.update({
+            where: { project_id: projectId },
+            data: { status: ProjectStatus.PARTIAL },
+          });
+        }
       })
-    )
-  );
+    );
 
-  // Check if all project items are FULFILLED for this project
-  const projectId = projectItems[0].project_id;
-
-  const allProjectItems = await prismaClient.projectItem.findMany({
-    where: { project_id: projectId },
-    select: { status: true },
-  });
-
-  const statuses = allProjectItems.map((item) => item.status);
-
-  if (statuses.every((s) => s === ProjectStatus.FULFILLED)) {
-    await prismaClient.project.update({
-      where: { project_id: projectId },
-      data: { status: ProjectStatus.FULFILLED },
+    // Insert new inbound data
+    return await tx.inbound.createMany({
+      data: inboundDataToCreate,
     });
-  } else if (statuses.includes(ProjectStatus.PARTIAL)) {
-    await prismaClient.project.update({
-      where: { project_id: projectId },
-      data: { status: ProjectStatus.PARTIAL },
-    });
-  }
-
-  // Insert new inbound data
-  return await prismaClient.inbound.createMany({
-    data: inboundDataToCreate,
   });
 };
 
