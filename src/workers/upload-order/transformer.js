@@ -26,14 +26,14 @@ function transformTiktok(item, created_by) {
 }
 
 function transformShopee(item, created_by) {
-    const createdDate = standardizeDate(item[9]);
-    if (!createdDate || !item[13]) return null;
+    const createdDate = standardizeDate(item[10]);
+    if (!createdDate || !item[14]) return null;
 
     return [
         item[0],
-        item[13]?.trim(),
-        item[15]?.trim(),
-        item[18],
+        item[14]?.trim(),
+        item[16]?.trim(),
+        item[19],
         createdDate,
         addDays(createdDate),
         constants.SHOPEE,
