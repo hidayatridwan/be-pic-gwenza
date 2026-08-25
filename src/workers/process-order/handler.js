@@ -93,16 +93,25 @@ export async function handleProcessOrder(payload) {
                 skipDuplicates: true
             });
 
-            const orderNumbers = ordersData.map(o => o.order_number);
-
-            await tx.$executeRaw(
-                Prisma.sql`
-                    UPDATE orders
-                    SET
-                    status = 'OPEN'
-                    WHERE order_number IN (${Prisma.join(orderNumbers)})
-                `
-            );
+            if (ordersData.length > 0) {
+                // Dibuka ulang berdasarkan unique key order (channel +
+                // order_number + product_name + variant_name), bukan
+                // order_number saja, supaya order channel lain dengan nomor
+                // yang sama tidak ikut terbuka.
+                await tx.$executeRaw(
+                    Prisma.sql`
+                        UPDATE orders
+                        SET
+                        status = 'OPEN',
+                        closed_at = NULL
+                        WHERE (channel, order_number, product_name, variant_name) IN (${Prisma.join(
+                        ordersData.map(o =>
+                            Prisma.sql`(${o.channel}, ${o.order_number}, ${o.product_name}, ${o.variant_name})`
+                        )
+                    )})
+                    `
+                );
+            }
 
             const productVariantPairs = [
                 ...new Set(

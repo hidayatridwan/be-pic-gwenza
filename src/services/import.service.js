@@ -5,55 +5,40 @@ import {
   importValidation,
   searchImportValidation,
 } from "../validations/import.validation.js";
-import { ImportType, OrderStatus } from "../generated/prisma/index.js";
+import { ImportType } from "../generated/prisma/index.js";
 import publisher from "../utils/rabbitmq/publisher.js";
+
+// Routing key per import type, dibaca dari env.
+const IMPORT_EVENT_KEYS = {
+  [ImportType.ORDER]: "UPLOAD_ORDER_CREATED",
+  [ImportType.CANCEL]: "UPLOAD_CANCEL_CREATED",
+  [ImportType.FAILED]: "UPLOAD_FAILED_CREATED",
+};
 
 const create = async (user, req) => {
   const importRequest = validate(importValidation, req);
   importRequest.created_by = user.user_id;
 
-  try {
-    if (importRequest.import_type === ImportType.ORDER) {
+  const eventKey = IMPORT_EVENT_KEYS[importRequest.import_type];
 
-      await prismaClient.order.updateMany({
-        data: {
-          status: OrderStatus.CLOSED,
-          closed_at: new Date(),
-        },
-        where: {
-          channel: importRequest.channel,
-          status: OrderStatus.OPEN
-        }
-      });
-
-      await publisher.publish(process.env.UPLOAD_ORDER_CREATED, {
-        event: process.env.UPLOAD_ORDER_CREATED,
-        data: importRequest,
-        timestamp: new Date().toISOString(),
-      });
-    } else if (importRequest.import_type === ImportType.CANCEL) {
-
-      await publisher.publish(process.env.UPLOAD_CANCEL_CREATED, {
-        event: process.env.UPLOAD_CANCEL_CREATED,
-        data: importRequest,
-        timestamp: new Date().toISOString(),
-      });
-    } else if (importRequest.import_type === ImportType.FAILED) {
-
-      await publisher.publish(process.env.UPLOAD_FAILED_CREATED, {
-        event: process.env.UPLOAD_FAILED_CREATED,
-        data: importRequest,
-        timestamp: new Date().toISOString(),
-      });
-    } else {
-      throw new ResponseError(400, "Invalid import type");
-    }
-  } catch (err) {
-    // Handle error appropriately
-    throw new ResponseError(500, `Failed to publish message: ${err.message}`);
+  if (!eventKey) {
+    throw new ResponseError(400, "Invalid import type");
   }
 
-  return await prismaClient.import.create({
+  const event = process.env[eventKey];
+
+  if (!event) {
+    throw new ResponseError(500, `Missing env variable: ${eventKey}`);
+  }
+
+  // Record import dibuat sebelum publish. Worker bisa mengonsumsi message
+  // dalam hitungan milidetik, dan handler-nya butuh baris ini untuk cek
+  // idempotensi sekaligus menandai is_processed.
+  //
+  // Untuk import ORDER, order lama ditutup oleh worker upload-order setelah
+  // file terbukti menghasilkan baris valid — bukan di sini — supaya file yang
+  // gagal dibaca tidak menghanguskan data lama.
+  const imported = await prismaClient.import.create({
     data: {
       channel: importRequest.channel,
       import_type: importRequest.import_type,
@@ -61,12 +46,40 @@ const create = async (user, req) => {
       created_by: user.user_id,
     },
     select: {
+      import_id: true,
       channel: true,
       import_type: true,
       file_name: true,
       created_at: true,
     },
   });
+
+  try {
+    await publisher.publish(event, {
+      event,
+      data: importRequest,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    // Publish gagal: hapus record supaya file yang sama bisa diupload ulang
+    // (file_name unique).
+    await prismaClient.import
+      .delete({ where: { import_id: imported.import_id } })
+      .catch((cleanupErr) =>
+        console.error(
+          `⚠️ Gagal menghapus import ${imported.import_id}: ${cleanupErr.message}`
+        )
+      );
+
+    throw new ResponseError(500, `Failed to publish message: ${err.message}`);
+  }
+
+  return {
+    channel: imported.channel,
+    import_type: imported.import_type,
+    file_name: imported.file_name,
+    created_at: imported.created_at,
+  };
 };
 
 const search = async (req) => {
