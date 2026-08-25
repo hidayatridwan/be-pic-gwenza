@@ -26,7 +26,11 @@ export async function loadSheetFromS3(bucket, key, channel) {
         { header: 1 }
     );
 
-    return channel === constants.TIKTOK
-        ? sheetData.slice(2)
-        : sheetData.slice(1);
+    const headerRow = sheetData[0] ?? [];
+    const rows =
+        channel === constants.TIKTOK
+            ? sheetData.slice(2)
+            : sheetData.slice(1);
+
+    return { headerRow, rows };
 }

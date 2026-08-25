@@ -19,12 +19,17 @@ export async function handleUploadOrder(payload) {
     }
 
     try {
-        const sheetData = await loadSheetFromS3(bucket, key, channel);
+        const { headerRow, rows } = await loadSheetFromS3(
+            bucket,
+            key,
+            channel
+        );
 
         const transformedRows = transformRows(
-            sheetData,
+            rows,
             channel,
-            created_by
+            created_by,
+            headerRow
         );
 
         const totalPublished = await publishInBatches(
