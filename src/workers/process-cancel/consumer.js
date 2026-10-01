@@ -3,7 +3,7 @@ import { handleCancelOrder } from "./handler.js";
 
 const {
     PROCESS_CANCEL_QUEUE,
-    PROCESS_CANCEL_CREATED,
+    PROCESS_CANCEL_REQUESTED,
 } = process.env;
 
 async function startConsumer() {
@@ -12,7 +12,7 @@ async function startConsumer() {
 
         await consumer.consume(
             PROCESS_CANCEL_QUEUE,
-            PROCESS_CANCEL_CREATED,
+            PROCESS_CANCEL_REQUESTED,
             handleCancelOrder
         );
 

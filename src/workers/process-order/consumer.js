@@ -3,7 +3,7 @@ import { handleProcessOrder } from "./handler.js";
 
 const {
     PROCESS_ORDER_QUEUE,
-    PROCESS_ORDER_CREATED,
+    PROCESS_ORDER_REQUESTED,
 } = process.env;
 
 async function startConsumer() {
@@ -12,7 +12,7 @@ async function startConsumer() {
 
         await consumer.consume(
             PROCESS_ORDER_QUEUE,
-            PROCESS_ORDER_CREATED,
+            PROCESS_ORDER_REQUESTED,
             handleProcessOrder
         );
 

@@ -1,5 +1,6 @@
 import { prismaClient } from "../../apps/database.js";
 import { OrderStatus } from "../../generated/prisma/index.js";
+import { withDeadlockRetry } from "../../utils/retry.js";
 
 export async function handleCancelOrder(payload) {
     try {
@@ -7,7 +8,7 @@ export async function handleCancelOrder(payload) {
 
         console.log(`🚀 [CANCEL-ORDER] Mulai proses cancel | total: ${totalRecords}`);
 
-        const result = await prismaClient.order.updateMany({
+        const result = await withDeadlockRetry("CANCEL-ORDER", () => prismaClient.order.updateMany({
             where: {
                 order_number: {
                     in: payload.data.map((order) => order[0])
@@ -17,7 +18,7 @@ export async function handleCancelOrder(payload) {
                 status: OrderStatus.CANCEL,
                 canceled_at: new Date(),
             },
-        });
+        }));
 
         console.log(
             `✅ [CANCEL-ORDER] Selesai | updated: ${result.count} | total batch: ${totalRecords}`

@@ -1,5 +1,6 @@
 import { prismaClient } from "../../apps/database.js";
 import { OrderStatus } from "../../generated/prisma/index.js";
+import { withDeadlockRetry } from "../../utils/retry.js";
 
 export async function handleFailedOrder(payload) {
     try {
@@ -7,7 +8,7 @@ export async function handleFailedOrder(payload) {
 
         console.log(`🚀 [FAILED-ORDER] Mulai proses failed | total: ${totalRecords}`);
 
-        const result = await prismaClient.order.updateMany({
+        const result = await withDeadlockRetry("FAILED-ORDER", () => prismaClient.order.updateMany({
             where: {
                 order_number: {
                     in: payload.data.map((order) => order[0])
@@ -17,7 +18,7 @@ export async function handleFailedOrder(payload) {
                 status: OrderStatus.FAILED,
                 failed_at: new Date(),
             },
-        });
+        }));
 
         console.log(
             `✅ [FAILED-ORDER] Selesai | updated: ${result.count} | total batch: ${totalRecords}`

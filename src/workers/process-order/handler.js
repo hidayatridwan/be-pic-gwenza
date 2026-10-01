@@ -1,5 +1,10 @@
 import { prismaClient } from "../../apps/database.js";
 import { Prisma } from "../../generated/prisma/index.js";
+import { withDeadlockRetry } from "../../utils/retry.js";
+
+// Batch 500 baris bisa lebih dari 5 detik (default Prisma) saat DB sibuk, dan
+// transaksi yang kedaluwarsa membuat seluruh batch gagal.
+const TRANSACTION_OPTIONS = { maxWait: 10000, timeout: 30000 };
 
 export async function handleProcessOrder(payload) {
     try {
@@ -17,7 +22,7 @@ export async function handleProcessOrder(payload) {
             ordersRaw.map(o => o[2]?.trim() ? o[2] : "Default")
         )].sort((a, b) => b.localeCompare(a));
 
-        await prismaClient.$transaction(async (tx) => {
+        await withDeadlockRetry("PROCESS-ORDER", () => prismaClient.$transaction(async (tx) => {
 
             // =============================
             // 2️⃣ Upsert products
@@ -136,7 +141,7 @@ export async function handleProcessOrder(payload) {
             }
 
 
-        });
+        }, TRANSACTION_OPTIONS));
 
         console.log(`✅ [PROCESS-ORDER] Finished batch | total: ${total}`);
 

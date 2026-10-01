@@ -3,7 +3,7 @@ import { handleFailedOrder } from "./handler.js";
 
 const {
     PROCESS_FAILED_QUEUE,
-    PROCESS_FAILED_CREATED,
+    PROCESS_FAILED_REQUESTED,
 } = process.env;
 
 async function startConsumer() {
@@ -12,7 +12,7 @@ async function startConsumer() {
 
         await consumer.consume(
             PROCESS_FAILED_QUEUE,
-            PROCESS_FAILED_CREATED,
+            PROCESS_FAILED_REQUESTED,
             handleFailedOrder
         );
 

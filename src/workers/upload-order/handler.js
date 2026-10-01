@@ -3,6 +3,7 @@ import { transformRows } from "./transformer.js";
 import { publishInBatches } from "./batch.publisher.js";
 import { prismaClient } from "../../apps/database.js";
 import { OrderStatus } from "../../generated/prisma/index.js";
+import { withDeadlockRetry } from "../../utils/retry.js";
 
 export async function handleUploadOrder(payload) {
     const { bucket, key, channel, created_by } = payload.data;
@@ -42,7 +43,7 @@ export async function handleUploadOrder(payload) {
 
         // Order lama baru ditutup setelah file terbukti menghasilkan baris
         // valid, supaya file yang gagal dibaca tidak menghanguskan data lama.
-        const { count: closed } = await prismaClient.order.updateMany({
+        const { count: closed } = await withDeadlockRetry("UPLOAD-ORDER", () => prismaClient.order.updateMany({
             data: {
                 status: OrderStatus.CLOSED,
                 closed_at: new Date(),
@@ -51,7 +52,7 @@ export async function handleUploadOrder(payload) {
                 channel,
                 status: OrderStatus.OPEN,
             },
-        });
+        }));
 
         console.log(`🔒 Order ${channel} lama ditutup: ${closed}`);
 
