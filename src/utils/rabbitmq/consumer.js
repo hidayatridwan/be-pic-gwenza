@@ -8,6 +8,9 @@ class RabbitMQConsumer {
     constructor() {
         this.exchange = process.env.RABBITMQ_EXCHANGE;
         this.consumers = new Map(); // Track active consumers
+        this.subscriptions = new Map(); // Didaftarkan ulang setelah reconnect
+
+        rabbitmqConnection.onReconnect((channel) => this.resubscribeAll(channel));
     }
 
     /**
@@ -119,8 +122,14 @@ class RabbitMQConsumer {
             }
         } catch (err) {
             console.error('❌ Error saat handle failure:', err);
-            // NACK with requeue false to avoid infinite loop
-            channel.nack(msg, false, false);
+            try {
+                // NACK with requeue false to avoid infinite loop
+                channel.nack(msg, false, false);
+            } catch (nackErr) {
+                // Channel sudah tertutup (koneksi putus): message belum di-ack,
+                // jadi RabbitMQ mengirimnya ulang ke consumer baru setelah reconnect.
+                console.error('❌ Gagal nack message:', nackErr.message);
+            }
         }
     }
 
@@ -132,9 +141,34 @@ class RabbitMQConsumer {
      * @param {object} options - Consumer options
      */
     async consume(queueName, routingKey, handler, options = {}) {
-        try {
-            const channel = await rabbitmqConnection.getChannel();
+        // Disimpan supaya consumer bisa didaftarkan ulang setelah reconnect
+        this.subscriptions.set(queueName, { routingKey, handler, options });
 
+        const channel = await rabbitmqConnection.getChannel();
+        return this.subscribe(channel, queueName, routingKey, handler, options);
+    }
+
+    /**
+     * Daftarkan ulang semua consumer di channel baru setelah reconnect
+     * @param {object} channel - Channel baru
+     */
+    async resubscribeAll(channel) {
+        for (const [queueName, { routingKey, handler, options }] of this.subscriptions) {
+            console.log(`♻️  Mendaftarkan ulang consumer ${queueName}`);
+            await this.subscribe(channel, queueName, routingKey, handler, options);
+        }
+    }
+
+    /**
+     * Pasang consumer pada channel tertentu
+     * @param {object} channel - RabbitMQ channel
+     * @param {string} queueName - Queue name
+     * @param {string} routingKey - Routing key for retries
+     * @param {Function} handler - Function to process messages
+     * @param {object} options - Consumer options
+     */
+    async subscribe(channel, queueName, routingKey, handler, options = {}) {
+        try {
             // Set prefetch for load balancing
             await channel.prefetch(options.prefetch || 1);
 
@@ -188,6 +222,7 @@ class RabbitMQConsumer {
      */
     async stopConsumer(queueName) {
         try {
+            this.subscriptions.delete(queueName);
             const consumer = this.consumers.get(queueName);
             if (consumer) {
                 const channel = await rabbitmqConnection.getChannel();
